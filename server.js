@@ -287,6 +287,23 @@ function loadServerUsers(isInitialBoot = false) {
     }
   }
 
+  // Auto-generate passwordHash strictly for admin user if missing
+  let usersUpdated = false;
+  if (Array.isArray(appConfig.Users)) {
+    for (const u of appConfig.Users) {
+      if (String(u.username).toLowerCase() === 'admin' && !u.passwordHash) {
+        const { hash } = hashPassword('admin');
+        u.passwordHash = hash;
+        usersUpdated = true;
+        console.log('[Server Users] Generated default hashed password "admin" for admin user.');
+      }
+    }
+  }
+
+  if (usersUpdated) {
+    saveUsers();
+  }
+
   // Initialize default admin user if no users exist anywhere
   if (!appConfig.Users || appConfig.Users.length === 0) {
     const { hash } = hashPassword('admin');
@@ -959,27 +976,55 @@ function isPlaylistMatch(p, nameOrId) {
   );
 }
 
+function getUserRoleAndAllowedPlaylists(sessionUser) {
+  if (!sessionUser) return { role: null, allowedList: null };
+
+  const currentDbUser = (appConfig.Users || []).find(
+    (u) => u.username.toLowerCase() === String(sessionUser.username).toLowerCase()
+  );
+
+  const effectiveRole = currentDbUser ? (currentDbUser.role || sessionUser.role) : sessionUser.role;
+
+  if (String(effectiveRole).toLowerCase() === 'admin') {
+    return { role: 'admin', allowedList: ['all'] };
+  }
+
+  let allowedList = null;
+  if (currentDbUser) {
+    if (Array.isArray(currentDbUser.AllowedPlaylist)) allowedList = currentDbUser.AllowedPlaylist;
+    else if (Array.isArray(currentDbUser.allowedPlaylists)) allowedList = currentDbUser.allowedPlaylists;
+    else if (Array.isArray(currentDbUser.AllowedPlaylists)) allowedList = currentDbUser.AllowedPlaylists;
+  }
+
+  if (!allowedList) {
+    const rolesList = appConfig.Roles || [];
+    const roleDef = rolesList.find(
+      (r) => String(r.role || r.name).toLowerCase() === String(effectiveRole).toLowerCase()
+    );
+    if (roleDef) {
+      if (Array.isArray(roleDef.AllowedPlaylist)) allowedList = roleDef.AllowedPlaylist;
+      else if (Array.isArray(roleDef.allowedPlaylists)) allowedList = roleDef.allowedPlaylists;
+      else if (Array.isArray(roleDef.AllowedPlaylists)) allowedList = roleDef.AllowedPlaylists;
+    }
+  }
+
+  return { role: effectiveRole, allowedList };
+}
+
 function getAllowedPlaylistsForReq(playlists, req = null) {
   const sessionUser = req ? getSessionUser(req) : null;
 
   if (sessionUser) {
-    if (sessionUser.role === 'admin') {
+    const { role, allowedList } = getUserRoleAndAllowedPlaylists(sessionUser);
+    if (role === 'admin' || (allowedList && allowedList.some((item) => String(item).toLowerCase() === 'all'))) {
       return playlists;
     }
-    const rolesList = appConfig.Roles || [];
-    const roleDef = rolesList.find(
-      (r) => String(r.role || r.name).toLowerCase() === String(sessionUser.role).toLowerCase()
-    );
-    if (!roleDef || !Array.isArray(roleDef.AllowedPlaylist)) {
-      return [];
+    if (Array.isArray(allowedList)) {
+      return playlists.filter((p) =>
+        allowedList.some((nameOrId) => isPlaylistMatch(p, nameOrId))
+      );
     }
-    const allowedList = roleDef.AllowedPlaylist;
-    if (allowedList.some((item) => String(item).toLowerCase() === 'all')) {
-      return playlists;
-    }
-    return playlists.filter((p) =>
-      allowedList.some((nameOrId) => isPlaylistMatch(p, nameOrId))
-    );
+    return [];
   }
 
   const lockedList = appConfig.LockedPlaylists;
@@ -996,17 +1041,9 @@ function isAllowedPath(fileRelPath, scannedPlaylists, req = null) {
   const sessionUser = req ? getSessionUser(req) : null;
 
   if (sessionUser) {
-    if (sessionUser.role === 'admin') {
+    const { role, allowedList } = getUserRoleAndAllowedPlaylists(sessionUser);
+    if (role === 'admin' || (allowedList && allowedList.some((item) => String(item).toLowerCase() === 'all'))) {
       return true;
-    }
-    const rolesList = appConfig.Roles || [];
-    const roleDef = rolesList.find(
-      (r) => String(r.role || r.name).toLowerCase() === String(sessionUser.role).toLowerCase()
-    );
-    if (roleDef && Array.isArray(roleDef.AllowedPlaylist)) {
-      if (roleDef.AllowedPlaylist.some((item) => String(item).toLowerCase() === 'all')) {
-        return true;
-      }
     }
     const allowedPlaylists = getAllowedPlaylistsForReq(scannedPlaylists, req);
     if (allowedPlaylists.length === 0) return false;
@@ -1024,7 +1061,7 @@ function isAllowedPath(fileRelPath, scannedPlaylists, req = null) {
     lockedList.some((nameOrId) => isPlaylistMatch(p, nameOrId))
   );
 
-  if (targetPlaylists.length === 0) return true;
+  if (targetPlaylists.length === 0) return false;
 
   return targetPlaylists.some((pl) =>
     pl.tracks && pl.tracks.some((p) => fileRelPath === p || fileRelPath.endsWith(p) || p.endsWith(fileRelPath))
@@ -1035,17 +1072,9 @@ function filterAllowedTracks(tracks, playlists, req = null) {
   const sessionUser = req ? getSessionUser(req) : null;
 
   if (sessionUser) {
-    if (sessionUser.role === 'admin') {
+    const { role, allowedList } = getUserRoleAndAllowedPlaylists(sessionUser);
+    if (role === 'admin' || (allowedList && allowedList.some((item) => String(item).toLowerCase() === 'all'))) {
       return tracks;
-    }
-    const rolesList = appConfig.Roles || [];
-    const roleDef = rolesList.find(
-      (r) => String(r.role || r.name).toLowerCase() === String(sessionUser.role).toLowerCase()
-    );
-    if (roleDef && Array.isArray(roleDef.AllowedPlaylist)) {
-      if (roleDef.AllowedPlaylist.some((item) => String(item).toLowerCase() === 'all')) {
-        return tracks;
-      }
     }
     const allowedPlaylists = getAllowedPlaylistsForReq(playlists, req);
     if (allowedPlaylists.length === 0) return [];
@@ -1065,7 +1094,7 @@ function filterAllowedTracks(tracks, playlists, req = null) {
     lockedList.some((nameOrId) => isPlaylistMatch(p, nameOrId))
   );
 
-  if (targetPlaylists.length === 0) return tracks;
+  if (targetPlaylists.length === 0) return [];
 
   return tracks.filter((t) =>
     targetPlaylists.some((pl) =>
@@ -1099,13 +1128,17 @@ app.post('/api/auth/login', (req, res) => {
     return res.status(429).json({ error: rateLimitCheck.message });
   }
 
-  const user = appConfig.Users.find(
-    (u) => u.username.toLowerCase() === String(username).toLowerCase()
-  );
+  const user = appConfig.Users.find((u) => u.username.toLowerCase() === String(username).toLowerCase());
 
   if (!user) {
     recordFailedLogin(clientIp, username);
     return res.status(401).json({ error: 'Invalid username or password' });
+  }
+
+  if (String(user.username).toLowerCase() === 'admin' && !user.passwordHash) {
+    const { hash } = hashPassword('admin');
+    user.passwordHash = hash;
+    saveUsers();
   }
 
   const isFirstTime = !user.passwordHash || user.mustResetPassword === true;
@@ -1115,11 +1148,11 @@ app.post('/api/auth/login', (req, res) => {
     return res.status(401).json({ error: 'Invalid username or password' });
   }
 
-  // Clear failed login counter on successful login
   clearFailedLogin(clientIp, username);
-
   const session = createSession(user);
+
   res.json({
+    success: true,
     token: session.token,
     mustResetPassword: isFirstTime,
     user: {
@@ -1140,10 +1173,7 @@ app.post('/api/auth/set-password', (req, res) => {
     return res.status(400).json({ error: 'New password is required' });
   }
 
-  const user = appConfig.Users.find(
-    (u) => u.username.toLowerCase() === session.username.toLowerCase()
-  );
-
+  const user = appConfig.Users.find((u) => u.username.toLowerCase() === session.username.toLowerCase());
   if (!user) {
     return res.status(404).json({ error: 'User not found' });
   }
@@ -1287,8 +1317,6 @@ app.post('/api/playlist/save', async (req, res) => {
 app.get('/api/config', (req, res) => {
   const session = getSessionUser(req);
   res.json({
-    MusicLocation: appConfig.MusicLocation,
-    LockedPlaylists: appConfig.LockedPlaylists,
     isAuthenticated: Boolean(session),
   });
 });
@@ -1302,8 +1330,6 @@ app.get('/api/scan', async (req, res) => {
     const lightTracks = allowedTracks.map(formatLightTrack);
 
     res.json({
-      folder: appConfig.mediaFolder,
-      MusicLocation: appConfig.MusicLocation,
       totalFiles: lightTracks.length,
       files: lightTracks,
       playlists: allowedPlaylists,
