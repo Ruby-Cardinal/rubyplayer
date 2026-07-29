@@ -21,7 +21,7 @@ export default function AudioVisualizer({ audioRef, isPlaying, mode = 'waveform'
     return () => {
       audio.removeEventListener('play', setupCtx);
     };
-  }, [audioRef]);
+  }, [audioRef?.current]);
 
   // Dynamic Resize Observer for live physical scaling with vinyl container
   useEffect(() => {

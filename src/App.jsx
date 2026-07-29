@@ -290,6 +290,7 @@ export default function App() {
       audioRef.current = prefetched;
       prefetchAudioRef.current = null;
       prefetchedTrackIdRef.current = null;
+      setWebAudioVolume(volume, isMuted, prefetched);
 
       if (isPlaying) {
         prefetched.play().catch((err) => console.warn('Prefetch autoplay notice:', err));
@@ -300,6 +301,7 @@ export default function App() {
       if (audioRef.current.src !== window.location.origin + streamUrl && audioRef.current.src !== streamUrl) {
         audioRef.current.src = streamUrl;
       }
+      setWebAudioVolume(volume, isMuted, audioRef.current);
 
       if (isPlaying) {
         audioRef.current.play().catch((err) => console.warn('Autoplay notice:', err));
@@ -590,13 +592,13 @@ export default function App() {
       nextMute = false;
       setIsMuted(false);
     }
-    setWebAudioVolume(newVol, nextMute);
+    setWebAudioVolume(newVol, nextMute, audioRef.current);
   };
 
   const handleToggleMute = () => {
     const nextMuted = !isMuted;
     setIsMuted(nextMuted);
-    setWebAudioVolume(volume, nextMuted);
+    setWebAudioVolume(volume, nextMuted, audioRef.current);
   };
 
   const handleTrackEnded = () => {

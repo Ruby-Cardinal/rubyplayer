@@ -539,9 +539,13 @@ let globalSource = null;
 let boundAudioElement = null;
 
 export function getOrCreateWebAudio(audioElement, initialVolume = 1, isMuted = false) {
-  if (!audioElement) return { ctx: globalAudioCtx, analyser: globalAnalyser, gainNode: globalGainNode };
+  const effectiveVol = isMuted ? 0 : Math.max(0, Math.min(1, initialVolume));
 
-  if (!globalAudioCtx) {
+  if (audioElement) {
+    audioElement.volume = effectiveVol;
+  }
+
+  if (!globalAudioCtx && audioElement) {
     try {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       globalAudioCtx = new AudioContext();
@@ -550,13 +554,27 @@ export function getOrCreateWebAudio(audioElement, initialVolume = 1, isMuted = f
       globalAnalyser.smoothingTimeConstant = 0.78;
 
       globalGainNode = globalAudioCtx.createGain();
-      globalGainNode.gain.value = isMuted ? 0 : initialVolume;
+      globalGainNode.gain.value = effectiveVol;
     } catch (err) {
       // Context setup notice
     }
   }
 
-  if (globalAudioCtx && audioElement && boundAudioElement !== audioElement && !globalSource) {
+  if (globalAudioCtx && audioElement && boundAudioElement !== audioElement) {
+    if (globalSource) {
+      try { globalSource.disconnect(); } catch (e) {}
+      globalSource = null;
+    }
+    try {
+      globalSource = globalAudioCtx.createMediaElementSource(audioElement);
+      globalSource.connect(globalAnalyser);
+      globalAnalyser.connect(globalGainNode);
+      globalGainNode.connect(globalAudioCtx.destination);
+      boundAudioElement = audioElement;
+    } catch (err) {
+      boundAudioElement = audioElement;
+    }
+  } else if (globalAudioCtx && audioElement && !globalSource) {
     try {
       globalSource = globalAudioCtx.createMediaElementSource(audioElement);
       globalSource.connect(globalAnalyser);
@@ -572,16 +590,19 @@ export function getOrCreateWebAudio(audioElement, initialVolume = 1, isMuted = f
     globalAudioCtx.resume().catch(() => { });
   }
 
-  if (audioElement) {
-    audioElement.volume = 1.0;
-  }
-
   return { ctx: globalAudioCtx, analyser: globalAnalyser, gainNode: globalGainNode };
 }
 
-export function setWebAudioVolume(vol, isMuted = false) {
+export function setWebAudioVolume(vol, isMuted = false, audioElement = null) {
+  const targetAudio = audioElement || boundAudioElement;
+  const effectiveVol = isMuted ? 0 : Math.max(0, Math.min(1, vol));
+
+  if (targetAudio) {
+    targetAudio.volume = effectiveVol;
+  }
+
   if (globalGainNode) {
-    globalGainNode.gain.value = isMuted ? 0 : vol;
+    globalGainNode.gain.value = effectiveVol;
   }
 }
 
