@@ -438,6 +438,10 @@ function findFolderCoverFile(songFullPath) {
   const rootMatch = checkDirForCover(appConfig.mediaFolder);
   if (rootMatch) return rootMatch;
 
+  // Fallback to server public brand logo
+  const publicLogo = path.join(__dirname, 'public', 'ruby-winged-logo.svg');
+  if (fs.existsSync(publicLogo)) return publicLogo;
+
   return null;
 }
 
@@ -706,11 +710,14 @@ function scanDirectoryFiles(dirPath, baseDir) {
             const tracks = [];
             let playlistName = item.name.replace(ext, '').trim();
 
+            let isArtistPlaylist = false;
             for (let line of lines) {
               line = line.trim();
               if (line.startsWith('#PLAYLIST:')) {
                 const nameHeader = line.replace('#PLAYLIST:', '').trim();
                 if (nameHeader) playlistName = nameHeader;
+              } else if (line.startsWith('#TYPE:ARTIST')) {
+                isArtistPlaylist = true;
               } else if (line && !line.startsWith('#')) {
                 tracks.push(line.replace(/\\/g, '/'));
               }
@@ -721,6 +728,7 @@ function scanDirectoryFiles(dirPath, baseDir) {
               name: playlistName,
               relativePath,
               tracks,
+              isArtistPlaylist,
             });
           } catch (e) {
             console.error(`Failed to parse playlist ${relativePath}:`, e);
@@ -733,6 +741,78 @@ function scanDirectoryFiles(dirPath, baseDir) {
   }
 
   return { files: filesList, playlists: playlistsList };
+}
+
+// Helper to recursively collect all audio tracks inside a folder
+function collectFolderAudioTracks(dirPath, baseDir) {
+  let tracks = [];
+  if (!fs.existsSync(dirPath)) return tracks;
+  try {
+    const items = fs.readdirSync(dirPath, { withFileTypes: true });
+    for (const item of items) {
+      const fullPath = path.join(dirPath, item.name);
+      if (item.isDirectory()) {
+        tracks = tracks.concat(collectFolderAudioTracks(fullPath, baseDir));
+      } else if (item.isFile()) {
+        const ext = path.extname(item.name).toLowerCase();
+        if (AUDIO_EXTENSIONS.has(ext)) {
+          const relativePath = path.relative(baseDir, fullPath).replace(/\\/g, '/');
+          tracks.push(relativePath);
+        }
+      }
+    }
+  } catch (err) {
+    console.error(`[Artist Playlist Sync] Error scanning artist dir ${dirPath}:`, err);
+  }
+  return tracks;
+}
+
+// Automatically create & sync .m3u playlists for each root artist folder in MusicLocation
+function generateAndSyncArtistPlaylists(targetFolder) {
+  if (!targetFolder || !fs.existsSync(targetFolder)) return;
+
+  try {
+    const rootItems = fs.readdirSync(targetFolder, { withFileTypes: true });
+
+    for (const item of rootItems) {
+      if (item.isDirectory() && !item.name.startsWith('.')) {
+        const artistName = item.name;
+        const artistDirPath = path.join(targetFolder, artistName);
+        const tracks = collectFolderAudioTracks(artistDirPath, targetFolder);
+
+        if (tracks.length === 0) continue;
+
+        // Sort tracks naturally by path
+        tracks.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+
+        const playlistFileName = `${artistName}.m3u`;
+        const playlistPath = path.join(targetFolder, playlistFileName);
+
+        const m3uLines = [
+          '#EXTM3U',
+          `#PLAYLIST:${artistName}`,
+          '#TYPE:ARTIST',
+          ...tracks
+        ];
+        const newM3uContent = m3uLines.join('\n') + '\n';
+
+        let existingContent = '';
+        if (fs.existsSync(playlistPath)) {
+          try {
+            existingContent = fs.readFileSync(playlistPath, 'utf-8');
+          } catch (e) { }
+        }
+
+        // Only write to disk if playlist does not exist or track list has changed
+        if (existingContent.trim() !== newM3uContent.trim()) {
+          fs.writeFileSync(playlistPath, newM3uContent, 'utf-8');
+          console.log(`[Artist Playlist Sync] Updated playlist "${playlistFileName}" (${tracks.length} track(s))`);
+        }
+      }
+    }
+  } catch (err) {
+    console.error(`[Artist Playlist Sync] Error synchronizing artist playlists in "${targetFolder}":`, err);
+  }
 }
 
 // In-Memory Media Cache & Active Scan Deduplication Promise
@@ -754,7 +834,19 @@ async function scanAndParseServerFolder() {
     return { files: [], playlists: [] };
   }
 
+  // Auto-generate and synchronize artist playlists before scanning directory items
+  generateAndSyncArtistPlaylists(targetFolder);
+
   const { files: rawFiles, playlists } = scanDirectoryFiles(targetFolder, targetFolder);
+
+  // Sort playlists: custom playlists first, artist playlists at the bottom (alphabetically within each group)
+  playlists.sort((a, b) => {
+    if (Boolean(a.isArtistPlaylist) !== Boolean(b.isArtistPlaylist)) {
+      return a.isArtistPlaylist ? 1 : -1;
+    }
+    return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+  });
+
   scannedPlaylistsCache = playlists;
   console.log(`[Server Scanner] Discovered ${rawFiles.length} audio file(s) and ${playlists.length} playlist(s) in "${targetFolder}".`);
 
@@ -1252,24 +1344,36 @@ app.get('/api/cover', async (req, res) => {
   res.send(imgBuffer);
 });
 
-// Folder cover.png or Fallback RubyCardinal.png Endpoint
+// Folder cover.png or Fallback Brand Logo Endpoint
 app.get('/api/folder-cover', async (req, res) => {
   const trackId = req.query.id;
   let songFullPath = null;
 
-  if (trackId && serverMetadataCache[trackId]) {
-    const cached = serverMetadataCache[trackId];
-    songFullPath = path.join(appConfig.mediaFolder, cached.relativePath);
+  if (trackId) {
+    if (serverMetadataCache[trackId]) {
+      const cached = serverMetadataCache[trackId];
+      songFullPath = path.join(appConfig.mediaFolder, cached.relativePath);
+    } else {
+      try {
+        const decoded = Buffer.from(trackId, 'base64url').toString('utf-8');
+        const candidate = path.join(appConfig.mediaFolder, decoded);
+        if (fs.existsSync(candidate)) {
+          songFullPath = candidate;
+        }
+      } catch (e) { }
+    }
   }
 
   const targetFile = findFolderCoverFile(songFullPath);
 
   if (!targetFile || !fs.existsSync(targetFile)) {
-    return res.status(404).send('No cover.png or RubyCardinal.png found');
+    return res.status(404).send('Cover image not found');
   }
 
   const ext = path.extname(targetFile).toLowerCase();
-  const mime = (ext === '.jpg' || ext === '.jpeg') ? 'image/jpeg' : 'image/png';
+  let mime = 'image/png';
+  if (ext === '.jpg' || ext === '.jpeg') mime = 'image/jpeg';
+  else if (ext === '.svg') mime = 'image/svg+xml';
 
   res.setHeader('Content-Type', mime);
   res.setHeader('Cache-Control', 'public, max-age=86400');

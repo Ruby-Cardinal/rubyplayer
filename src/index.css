@@ -473,6 +473,14 @@ body.theme-rainbow-frozen {
   object-fit: cover;
 }
 
+.vinyl-img[src*="folder-cover"],
+.vinyl-img[src*=".svg"],
+.vinyl-img[src*="ruby-winged-logo"] {
+  object-fit: contain;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
 .vinyl-placeholder {
   width: 100%;
   height: 100%;

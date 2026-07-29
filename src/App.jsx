@@ -499,6 +499,13 @@ export default function App() {
   const renderPlaylistColumn = () => {
     const favCount = tracks.filter((t) => isTrackFavorite(t, favorites)).length;
 
+    const sortedPlaylists = [...playlists].sort((a, b) => {
+      if (Boolean(a.isArtistPlaylist) !== Boolean(b.isArtistPlaylist)) {
+        return a.isArtistPlaylist ? 1 : -1;
+      }
+      return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+    });
+
     return (
       <div className="playlist-column-wrapper">
         <div className="col-playlist glass-card">
@@ -513,9 +520,9 @@ export default function App() {
                 <option value="none">-- No Playlist --</option>
                 <option value="all">All Songs ({tracks.length})</option>
                 <option value="favorites">💎 Favorites ({favCount})</option>
-                {playlists.map((pl) => (
+                {sortedPlaylists.map((pl) => (
                   <option key={pl.id} value={pl.id}>
-                    {pl.name} ({Array.isArray(pl.tracks) ? pl.tracks.length : 0})
+                    {pl.isArtistPlaylist ? '🎵 ' : ''}{pl.name} ({Array.isArray(pl.tracks) ? pl.tracks.length : 0})
                   </option>
                 ))}
               </select>

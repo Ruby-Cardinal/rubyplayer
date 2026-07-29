@@ -387,11 +387,18 @@ export default function PlaylistEditorModal({
               onChange={(e) => setSelectedPlaylistId(e.target.value)}
             >
               <option value="NEW">➕ -- Create New Playlist --</option>
-              {playlists.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name} ({Array.isArray(p.tracks) ? p.tracks.length : 0} songs)
-                </option>
-              ))}
+              {[...playlists]
+                .sort((a, b) => {
+                  if (Boolean(a.isArtistPlaylist) !== Boolean(b.isArtistPlaylist)) {
+                    return a.isArtistPlaylist ? 1 : -1;
+                  }
+                  return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+                })
+                .map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.isArtistPlaylist ? '🎵 ' : ''}{p.name} ({Array.isArray(p.tracks) ? p.tracks.length : 0} songs)
+                  </option>
+                ))}
             </select>
           </div>
 
