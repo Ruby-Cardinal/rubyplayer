@@ -136,20 +136,26 @@ function clearFailedLogin(ip, username) {
   loginAttempts.delete(key);
 }
 
+function hashToken(token) {
+  if (!token || typeof token !== 'string') return null;
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
+
 function createSession(user) {
   const token = crypto.randomBytes(32).toString('hex');
+  const tokenHash = hashToken(token);
   const now = Date.now();
   const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
   const session = {
-    token,
+    tokenHash,
     username: user.username,
     role: user.role || 'user',
     expiresAt: now + ONE_YEAR_MS,
     lastActive: now,
   };
-  activeSessions.set(token, session);
+  activeSessions.set(tokenHash, session);
   saveUsers();
-  return session;
+  return { ...session, token };
 }
 
 function getSessionUser(req) {
@@ -163,11 +169,14 @@ function getSessionUser(req) {
   }
 
   if (!token) return null;
-  const session = activeSessions.get(token);
+  const tokenHash = hashToken(token);
+  if (!tokenHash) return null;
+
+  const session = activeSessions.get(tokenHash);
   if (!session) return null;
 
   if (Date.now() > session.expiresAt) {
-    activeSessions.delete(token);
+    activeSessions.delete(tokenHash);
     saveUsers();
     return null;
   }
@@ -263,11 +272,24 @@ function loadServerUsers(isInitialBoot = false) {
         const now = Date.now();
         activeSessions.clear();
         let restoredCount = 0;
+        let migrationNeeded = false;
         for (const s of saved.Sessions) {
-          if (s && s.token && s.expiresAt > now) {
-            activeSessions.set(s.token, s);
+          if (!s || s.expiresAt <= now) continue;
+          let tHash = s.tokenHash;
+          if (!tHash && s.token) {
+            tHash = hashToken(s.token);
+            s.tokenHash = tHash;
+            delete s.token;
+            migrationNeeded = true;
+          }
+          if (tHash) {
+            activeSessions.set(tHash, s);
             restoredCount++;
           }
+        }
+        if (migrationNeeded) {
+          saveUsers();
+          console.log('[Server Auth] Migrated active session tokens to SHA-256 hashes in user_rubymusic.json.');
         }
         if (isInitialBoot && restoredCount > 0) {
           console.log(`[Server Auth] Restored ${restoredCount} active session(s) from user_rubymusic.json.`);
@@ -1269,9 +1291,12 @@ app.post('/api/auth/logout', (req, res) => {
   } else if (req.body && req.body.token) {
     token = req.body.token;
   }
-  if (token && activeSessions.has(token)) {
-    activeSessions.delete(token);
-    saveUsers();
+  if (token) {
+    const tokenHash = hashToken(token);
+    if (tokenHash && activeSessions.has(tokenHash)) {
+      activeSessions.delete(tokenHash);
+      saveUsers();
+    }
   }
   res.json({ success: true });
 });
