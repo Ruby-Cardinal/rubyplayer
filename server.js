@@ -224,6 +224,9 @@ function saveUsers() {
       Sessions: activeSessionsArray,
       Roles: appConfig.Roles || [],
     };
+    if (appConfig.serverHash) {
+      dataToSave.serverHash = appConfig.serverHash;
+    }
     fs.writeFileSync(USERS_FILE, JSON.stringify(dataToSave, null, 2));
   } catch (err) {
     console.error('Error writing user_rubymusic.json file:', err);
@@ -246,6 +249,10 @@ function loadServerUsers(isInitialBoot = false) {
         appConfig.Users = saved;
       } else {
         appConfig.Users = [];
+      }
+
+      if (saved.serverHash && typeof saved.serverHash === 'string') {
+        appConfig.serverHash = saved.serverHash;
       }
 
       if (Array.isArray(saved.Roles)) {
@@ -271,6 +278,55 @@ function loadServerUsers(isInitialBoot = false) {
     }
   }
 
+  // Check for DefaultPassword in user_rubymusic.json or rubyplayer_config.json
+  let rawDefaultPassword = null;
+  let defaultPasswordSourceFile = null;
+  let sourceFileData = null;
+
+  if (fs.existsSync(USERS_FILE)) {
+    try {
+      const uData = JSON.parse(fs.readFileSync(USERS_FILE, 'utf-8'));
+      if (uData.DefaultPassword && typeof uData.DefaultPassword === 'string') {
+        rawDefaultPassword = uData.DefaultPassword;
+        defaultPasswordSourceFile = USERS_FILE;
+        sourceFileData = uData;
+      }
+    } catch (e) { }
+  }
+
+  if (!rawDefaultPassword && fs.existsSync(CONFIG_FILE)) {
+    try {
+      const cData = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf-8'));
+      if (cData.DefaultPassword && typeof cData.DefaultPassword === 'string') {
+        rawDefaultPassword = cData.DefaultPassword;
+        defaultPasswordSourceFile = CONFIG_FILE;
+        sourceFileData = cData;
+      }
+    } catch (e) { }
+  }
+
+  if (rawDefaultPassword) {
+    const trimmed = rawDefaultPassword.trim();
+    const isPlaceholder = trimmed === "Change this or people can't login!" || trimmed.toLowerCase() === "change this";
+
+    if (isPlaceholder) {
+      console.warn('[Server Auth] Notice: DefaultPassword is set to placeholder ("Change this or people can\'t login!"). Server will not generate serverHash until a custom DefaultPassword is set.');
+    } else {
+      const { hash } = hashPassword(trimmed);
+      appConfig.serverHash = hash;
+      console.log('[Server Auth] Successfully generated serverHash from custom DefaultPassword.');
+
+      // Strip DefaultPassword from source file and save serverHash into user_rubymusic.json
+      if (sourceFileData) {
+        delete sourceFileData.DefaultPassword;
+        fs.writeFileSync(defaultPasswordSourceFile, JSON.stringify(sourceFileData, null, 2));
+      }
+      saveUsers();
+    }
+  } else if (!appConfig.serverHash && isInitialBoot) {
+    console.warn('[Server Auth] Notice: DefaultPassword is not configured in user_rubymusic.json or rubyplayer_config.json.');
+  }
+
   // Auto-migrate Users from rubyplayer_config.json if user_rubymusic.json was missing/empty
   if ((!appConfig.Users || appConfig.Users.length === 0) && fs.existsSync(CONFIG_FILE)) {
     try {
@@ -287,15 +343,25 @@ function loadServerUsers(isInitialBoot = false) {
     }
   }
 
-  // Auto-generate passwordHash strictly for admin user if missing
+  // Auto-generate passwordHash for users missing passwordHash
   let usersUpdated = false;
   if (Array.isArray(appConfig.Users)) {
     for (const u of appConfig.Users) {
-      if (String(u.username).toLowerCase() === 'admin' && !u.passwordHash) {
-        const { hash } = hashPassword('admin');
-        u.passwordHash = hash;
-        usersUpdated = true;
-        console.log('[Server Users] Generated default hashed password "admin" for admin user.');
+      if (!u.passwordHash) {
+        if (String(u.username).toLowerCase() === 'admin' && !appConfig.serverHash) {
+          const { hash } = hashPassword('admin');
+          u.passwordHash = hash;
+          usersUpdated = true;
+          console.log('[Server Users] Generated default hashed password "admin" for admin user.');
+        } else if (appConfig.serverHash) {
+          u.passwordHash = appConfig.serverHash;
+          u.mustResetPassword = true;
+          usersUpdated = true;
+          console.log(`[Server Users] Initialized user "${u.username}" with serverHash default password and set mustResetPassword=true.`);
+        } else {
+          u.mustResetPassword = true;
+          console.warn(`[Server Users] Warning: User "${u.username}" has no passwordHash and no serverHash is configured.`);
+        }
       }
     }
   }
@@ -1141,12 +1207,12 @@ app.post('/api/auth/login', (req, res) => {
     saveUsers();
   }
 
-  const isFirstTime = !user.passwordHash || user.mustResetPassword === true;
-
-  if (!isFirstTime && !verifyPassword(password, user.passwordHash)) {
+  if (!user.passwordHash || !verifyPassword(password, user.passwordHash)) {
     recordFailedLogin(clientIp, username);
     return res.status(401).json({ error: 'Invalid username or password' });
   }
+
+  const isFirstTime = user.mustResetPassword === true;
 
   clearFailedLogin(clientIp, username);
   const session = createSession(user);
