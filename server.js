@@ -41,7 +41,7 @@ app.use(cors((req, callback) => {
 
   return callback(null, { origin: false });
 }));
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 
 let bcrypt = null;
 try {
@@ -1632,8 +1632,19 @@ app.get('/api/stream', async (req, res) => {
 
   if (range) {
     const parts = range.replace(/bytes=/, '').split('-');
-    const start = parseInt(parts[0], 10);
-    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+    let start = parseInt(parts[0], 10);
+    let end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+
+    if (isNaN(start) || start < 0) start = 0;
+    if (isNaN(end) || end >= fileSize) end = fileSize - 1;
+
+    if (start > end || start >= fileSize) {
+      res.writeHead(416, {
+        'Content-Range': `bytes */${fileSize}`,
+      });
+      return res.end();
+    }
+
     const chunksize = end - start + 1;
     const file = fs.createReadStream(fullPath, { start, end });
 
