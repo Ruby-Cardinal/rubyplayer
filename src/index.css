@@ -455,12 +455,12 @@ body.theme-rainbow-frozen {
 .vinyl-center-art {
   position: relative;
   z-index: 5;
-  width: 60%;
-  height: 60%;
+  width: 57.5%;
+  height: 57.5%;
   border-radius: 50%;
   overflow: hidden;
   border: 3px solid var(--border-glow);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.85);
   background: #15161c;
   display: flex;
   align-items: center;
@@ -474,8 +474,22 @@ body.theme-rainbow-frozen {
 }
 
 .vinyl-placeholder {
-  color: var(--accent-ruby);
-  opacity: 0.6;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  box-sizing: border-box;
+}
+
+.vinyl-placeholder-logo {
+  width: 88%;
+  height: auto;
+  max-height: 85%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 14px var(--accent-ruby-glow));
+  transition: all 0.3s ease;
 }
 
 /* Column 3: Playlist & Track List */
@@ -1425,7 +1439,32 @@ body.theme-retro .vinyl-outer-ring.playing {
   box-sizing: border-box;
 }
 
+/* Watermark overlay on vintage retro vinyl label */
+.retro-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 78%;
+  height: auto;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.16;
+  mix-blend-mode: multiply;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.retro-watermark svg {
+  width: 100%;
+  height: auto;
+  fill: #3b2203;
+}
+
 .retro-label-top {
+  position: relative;
+  z-index: 2;
   flex: 1;
   width: 100%;
   display: flex;
@@ -1455,6 +1494,7 @@ body.theme-retro .vinyl-outer-ring.playing {
   width: 24px;
   height: 24px;
   position: relative;
+  z-index: 2;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -1471,6 +1511,8 @@ body.theme-retro .vinyl-outer-ring.playing {
 }
 
 .retro-label-bottom {
+  position: relative;
+  z-index: 2;
   flex: 1;
   width: 100%;
   display: flex;

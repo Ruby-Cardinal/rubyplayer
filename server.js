@@ -395,9 +395,9 @@ function saveMetadataCache() {
 const AUDIO_EXTENSIONS = new Set(['.mp3', '.flac', '.m4a', '.ogg', '.wav', '.aac', '.wma', '.opus']);
 const PLAYLIST_EXTENSIONS = new Set(['.m3u', '.m3u8', '.pls']);
 
-// Helper to find folder cover.png or fallback RubyCardinal.png (case-insensitive)
+// Helper to find folder cover.png or fallback ruby-winged-logo.svg (case-insensitive)
 function findFolderCoverFile(songFullPath) {
-  const coverNames = ['cover.png', 'cover.jpg', 'cover.jpeg', 'folder.png', 'folder.jpg', 'album.png', 'album.jpg', 'artist.png', 'artist.jpg', 'rubycardinal.png'];
+  const coverNames = ['cover.png', 'cover.jpg', 'cover.jpeg', 'folder.png', 'folder.jpg', 'album.png', 'album.jpg', 'artist.png', 'artist.jpg', 'ruby-winged-logo.svg', 'ruby-winged-logo.png'];
 
   const checkDirForCover = (dirPath, targetFileName = null) => {
     if (!dirPath || !fs.existsSync(dirPath)) return null;
@@ -431,8 +431,8 @@ function findFolderCoverFile(songFullPath) {
     }
   }
 
-  // Prioritize default RubyCardinal.png at MusicLocation when no song is selected or as root media folder fallback
-  const rubyMatch = checkDirForCover(appConfig.mediaFolder, 'rubycardinal.png');
+  // Prioritize default ruby-winged-logo.svg at MusicLocation when no song is selected or as root media folder fallback
+  const rubyMatch = checkDirForCover(appConfig.mediaFolder, 'ruby-winged-logo.svg') || checkDirForCover(appConfig.mediaFolder, 'ruby-winged-logo.png');
   if (rubyMatch) return rubyMatch;
 
   const rootMatch = checkDirForCover(appConfig.mediaFolder);
