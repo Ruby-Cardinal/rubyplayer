@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Settings, User, LogOut, Lock, Unlock } from 'lucide-react';
+import { Search, Settings, User, LogOut, Lock, Unlock, ListMusic } from 'lucide-react';
 
 export default function Navbar({
   searchQuery,
@@ -9,6 +9,7 @@ export default function Navbar({
   onOpenLogin,
   onLogout,
   isLocked,
+  onOpenPlaylistEditor,
 }) {
   return (
     <header className="navbar">
@@ -49,7 +50,7 @@ export default function Navbar({
       <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
         {currentUser ? (
           <div className="user-badge">
-            <Unlock size={14} style={{ color: '#10b981' }} />
+            <User size={14} style={{ color: 'var(--accent-ruby)' }} />
             <span>{currentUser.username}</span>
             <button
               onClick={onLogout}
@@ -78,8 +79,18 @@ export default function Navbar({
               color: isLocked ? 'var(--accent-ruby)' : 'var(--text-primary)',
             }}
           >
-            {isLocked ? <Lock size={14} /> : <User size={15} />}
+            <User size={15} />
             <span>Log In</span>
+          </button>
+        )}
+
+        {currentUser?.role === 'admin' && (
+          <button
+            className="btn-icon btn-playlist-editor"
+            onClick={onOpenPlaylistEditor}
+            title="Manage Playlists (Admin)"
+          >
+            <ListMusic size={20} />
           </button>
         )}
 

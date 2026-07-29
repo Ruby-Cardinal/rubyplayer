@@ -15,6 +15,7 @@ import ConfigModal from './components/ConfigModal';
 import LyricsModal from './components/LyricsModal';
 import LoginModal from './components/LoginModal';
 import RubyFavIcon from './components/RubyFavIcon';
+import PlaylistEditorModal from './components/PlaylistEditorModal';
 import {
   fetchServerConfig,
   scanMediaFolder,
@@ -115,6 +116,7 @@ export default function App() {
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isLyricsOpen, setIsLyricsOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isPlaylistEditorOpen, setIsPlaylistEditorOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
 
   const handleToggleFavorite = (trackToToggle) => {
@@ -636,6 +638,7 @@ export default function App() {
         onOpenLogin={() => setIsLoginOpen(true)}
         onLogout={handleLogout}
         isLocked={effectiveIsLocked}
+        onOpenPlaylistEditor={() => setIsPlaylistEditorOpen(true)}
       />
 
       {/* Main Content Layout */}
@@ -719,6 +722,14 @@ export default function App() {
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
         onLoginSuccess={handleLoginSuccess}
+      />
+
+      <PlaylistEditorModal
+        isOpen={isPlaylistEditorOpen}
+        onClose={() => setIsPlaylistEditorOpen(false)}
+        playlists={playlists}
+        allTracks={tracks}
+        onPlaylistSaved={loadLibraryData}
       />
 
     </div>

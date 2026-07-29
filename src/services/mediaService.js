@@ -446,3 +446,17 @@ export function downloadTrack(track) {
   document.body.removeChild(link);
 }
 
+export async function savePlaylistOnServer(name, tracks) {
+  const res = await fetch('/api/playlist/save', {
+    method: 'POST',
+    headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ name, tracks }),
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Failed to save playlist');
+  }
+  return res.json();
+}
+
+

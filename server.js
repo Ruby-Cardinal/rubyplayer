@@ -1141,6 +1141,57 @@ app.post('/api/config/users', (req, res) => {
   res.status(400).json({ error: 'Invalid action' });
 });
 
+app.post('/api/playlist/save', async (req, res) => {
+  const session = getSessionUser(req);
+  if (!session || session.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin privileges required to save playlists' });
+  }
+
+  const { name, tracks } = req.body || {};
+  if (!name || typeof name !== 'string' || !name.trim()) {
+    return res.status(400).json({ error: 'Playlist name is required' });
+  }
+
+  if (!Array.isArray(tracks)) {
+    return res.status(400).json({ error: 'Tracks list must be an array' });
+  }
+
+  let fileName = name.trim();
+  if (!fileName.toLowerCase().endsWith('.m3u') && !fileName.toLowerCase().endsWith('.m3u8')) {
+    fileName += '.m3u';
+  }
+
+  const targetDir = appConfig.MusicLocation || appConfig.mediaFolder;
+  if (!targetDir || !fs.existsSync(targetDir)) {
+    return res.status(500).json({ error: 'Music directory does not exist' });
+  }
+
+  const filePath = path.join(targetDir, fileName);
+  const resolvedTarget = path.resolve(targetDir);
+  const resolvedFile = path.resolve(filePath);
+
+  if (!resolvedFile.startsWith(resolvedTarget)) {
+    return res.status(400).json({ error: 'Invalid playlist file path' });
+  }
+
+  try {
+    const fileContent = '#EXTM3U\n' + tracks.join('\n') + '\n';
+    fs.writeFileSync(filePath, fileContent, 'utf-8');
+
+    // Force re-scan media folder so new/edited playlist updates immediately
+    await getOrScanMediaFolder(true);
+
+    res.json({
+      success: true,
+      message: `Playlist "${fileName}" saved successfully`,
+      filename: fileName,
+    });
+  } catch (err) {
+    console.error('Error saving playlist file:', err);
+    res.status(500).json({ error: 'Failed to write playlist file: ' + err.message });
+  }
+});
+
 app.get('/api/config', (req, res) => {
   const session = getSessionUser(req);
   res.json({
