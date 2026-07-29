@@ -15,7 +15,7 @@ export function setAuthToken(token) {
     } else {
       localStorage.removeItem(AUTH_TOKEN_KEY);
     }
-  } catch (err) {}
+  } catch (err) { }
 }
 
 export function getAuthHeaders(headers = {}) {
@@ -67,7 +67,7 @@ export async function logoutUser() {
       method: 'POST',
       headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ token }),
-    }).catch(() => {});
+    }).catch(() => { });
   }
   setAuthToken(null);
 }
@@ -156,7 +156,7 @@ export async function getMediaToken() {
 }
 
 export async function scanMediaFolder(force = false) {
-  getMediaToken().catch(() => {});
+  getMediaToken().catch(() => { });
   const url = force ? '/api/scan?force=true' : '/api/scan';
   const res = await fetch(url, { headers: getAuthHeaders() });
   if (!res.ok) {
@@ -168,7 +168,7 @@ export async function scanMediaFolder(force = false) {
 
 export function getAudioStreamUrl(trackOrPath) {
   if (!trackOrPath) return '';
-  getMediaToken().catch(() => {});
+  getMediaToken().catch(() => { });
   const token = cachedMediaToken || getAuthToken();
   const tokenParam = token ? `&mt=${encodeURIComponent(token)}` : '';
   const rel = typeof trackOrPath === 'object' ? (trackOrPath.relativePath || trackOrPath.id) : trackOrPath;
@@ -177,14 +177,14 @@ export function getAudioStreamUrl(trackOrPath) {
 
 export function getCoverArtUrl(trackId) {
   if (!trackId) return null;
-  getMediaToken().catch(() => {});
+  getMediaToken().catch(() => { });
   const token = cachedMediaToken || getAuthToken();
   const tokenParam = token ? `&mt=${encodeURIComponent(token)}` : '';
   return `/api/cover?id=${encodeURIComponent(trackId)}${tokenParam}`;
 }
 
 export function getFolderCoverUrl(trackId) {
-  getMediaToken().catch(() => {});
+  getMediaToken().catch(() => { });
   const token = cachedMediaToken || getAuthToken();
   const tokenParam = token ? `&mt=${encodeURIComponent(token)}` : '';
   if (!trackId) return `/api/folder-cover?${tokenParam.replace('&', '')}`;
@@ -447,7 +447,7 @@ export function setDisableRotation(disabled) {
     } else {
       document.body.classList.remove('disable-rotation');
     }
-  } catch (err) {}
+  } catch (err) { }
 }
 
 export function getSavedDisableVisualizerMotion() {
@@ -466,7 +466,7 @@ export function setDisableVisualizerMotion(disabled) {
     } else {
       document.body.classList.remove('disable-visualizer-motion');
     }
-  } catch (err) {}
+  } catch (err) { }
 }
 
 export function getSavedSiteThemeColor() {
@@ -505,7 +505,7 @@ export function getFavoriteTrackIds() {
 export function saveFavoriteTrackIds(favorites) {
   try {
     localStorage.setItem('rubyplayer_favorites', JSON.stringify(favorites || []));
-  } catch (err) {}
+  } catch (err) { }
 }
 
 export function toggleFavoriteTrackId(trackId) {
@@ -538,6 +538,33 @@ let globalGainNode = null;
 let globalSource = null;
 let boundAudioElement = null;
 
+// Media Session API integration for Android PWA background playback & notification controls
+export function updateMediaSession(track, callbacks = {}) {
+  if (!('mediaSession' in navigator)) return;
+
+  if (!track) {
+    navigator.mediaSession.metadata = null;
+    return;
+  }
+
+  const trackId = track.id || track.relativePath;
+  const coverUrl = track.hasCover ? getCoverArtUrl(trackId) : getFolderCoverUrl(trackId);
+
+  navigator.mediaSession.metadata = new window.MediaMetadata({
+    title: track.title || 'RubyPlayer',
+    artist: track.artist || 'Unknown Artist',
+    album: track.album || 'RubyPlayer Library',
+    artwork: coverUrl
+      ? [{ src: coverUrl, sizes: '512x512', type: 'image/jpeg' }]
+      : [],
+  });
+
+  if (callbacks.onPlay) navigator.mediaSession.setActionHandler('play', callbacks.onPlay);
+  if (callbacks.onPause) navigator.mediaSession.setActionHandler('pause', callbacks.onPause);
+  if (callbacks.onSkipNext) navigator.mediaSession.setActionHandler('nexttrack', callbacks.onSkipNext);
+  if (callbacks.onSkipPrev) navigator.mediaSession.setActionHandler('previoustrack', callbacks.onSkipPrev);
+}
+
 export function getOrCreateWebAudio(audioElement, initialVolume = 1, isMuted = false) {
   const effectiveVol = isMuted ? 0 : Math.max(0, Math.min(1, initialVolume));
 
@@ -562,7 +589,7 @@ export function getOrCreateWebAudio(audioElement, initialVolume = 1, isMuted = f
 
   if (globalAudioCtx && audioElement && boundAudioElement !== audioElement) {
     if (globalSource) {
-      try { globalSource.disconnect(); } catch (e) {}
+      try { globalSource.disconnect(); } catch (e) { }
       globalSource = null;
     }
     try {

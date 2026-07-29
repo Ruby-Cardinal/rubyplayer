@@ -32,6 +32,7 @@ import {
   isTrackFavorite,
   getOrCreateWebAudio,
   setWebAudioVolume,
+  updateMediaSession,
   checkAuthStatus,
   logoutUser,
   downloadTrack,
@@ -135,8 +136,7 @@ export default function App() {
   const currentTrack = currentQueue[currentTrackIndex] || null;
 
   const audioRef = useRef(null);
-  const prefetchAudioRef = useRef(null);
-  const prefetchedTrackIdRef = useRef(null);
+  const activeTrackIdRef = useRef(null);
   const activeTrackRef = useRef(null);
   const recentPlayedIdsRef = useRef([]);
 
@@ -265,47 +265,34 @@ export default function App() {
     config.LockedPlaylists && config.LockedPlaylists.length > 0 && !currentUser
   );
 
-  // Handle autoplay whenever currentTrack changes — use prefetched audio if available
+  // Handle playback whenever currentTrack changes — single persistent audio element
   useEffect(() => {
     if (!audioRef.current || !currentTrack) return;
 
     const trackId = currentTrack.relativePath || currentTrack.id;
+    if (activeTrackIdRef.current !== trackId) {
+      activeTrackIdRef.current = trackId;
+      audioRef.current.src = getAudioStreamUrl(currentTrack);
+    }
 
-    // If we have a prefetched Audio for this exact track, swap it in
-    if (prefetchAudioRef.current && prefetchedTrackIdRef.current === trackId) {
-      const oldAudio = audioRef.current;
-      const prefetched = prefetchAudioRef.current;
+    setWebAudioVolume(volume, isMuted, audioRef.current);
 
-      // Transfer event handlers from the old <audio> to the prefetched one
-      prefetched.ontimeupdate = () => prefetched && setCurrentTime(prefetched.currentTime);
-      prefetched.onloadedmetadata = () => prefetched && setDuration(prefetched.duration);
-      prefetched.onended = handleTrackEnded;
+    // Update PWA / Android Media Session notification controls
+    updateMediaSession(currentTrack, {
+      onPlay: () => {
+        if (audioRef.current) audioRef.current.play();
+        setIsPlaying(true);
+      },
+      onPause: () => {
+        if (audioRef.current) audioRef.current.pause();
+        setIsPlaying(false);
+      },
+      onSkipNext: handleSkipNext,
+      onSkipPrev: handleSkipPrev,
+    });
 
-      // Pause and clear old audio
-      oldAudio.pause();
-      oldAudio.removeAttribute('src');
-      oldAudio.load();
-
-      // Replace ref
-      audioRef.current = prefetched;
-      prefetchAudioRef.current = null;
-      prefetchedTrackIdRef.current = null;
-      setWebAudioVolume(volume, isMuted, prefetched);
-
-      if (isPlaying) {
-        prefetched.play().catch((err) => console.warn('Prefetch autoplay notice:', err));
-      }
-    } else {
-      // Normal path: set src directly
-      const streamUrl = getAudioStreamUrl(currentTrack);
-      if (audioRef.current.src !== window.location.origin + streamUrl && audioRef.current.src !== streamUrl) {
-        audioRef.current.src = streamUrl;
-      }
-      setWebAudioVolume(volume, isMuted, audioRef.current);
-
-      if (isPlaying) {
-        audioRef.current.play().catch((err) => console.warn('Autoplay notice:', err));
-      }
+    if (isPlaying) {
+      audioRef.current.play().catch((err) => console.warn('Autoplay notice:', err));
     }
   }, [currentTrack]);
 
@@ -342,40 +329,6 @@ export default function App() {
   const activeQueue = selectedPlaylistId === 'none'
     ? []
     : (displayTracks.length > 0 ? displayTracks : (currentQueue.length > 0 ? currentQueue : tracks));
-
-  // Pre-buffer next track when current track is past 50% to ensure seamless transitions
-  useEffect(() => {
-    if (!currentTrack || !duration || duration === 0) return;
-    if (currentTime < duration * 0.5) return;
-
-    // Determine the next track
-    let nextTrack = null;
-    if (repeatMode === 'one') {
-      // Repeat-one restarts the same track, no prefetch needed
-      return;
-    }
-    if (isShuffle) {
-      // For shuffle, we can't predict; skip prefetch
-      return;
-    }
-    const nextIdx = (currentTrackIndex + 1) % activeQueue.length;
-    nextTrack = activeQueue[nextIdx];
-    if (!nextTrack) return;
-
-    const nextTrackId = nextTrack.relativePath || nextTrack.id;
-    // Already prefetched this track
-    if (prefetchedTrackIdRef.current === nextTrackId) return;
-
-    // Create a new Audio element and start loading the next track
-    const nextAudio = new Audio();
-    nextAudio.preload = 'auto';
-    nextAudio.src = getAudioStreamUrl(nextTrack);
-    // Start loading (the browser will buffer the audio data)
-    nextAudio.load();
-
-    prefetchAudioRef.current = nextAudio;
-    prefetchedTrackIdRef.current = nextTrackId;
-  }, [currentTime, duration, currentTrack, currentTrackIndex, activeQueue, repeatMode, isShuffle]);
 
   // Playlist & Sort Handlers
   const handlePlaylistChange = (newPlaylistId) => {
@@ -561,7 +514,7 @@ export default function App() {
     });
 
     navigator.mediaSession.setActionHandler('play', () => {
-      if (audioRef.current) audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+      if (audioRef.current) audioRef.current.play().then(() => setIsPlaying(true)).catch(() => { });
     });
     navigator.mediaSession.setActionHandler('pause', () => {
       if (audioRef.current) { audioRef.current.pause(); setIsPlaying(false); }
@@ -573,7 +526,7 @@ export default function App() {
 
     return () => {
       ['play', 'pause', 'previoustrack', 'nexttrack', 'seekbackward', 'seekforward'].forEach((action) => {
-        try { navigator.mediaSession.setActionHandler(action, null); } catch (e) {}
+        try { navigator.mediaSession.setActionHandler(action, null); } catch (e) { }
       });
     };
   }, [currentTrack]);
@@ -756,10 +709,9 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* Hidden Audio Element */}
+      {/* Hidden Audio Element — src is managed imperatively in useEffect when trackId changes */}
       <audio
         ref={audioRef}
-        src={currentTrack ? getAudioStreamUrl(currentTrack) : undefined}
         onTimeUpdate={() => audioRef.current && setCurrentTime(audioRef.current.currentTime)}
         onLoadedMetadata={() => audioRef.current && setDuration(audioRef.current.duration)}
         onEnded={handleTrackEnded}
