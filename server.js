@@ -1226,38 +1226,39 @@ app.get('/api/auth/me', (req, res) => {
 
 app.post('/api/config/users', (req, res) => {
   const session = getSessionUser(req);
-  if (!session || session.role !== 'admin') {
-    return res.status(403).json({ error: 'Admin privileges required' });
+  if (!session) {
+    return res.status(401).json({ error: 'Authentication required' });
   }
 
   const { action, username, password, newPassword } = req.body || {};
 
   if (action === 'changePassword') {
-    const targetUser = appConfig.Users.find((u) => u.username.toLowerCase() === session.username.toLowerCase());
-    if (!targetUser) return res.status(404).json({ error: 'User not found' });
-    if (password && !verifyPassword(password, targetUser.passwordHash)) {
-      return res.status(401).json({ error: 'Incorrect current password' });
+    if (!newPassword || typeof newPassword !== 'string' || newPassword.trim().length === 0) {
+      return res.status(400).json({ error: 'New password is required' });
     }
+
+    const targetUser = appConfig.Users.find(
+      (u) => u.username.toLowerCase() === session.username.toLowerCase()
+    );
+    if (!targetUser) return res.status(404).json({ error: 'User not found' });
+
+    if (targetUser.passwordHash) {
+      if (!password) {
+        return res.status(400).json({ error: 'Current password is required' });
+      }
+      if (!verifyPassword(password, targetUser.passwordHash)) {
+        return res.status(401).json({ error: 'Incorrect current password' });
+      }
+    }
+
     const { hash } = hashPassword(newPassword);
     targetUser.passwordHash = hash;
     delete targetUser.salt;
-    saveUsers();
-    return res.json({ success: true, message: 'Password updated successfully' });
-  }
+    delete targetUser.mustResetPassword;
 
-  if (action === 'addUser') {
-    if (!username || !password) return res.status(400).json({ error: 'Username and password required' });
-    if (appConfig.Users.some((u) => u.username.toLowerCase() === username.toLowerCase())) {
-      return res.status(400).json({ error: 'User already exists' });
-    }
-    const { hash } = hashPassword(password);
-    appConfig.Users.push({
-      username: username.trim(),
-      passwordHash: hash,
-      role: req.body.role || 'user',
-    });
     saveUsers();
-    return res.json({ success: true, message: 'User created successfully' });
+    console.log(`[Server Users] Password successfully updated for user "${targetUser.username}".`);
+    return res.json({ success: true, message: 'Password updated successfully' });
   }
 
   res.status(400).json({ error: 'Invalid action' });

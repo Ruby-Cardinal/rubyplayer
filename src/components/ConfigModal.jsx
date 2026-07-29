@@ -34,7 +34,7 @@ export default function ConfigModal({ isOpen, onClose }) {
   const [pwdErr, setPwdErr] = useState(null);
 
   const handleChangePassword = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     setPwdMsg(null);
     setPwdErr(null);
     if (!pwdNew) {
@@ -103,7 +103,7 @@ export default function ConfigModal({ isOpen, onClose }) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <div>
           {/* Site Accent Color Picker */}
           <div style={{ marginBottom: '1.5rem' }}>
             <label
@@ -411,7 +411,7 @@ export default function ConfigModal({ isOpen, onClose }) {
               <span>Account &amp; Security</span>
             </label>
 
-            <form onSubmit={handleChangePassword} style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '0.85rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-glass)' }}>
+            <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '0.85rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-glass)' }}>
               <div style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '0.6rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 <Key size={14} />
                 <span>Change Password</span>
@@ -435,6 +435,7 @@ export default function ConfigModal({ isOpen, onClose }) {
                   type="password"
                   value={pwdCurrent}
                   onChange={(e) => setPwdCurrent(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); handleChangePassword(); } }}
                   placeholder="Current password"
                   style={{
                     flex: '1',
@@ -451,6 +452,7 @@ export default function ConfigModal({ isOpen, onClose }) {
                   type="password"
                   value={pwdNew}
                   onChange={(e) => setPwdNew(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); handleChangePassword(); } }}
                   placeholder="New password"
                   style={{
                     flex: '1',
@@ -467,19 +469,21 @@ export default function ConfigModal({ isOpen, onClose }) {
 
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleChangePassword(); }}
                   className="btn-icon"
                   style={{ width: 'auto', padding: '0.35rem 0.85rem', borderRadius: 'var(--radius-sm)', fontSize: '0.78rem', fontWeight: '600' }}
                 >
                   Update Password
                 </button>
               </div>
-            </form>
+            </div>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
             <button
-              type="submit"
+              type="button"
+              onClick={handleSubmit}
               style={{
                 background: 'var(--accent-ruby)',
                 color: '#fff',
@@ -494,7 +498,7 @@ export default function ConfigModal({ isOpen, onClose }) {
               OK
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
