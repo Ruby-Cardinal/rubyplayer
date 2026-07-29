@@ -1,0 +1,410 @@
+const AUTH_TOKEN_KEY = 'rubyplayer_auth_token';
+
+export function getAuthToken() {
+  try {
+    return localStorage.getItem(AUTH_TOKEN_KEY) || null;
+  } catch (err) {
+    return null;
+  }
+}
+
+export function setAuthToken(token) {
+  try {
+    if (token) {
+      localStorage.setItem(AUTH_TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+    }
+  } catch (err) {}
+}
+
+export function getAuthHeaders(headers = {}) {
+  const token = getAuthToken();
+  if (token) {
+    return {
+      ...headers,
+      Authorization: `Bearer ${token}`,
+    };
+  }
+  return headers;
+}
+
+export async function loginUser(username, password) {
+  const res = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Invalid username or password');
+  }
+  const data = await res.json();
+  if (data.token) {
+    setAuthToken(data.token);
+  }
+  return data;
+}
+
+export async function setInitialPassword(newPassword) {
+  const res = await fetch('/api/auth/set-password', {
+    method: 'POST',
+    headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ newPassword }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Failed to set password');
+  }
+  return res.json();
+}
+
+
+export async function logoutUser() {
+  const token = getAuthToken();
+  if (token) {
+    await fetch('/api/auth/logout', {
+      method: 'POST',
+      headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ token }),
+    }).catch(() => {});
+  }
+  setAuthToken(null);
+}
+
+export async function checkAuthStatus() {
+  const token = getAuthToken();
+  if (!token) return { authenticated: false, user: null };
+
+  try {
+    const res = await fetch('/api/auth/me', {
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) {
+      setAuthToken(null);
+      return { authenticated: false, user: null };
+    }
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    return { authenticated: false, user: null };
+  }
+}
+
+export async function changeUserPassword(currentPassword, newPassword) {
+  const res = await fetch('/api/config/users', {
+    method: 'POST',
+    headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify({
+      action: 'changePassword',
+      password: currentPassword,
+      newPassword,
+    }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Failed to update password');
+  }
+  return res.json();
+}
+
+export async function fetchServerConfig() {
+  const res = await fetch('/api/config', { headers: getAuthHeaders() });
+  if (!res.ok) throw new Error('Failed to fetch config');
+  return res.json();
+}
+
+export async function scanMediaFolder(force = false) {
+  const url = force ? '/api/scan?force=true' : '/api/scan';
+  const res = await fetch(url, { headers: getAuthHeaders() });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Failed to scan media folder');
+  }
+  return res.json();
+}
+
+export function getAudioStreamUrl(trackOrPath) {
+  if (!trackOrPath) return '';
+  const token = getAuthToken();
+  const tokenParam = token ? `&token=${encodeURIComponent(token)}` : '';
+  if (typeof trackOrPath === 'object') {
+    const rel = trackOrPath.relativePath || trackOrPath.id;
+    return `/api/stream?path=${encodeURIComponent(rel)}${tokenParam}`;
+  }
+  return `/api/stream?path=${encodeURIComponent(trackOrPath)}${tokenParam}`;
+}
+
+export function getCoverArtUrl(trackId) {
+  if (!trackId) return null;
+  const token = getAuthToken();
+  const tokenParam = token ? `&token=${encodeURIComponent(token)}` : '';
+  return `/api/cover?id=${encodeURIComponent(trackId)}${tokenParam}`;
+}
+
+export function getFolderCoverUrl(trackId) {
+  const token = getAuthToken();
+  const tokenParam = token ? `&token=${encodeURIComponent(token)}` : '';
+  if (!trackId) return `/api/folder-cover?${tokenParam.replace('&', '')}`;
+  return `/api/folder-cover?id=${encodeURIComponent(trackId)}${tokenParam}`;
+}
+
+export async function fetchTrackLyrics(trackId) {
+  if (!trackId) return null;
+  const res = await fetch(`/api/lyrics?id=${encodeURIComponent(trackId)}`, { headers: getAuthHeaders() });
+  if (!res.ok) return null;
+  const data = await res.json().catch(() => ({}));
+  return data.lyrics || null;
+}
+
+
+export function parseLrcLyrics(lrcText) {
+  if (!lrcText || typeof lrcText !== 'string') return [];
+  const lines = lrcText.split(/\r?\n/);
+  const result = [];
+  const timeRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
+
+  for (const line of lines) {
+    const match = line.match(timeRegex);
+    if (match) {
+      const minutes = parseInt(match[1], 10);
+      const seconds = parseInt(match[2], 10);
+      const ms = parseInt(match[3].padEnd(3, '0'), 10);
+      const timestamp = minutes * 60 + seconds + ms / 1000;
+      const text = line.replace(timeRegex, '').trim();
+      if (text) {
+        result.push({ timestamp, text });
+      }
+    }
+  }
+
+  return result.sort((a, b) => a.timestamp - b.timestamp);
+}
+
+let rainbowIntervalId = null;
+let currentRainbowHue = 0;
+
+export function applySiteThemeColor(hex) {
+  if (!hex) hex = '#ff2e55';
+  const root = document.documentElement;
+
+  if (rainbowIntervalId) {
+    clearInterval(rainbowIntervalId);
+    rainbowIntervalId = null;
+  }
+
+  if (hex.toLowerCase() === 'rainbow') {
+    document.body.classList.add('theme-rainbow');
+    document.body.classList.remove('theme-retro');
+    if (getSavedRainbowFrozen()) {
+      document.body.classList.add('theme-rainbow-frozen');
+    } else {
+      document.body.classList.remove('theme-rainbow-frozen');
+    }
+
+    const updateRainbowVars = () => {
+      if (getSavedRainbowFrozen()) return; // Freeze dynamic interval update when frozen
+      currentRainbowHue = (currentRainbowHue + 0.25) % 360;
+      const hue = currentRainbowHue;
+      const rColor = `hsl(${hue}, 95%, 60%)`;
+      const rDark = `hsl(${hue}, 95%, 42%)`;
+      const rGlow = `hsla(${hue}, 95%, 60%, 0.6)`;
+      const rBgGlow = `hsla(${hue}, 95%, 60%, 0.18)`;
+      const rBorderGlow = `hsla(${hue}, 95%, 60%, 0.45)`;
+
+      root.style.setProperty('--accent-ruby', rColor);
+      root.style.setProperty('--accent-ruby-dark', rDark);
+      root.style.setProperty('--accent-ruby-glow', rGlow);
+      root.style.setProperty('--accent-ruby-bg-glow', rBgGlow);
+      root.style.setProperty('--border-glow', rBorderGlow);
+      root.style.setProperty('--shadow-ruby', `0 0 30px ${rGlow}`);
+    };
+
+    updateRainbowVars();
+    rainbowIntervalId = setInterval(updateRainbowVars, 250);
+  } else if (hex.toLowerCase() === 'retro') {
+    document.body.classList.remove('theme-rainbow');
+    document.body.classList.remove('theme-rainbow-frozen');
+    document.body.classList.add('theme-retro');
+
+    root.style.setProperty('--accent-ruby', '#c8820a');
+    root.style.setProperty('--accent-ruby-dark', '#9a640a');
+    root.style.setProperty('--accent-ruby-glow', 'rgba(200, 130, 10, 0.55)');
+    root.style.setProperty('--accent-ruby-bg-glow', 'rgba(200, 130, 10, 0.13)');
+    root.style.setProperty('--border-glow', 'rgba(200, 130, 10, 0.4)');
+    root.style.setProperty('--shadow-ruby', '0 4px 18px rgba(200, 130, 10, 0.35)');
+  } else {
+    document.body.classList.remove('theme-rainbow');
+    document.body.classList.remove('theme-rainbow-frozen');
+    document.body.classList.remove('theme-retro');
+    const r = parseInt(hex.slice(1, 3), 16) || 255;
+    const g = parseInt(hex.slice(3, 5), 16) || 46;
+    const b = parseInt(hex.slice(5, 7), 16) || 85;
+
+    const darkHex = `rgb(${Math.max(0, r - 30)}, ${Math.max(0, g - 30)}, ${Math.max(0, b - 30)})`;
+    const glow = `rgba(${r}, ${g}, ${b}, 0.5)`;
+    const bgGlow = `rgba(${r}, ${g}, ${b}, 0.12)`;
+    const borderGlow = `rgba(${r}, ${g}, ${b}, 0.4)`;
+
+    root.style.setProperty('--accent-ruby', hex);
+    root.style.setProperty('--accent-ruby-dark', darkHex);
+    root.style.setProperty('--accent-ruby-glow', glow);
+    root.style.setProperty('--accent-ruby-bg-glow', bgGlow);
+    root.style.setProperty('--border-glow', borderGlow);
+    root.style.setProperty('--shadow-ruby', `0 0 30px ${glow}`);
+  }
+
+  try {
+    localStorage.setItem('rubyplayer_site_color', hex);
+  } catch (err) { }
+}
+
+export function getSavedRainbowFrozen() {
+  try {
+    return localStorage.getItem('rubyplayer_rainbow_frozen') === 'true';
+  } catch (err) {
+    return false;
+  }
+}
+
+export function setRainbowFrozen(isFrozen) {
+  try {
+    localStorage.setItem('rubyplayer_rainbow_frozen', isFrozen ? 'true' : 'false');
+    if (isFrozen) {
+      document.body.classList.add('theme-rainbow-frozen');
+    } else {
+      document.body.classList.remove('theme-rainbow-frozen');
+    }
+  } catch (err) { }
+}
+
+export function getSavedDisableRotation() {
+  try {
+    return localStorage.getItem('rubyplayer_disable_rotation') === 'true';
+  } catch (err) {
+    return false;
+  }
+}
+
+export function setDisableRotation(disabled) {
+  try {
+    localStorage.setItem('rubyplayer_disable_rotation', disabled ? 'true' : 'false');
+    if (disabled) {
+      document.body.classList.add('disable-rotation');
+    } else {
+      document.body.classList.remove('disable-rotation');
+    }
+  } catch (err) {}
+}
+
+export function getSavedDisableVisualizerMotion() {
+  try {
+    return localStorage.getItem('rubyplayer_disable_visualizer_motion') === 'true';
+  } catch (err) {
+    return false;
+  }
+}
+
+export function setDisableVisualizerMotion(disabled) {
+  try {
+    localStorage.setItem('rubyplayer_disable_visualizer_motion', disabled ? 'true' : 'false');
+    if (disabled) {
+      document.body.classList.add('disable-visualizer-motion');
+    } else {
+      document.body.classList.remove('disable-visualizer-motion');
+    }
+  } catch (err) {}
+}
+
+export function getSavedSiteThemeColor() {
+  try {
+    return localStorage.getItem('rubyplayer_site_color') || '#ff2e55';
+  } catch (err) {
+    return '#ff2e55';
+  }
+}
+
+export function saveSelectedPlaylistId(playlistId) {
+  try {
+    if (playlistId) {
+      localStorage.setItem('rubyplayer_last_playlist', playlistId);
+    }
+  } catch (err) { }
+}
+
+export function getSavedSelectedPlaylistId() {
+  try {
+    return localStorage.getItem('rubyplayer_last_playlist') || 'all';
+  } catch (err) {
+    return 'all';
+  }
+}
+
+// Global Singleton Web Audio API Context & Gain Node
+let globalAudioCtx = null;
+let globalAnalyser = null;
+let globalGainNode = null;
+let globalSource = null;
+let boundAudioElement = null;
+
+export function getOrCreateWebAudio(audioElement, initialVolume = 1, isMuted = false) {
+  if (!audioElement) return { ctx: globalAudioCtx, analyser: globalAnalyser, gainNode: globalGainNode };
+
+  if (!globalAudioCtx) {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      globalAudioCtx = new AudioContext();
+      globalAnalyser = globalAudioCtx.createAnalyser();
+      globalAnalyser.fftSize = 256;
+      globalAnalyser.smoothingTimeConstant = 0.78;
+
+      globalGainNode = globalAudioCtx.createGain();
+      globalGainNode.gain.value = isMuted ? 0 : initialVolume;
+    } catch (err) {
+      // Context setup notice
+    }
+  }
+
+  if (globalAudioCtx && audioElement && boundAudioElement !== audioElement && !globalSource) {
+    try {
+      globalSource = globalAudioCtx.createMediaElementSource(audioElement);
+      globalSource.connect(globalAnalyser);
+      globalAnalyser.connect(globalGainNode);
+      globalGainNode.connect(globalAudioCtx.destination);
+      boundAudioElement = audioElement;
+    } catch (err) {
+      boundAudioElement = audioElement;
+    }
+  }
+
+  if (globalAudioCtx && globalAudioCtx.state === 'suspended') {
+    globalAudioCtx.resume().catch(() => { });
+  }
+
+  if (audioElement) {
+    audioElement.volume = 1.0;
+  }
+
+  return { ctx: globalAudioCtx, analyser: globalAnalyser, gainNode: globalGainNode };
+}
+
+export function setWebAudioVolume(vol, isMuted = false) {
+  if (globalGainNode) {
+    globalGainNode.gain.value = isMuted ? 0 : vol;
+  }
+}
+
+export function downloadTrack(track) {
+  if (!track) return;
+  const token = getAuthToken();
+  if (!token) return;
+  const trackId = track.id || track.relativePath;
+  const url = `/api/download?id=${encodeURIComponent(trackId)}&token=${encodeURIComponent(token)}`;
+
+  const link = document.createElement('a');
+  link.href = url;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
