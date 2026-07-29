@@ -20,8 +20,10 @@ import {
   fetchServerConfig,
   scanMediaFolder,
   getAudioStreamUrl,
+  getCoverArtUrl,
   getFolderCoverUrl,
   applySiteThemeColor,
+  extractAndApplyAdaptiveComplementaryColor,
   getSavedSiteThemeColor,
   getSavedSelectedPlaylistId,
   saveSelectedPlaylistId,
@@ -162,6 +164,17 @@ export default function App() {
   useEffect(() => {
     applySiteThemeColor(getSavedSiteThemeColor());
   }, []);
+
+  // Adaptive theme: recalculate complementary color whenever currentTrack changes
+  useEffect(() => {
+    const savedTheme = getSavedSiteThemeColor();
+    if ((savedTheme === 'adaptive' || savedTheme === 'complementary') && currentTrack) {
+      const coverUrl = currentTrack.hasCover
+        ? getCoverArtUrl(currentTrack.id)
+        : getFolderCoverUrl(currentTrack.id);
+      extractAndApplyAdaptiveComplementaryColor(coverUrl);
+    }
+  }, [currentTrack?.id, currentTrack?.hasCover]);
 
   // Re-read theme whenever config dialog closes
   useEffect(() => {

@@ -233,6 +233,33 @@ export default function ConfigModal({ isOpen, onClose }) {
                 <Disc size={16} />
                 <span>Retro</span>
               </button>
+
+              {/* Adaptive Complementary Color Theme Button */}
+              <button
+                type="button"
+                className="theme-preset-swatch"
+                onClick={() => handleColorChange('adaptive')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.6rem',
+                  padding: '0.5rem 1.1rem',
+                  borderRadius: 'var(--radius-md, 8px)',
+                  background: 'linear-gradient(135deg, #00f2fe, #4facfe, #ff0844, #ffb199)',
+                  color: '#ffffff',
+                  fontWeight: '700',
+                  fontSize: '0.85rem',
+                  border: siteColor.toLowerCase() === 'adaptive' ? '2px solid #ffffff' : '1px solid transparent',
+                  boxShadow: siteColor.toLowerCase() === 'adaptive' ? '0 0 14px rgba(0, 242, 254, 0.7)' : '0 2px 8px rgba(0,0,0,0.3)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  transform: siteColor.toLowerCase() === 'adaptive' ? 'scale(1.03)' : 'scale(1)',
+                  filter: 'none',
+                }}
+              >
+                <Palette size={16} />
+                <span>Adaptive Art</span>
+              </button>
             </div>
 
             {/* Freeze Motion Switch when Rainbow Theme is selected */}

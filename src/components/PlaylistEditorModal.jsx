@@ -511,6 +511,16 @@ export default function PlaylistEditorModal({
                   onChange={(e) => setRightSearchQuery(e.target.value)}
                   className="tree-search-input"
                 />
+                {rightSearchQuery && (
+                  <button
+                    type="button"
+                    className="search-clear-btn"
+                    onClick={() => setRightSearchQuery('')}
+                    title="Clear search"
+                  >
+                    <X size={12} />
+                  </button>
+                )}
               </div>
             </div>
 

@@ -113,7 +113,7 @@ export default function VinylDisc({ currentTrack, isPlaying, onOpenLyrics, theme
 
   React.useEffect(() => {
     setImgError(false);
-  }, [coverArt]);
+  }, [coverArt, theme]);
 
   return (
     <div className="vinyl-container" onClick={onOpenLyrics} title="Click to view lyrics">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Settings, User, LogOut, Lock, Unlock, ListMusic } from 'lucide-react';
+import { Search, Settings, User, LogOut, Lock, Unlock, ListMusic, X } from 'lucide-react';
 
 export default function Navbar({
   searchQuery,
@@ -42,6 +42,16 @@ export default function Navbar({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
+        {searchQuery && (
+          <button
+            type="button"
+            className="search-clear-btn"
+            onClick={() => setSearchQuery('')}
+            title="Clear search"
+          >
+            <X size={14} />
+          </button>
+        )}
       </div>
 
       {/* Right Header Actions: User Auth Status & Settings */}
