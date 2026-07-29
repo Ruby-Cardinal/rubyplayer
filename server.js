@@ -18,7 +18,29 @@ const CACHE_FILE = path.join(__dirname, 'rubyplayer_metadata_cache.json');
 const app = express();
 const PORT = 3001;
 
-app.use(cors());
+const DEFAULT_ALLOWED_ORIGINS = new Set([
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://localhost:3001',
+  'http://127.0.0.1:3001',
+]);
+
+app.use(cors((req, callback) => {
+  const origin = req.header('Origin');
+  // Allow non-browser requests (e.g., native mobile apps, curl, server-to-server) where origin header is absent
+  if (!origin) {
+    return callback(null, { origin: true, credentials: true });
+  }
+
+  const customAllowed = Array.isArray(appConfig.AllowedOrigins) ? appConfig.AllowedOrigins : [];
+  const isAllowed = DEFAULT_ALLOWED_ORIGINS.has(origin) || customAllowed.includes(origin);
+
+  if (isAllowed) {
+    return callback(null, { origin: true, credentials: true });
+  }
+
+  return callback(null, { origin: false });
+}));
 app.use(express.json());
 
 let bcrypt = null;
@@ -141,16 +163,31 @@ function hashToken(token) {
   return crypto.createHash('sha256').update(token).digest('hex');
 }
 
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+const FIFTEEN_MINUTES_MS = 15 * 60 * 1000;
+
+// Short-lived Media Tokens Store (mediaTokenHash -> { sessionTokenHash, expiresAt })
+const activeMediaTokens = new Map();
+
+function createMediaToken(sessionTokenHash) {
+  const rawMediaToken = 'mt_' + crypto.randomBytes(24).toString('hex');
+  const mHash = hashToken(rawMediaToken);
+  activeMediaTokens.set(mHash, {
+    sessionTokenHash,
+    expiresAt: Date.now() + FIFTEEN_MINUTES_MS,
+  });
+  return rawMediaToken;
+}
+
 function createSession(user) {
   const token = crypto.randomBytes(32).toString('hex');
   const tokenHash = hashToken(token);
   const now = Date.now();
-  const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
   const session = {
     tokenHash,
     username: user.username,
     role: user.role || 'user',
-    expiresAt: now + ONE_YEAR_MS,
+    expiresAt: now + THIRTY_DAYS_MS,
     lastActive: now,
   };
   activeSessions.set(tokenHash, session);
@@ -164,24 +201,38 @@ function getSessionUser(req) {
   const authHeader = req.headers ? req.headers.authorization : null;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     token = authHeader.slice(7).trim();
-  } else if (req.query && req.query.token) {
-    token = String(req.query.token).trim();
+  } else if (req.query) {
+    if (req.query.mt) token = String(req.query.mt).trim();
+    else if (req.query.mediaToken) token = String(req.query.mediaToken).trim();
+    else if (req.query.token) token = String(req.query.token).trim();
   }
 
   if (!token) return null;
-  const tokenHash = hashToken(token);
-  if (!tokenHash) return null;
+  const tHash = hashToken(token);
+  if (!tHash) return null;
 
-  const session = activeSessions.get(tokenHash);
+  let sessionTokenHash = tHash;
+  if (activeMediaTokens.has(tHash)) {
+    const mtInfo = activeMediaTokens.get(tHash);
+    if (Date.now() > mtInfo.expiresAt) {
+      activeMediaTokens.delete(tHash);
+      return null;
+    }
+    sessionTokenHash = mtInfo.sessionTokenHash;
+  }
+
+  const session = activeSessions.get(sessionTokenHash);
   if (!session) return null;
 
   if (Date.now() > session.expiresAt) {
-    activeSessions.delete(tokenHash);
+    activeSessions.delete(sessionTokenHash);
     saveUsers();
     return null;
   }
 
+  // Sliding 30-day session renewal on active usage
   session.lastActive = Date.now();
+  session.expiresAt = Date.now() + THIRTY_DAYS_MS;
   return session;
 }
 
@@ -1312,6 +1363,19 @@ app.get('/api/auth/me', (req, res) => {
       username: session.username,
       role: session.role,
     },
+  });
+});
+
+app.post('/api/auth/media-token', (req, res) => {
+  const session = getSessionUser(req);
+  if (!session) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+  const rawMediaToken = createMediaToken(session.tokenHash);
+  res.json({
+    success: true,
+    mediaToken: rawMediaToken,
+    expiresInSeconds: 900,
   });
 });
 

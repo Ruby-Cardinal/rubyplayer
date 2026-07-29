@@ -114,7 +114,49 @@ export async function fetchServerConfig() {
   return res.json();
 }
 
+let cachedMediaToken = null;
+let mediaTokenExpiresAt = 0;
+let pendingMediaTokenPromise = null;
+
+export async function getMediaToken() {
+  const token = getAuthToken();
+  if (!token) return null;
+
+  if (cachedMediaToken && Date.now() < mediaTokenExpiresAt - 60000) {
+    return cachedMediaToken;
+  }
+
+  if (pendingMediaTokenPromise) {
+    return pendingMediaTokenPromise;
+  }
+
+  pendingMediaTokenPromise = (async () => {
+    try {
+      const res = await fetch('/api/auth/media-token', {
+        method: 'POST',
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+      });
+      if (!res.ok) throw new Error('Failed to fetch media token');
+      const data = await res.json();
+      if (data.mediaToken) {
+        cachedMediaToken = data.mediaToken;
+        const ttlMs = (data.expiresInSeconds || 900) * 1000;
+        mediaTokenExpiresAt = Date.now() + ttlMs;
+        return cachedMediaToken;
+      }
+      return null;
+    } catch (err) {
+      return null;
+    } finally {
+      pendingMediaTokenPromise = null;
+    }
+  })();
+
+  return pendingMediaTokenPromise;
+}
+
 export async function scanMediaFolder(force = false) {
+  getMediaToken().catch(() => {});
   const url = force ? '/api/scan?force=true' : '/api/scan';
   const res = await fetch(url, { headers: getAuthHeaders() });
   if (!res.ok) {
@@ -126,25 +168,25 @@ export async function scanMediaFolder(force = false) {
 
 export function getAudioStreamUrl(trackOrPath) {
   if (!trackOrPath) return '';
-  const token = getAuthToken();
-  const tokenParam = token ? `&token=${encodeURIComponent(token)}` : '';
-  if (typeof trackOrPath === 'object') {
-    const rel = trackOrPath.relativePath || trackOrPath.id;
-    return `/api/stream?path=${encodeURIComponent(rel)}${tokenParam}`;
-  }
-  return `/api/stream?path=${encodeURIComponent(trackOrPath)}${tokenParam}`;
+  getMediaToken().catch(() => {});
+  const token = cachedMediaToken || getAuthToken();
+  const tokenParam = token ? `&mt=${encodeURIComponent(token)}` : '';
+  const rel = typeof trackOrPath === 'object' ? (trackOrPath.relativePath || trackOrPath.id) : trackOrPath;
+  return `/api/stream?path=${encodeURIComponent(rel)}${tokenParam}`;
 }
 
 export function getCoverArtUrl(trackId) {
   if (!trackId) return null;
-  const token = getAuthToken();
-  const tokenParam = token ? `&token=${encodeURIComponent(token)}` : '';
+  getMediaToken().catch(() => {});
+  const token = cachedMediaToken || getAuthToken();
+  const tokenParam = token ? `&mt=${encodeURIComponent(token)}` : '';
   return `/api/cover?id=${encodeURIComponent(trackId)}${tokenParam}`;
 }
 
 export function getFolderCoverUrl(trackId) {
-  const token = getAuthToken();
-  const tokenParam = token ? `&token=${encodeURIComponent(token)}` : '';
+  getMediaToken().catch(() => {});
+  const token = cachedMediaToken || getAuthToken();
+  const tokenParam = token ? `&mt=${encodeURIComponent(token)}` : '';
   if (!trackId) return `/api/folder-cover?${tokenParam.replace('&', '')}`;
   return `/api/folder-cover?id=${encodeURIComponent(trackId)}${tokenParam}`;
 }
@@ -543,12 +585,12 @@ export function setWebAudioVolume(vol, isMuted = false) {
   }
 }
 
-export function downloadTrack(track) {
+export async function downloadTrack(track) {
   if (!track) return;
-  const token = getAuthToken();
+  const token = (await getMediaToken()) || getAuthToken();
   if (!token) return;
   const trackId = track.id || track.relativePath;
-  const url = `/api/download?id=${encodeURIComponent(trackId)}&token=${encodeURIComponent(token)}`;
+  const url = `/api/download?id=${encodeURIComponent(trackId)}&mt=${encodeURIComponent(token)}`;
 
   const link = document.createElement('a');
   link.href = url;
