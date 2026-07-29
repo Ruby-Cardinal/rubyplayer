@@ -340,6 +340,44 @@ export function getSavedSelectedPlaylistId() {
   }
 }
 
+export function getFavoriteTrackIds() {
+  try {
+    const raw = localStorage.getItem('rubyplayer_favorites');
+    return raw ? JSON.parse(raw) : [];
+  } catch (err) {
+    return [];
+  }
+}
+
+export function saveFavoriteTrackIds(favorites) {
+  try {
+    localStorage.setItem('rubyplayer_favorites', JSON.stringify(favorites || []));
+  } catch (err) {}
+}
+
+export function toggleFavoriteTrackId(trackId) {
+  if (!trackId) return getFavoriteTrackIds();
+  const idStr = String(trackId);
+  const favs = getFavoriteTrackIds();
+  let updated;
+  if (favs.includes(idStr)) {
+    updated = favs.filter((id) => id !== idStr);
+  } else {
+    updated = [...favs, idStr];
+  }
+  saveFavoriteTrackIds(updated);
+  return updated;
+}
+
+export function isTrackFavorite(trackOrId, favoritesList) {
+  if (!trackOrId || !Array.isArray(favoritesList)) return false;
+  const idStr = typeof trackOrId === 'object'
+    ? String(trackOrId.relativePath || trackOrId.id)
+    : String(trackOrId);
+  return favoritesList.includes(idStr);
+}
+
+
 // Global Singleton Web Audio API Context & Gain Node
 let globalAudioCtx = null;
 let globalAnalyser = null;

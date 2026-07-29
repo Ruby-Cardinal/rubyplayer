@@ -652,10 +652,62 @@ body.theme-rainbow-frozen {
   font-size: 0.78rem;
   opacity: 0.65;
   white-space: nowrap;
-  margin-left: 0.75rem;
   font-family: var(--font-mono, monospace);
   color: var(--text-secondary);
   flex-shrink: 0;
+}
+
+.track-right {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+
+.btn-fav-track {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: var(--radius-full);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0.4;
+}
+
+.track-row:hover .btn-fav-track {
+  opacity: 0.85;
+  color: var(--text-secondary);
+}
+
+.btn-fav-track:hover {
+  opacity: 1 !important;
+  color: var(--accent-ruby) !important;
+  transform: scale(1.18);
+  filter: drop-shadow(0 0 6px var(--accent-ruby-glow));
+}
+
+.btn-fav-track.active {
+  opacity: 1;
+  color: var(--accent-ruby);
+  filter: drop-shadow(0 0 8px var(--accent-ruby-glow));
+}
+
+.btn-fav-player {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-fav-player:hover {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 8px var(--accent-ruby-glow));
+}
+
+.btn-fav-player.active {
+  color: var(--accent-ruby) !important;
+  filter: drop-shadow(0 0 10px var(--accent-ruby-glow));
 }
 
 .no-tracks {

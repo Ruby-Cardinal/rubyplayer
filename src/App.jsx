@@ -14,6 +14,7 @@ import VinylDisc from './components/VinylDisc';
 import ConfigModal from './components/ConfigModal';
 import LyricsModal from './components/LyricsModal';
 import LoginModal from './components/LoginModal';
+import RubyFavIcon from './components/RubyFavIcon';
 import {
   fetchServerConfig,
   scanMediaFolder,
@@ -23,6 +24,9 @@ import {
   getSavedSiteThemeColor,
   getSavedSelectedPlaylistId,
   saveSelectedPlaylistId,
+  getFavoriteTrackIds,
+  toggleFavoriteTrackId,
+  isTrackFavorite,
   getOrCreateWebAudio,
   setWebAudioVolume,
   checkAuthStatus,
@@ -104,11 +108,22 @@ export default function App() {
   const [isShuffle, setIsShuffle] = useState(false);
   const [repeatMode, setRepeatMode] = useState('off');
 
+  // Favorites state
+  const [favorites, setFavorites] = useState(() => getFavoriteTrackIds());
+
   // Modals & Auth State
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isLyricsOpen, setIsLyricsOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+
+  const handleToggleFavorite = (trackToToggle) => {
+    const target = trackToToggle || currentTrack;
+    if (!target) return;
+    const tId = target.relativePath || target.id;
+    const updated = toggleFavoriteTrackId(tId);
+    setFavorites(updated);
+  };
 
   // Theme tracking (updated when config dialog closes)
   const [currentTheme, setCurrentTheme] = useState(() => getSavedSiteThemeColor());
@@ -159,7 +174,7 @@ export default function App() {
       setPlaylists(loadedPlaylists);
 
       const savedId = getSavedSelectedPlaylistId();
-      const isValidSaved = savedId === 'none' || savedId === 'all' || loadedPlaylists.some((p) => p.id === savedId);
+      const isValidSaved = savedId === 'none' || savedId === 'all' || savedId === 'favorites' || loadedPlaylists.some((p) => p.id === savedId);
       const initialId = isValidSaved ? savedId : 'all';
 
       setSelectedPlaylistId(initialId);
@@ -170,14 +185,17 @@ export default function App() {
       } else {
         const selPl = loadedPlaylists.find((p) => p.id === initialId);
         let initTracks = loadedTracks;
-        if (selPl && initialId !== 'all' && Array.isArray(selPl.tracks)) {
+        if (initialId === 'favorites') {
+          const currentFavs = getFavoriteTrackIds();
+          initTracks = loadedTracks.filter((t) => isTrackFavorite(t, currentFavs));
+        } else if (selPl && initialId !== 'all' && Array.isArray(selPl.tracks)) {
           initTracks = loadedTracks.filter((t) =>
             selPl.tracks.some(
               (p) => typeof p === 'string' && (t.relativePath === p || t.relativePath.endsWith(p) || p.endsWith(t.relativePath))
             )
           );
         }
-        const sortedInit = getSortedTracks(initTracks.length > 0 ? initTracks : loadedTracks, sortMode, sortDirection);
+        const sortedInit = getSortedTracks(initTracks, sortMode, sortDirection);
         setCurrentQueue(sortedInit);
         if (sortedInit.length > 0) {
           setCurrentTrackIndex(0);
@@ -236,6 +254,8 @@ export default function App() {
 
   if (selectedPlaylistId === 'none') {
     baseTrackList = [];
+  } else if (selectedPlaylistId === 'favorites') {
+    baseTrackList = tracks.filter((t) => isTrackFavorite(t, favorites));
   } else if (selectedPlaylist && selectedPlaylistId !== 'all') {
     if (Array.isArray(selectedPlaylist.tracks)) {
       baseTrackList = tracks.filter((t) =>
@@ -274,17 +294,21 @@ export default function App() {
     }
 
     let rawList = tracks;
-    const p = playlists.find((pl) => pl.id === newPlaylistId);
-    if (p && newPlaylistId !== 'all' && Array.isArray(p.tracks)) {
-      rawList = tracks.filter((t) =>
-        p.tracks.some(
-          (pathStr) => typeof pathStr === 'string' && (t.relativePath === pathStr || t.relativePath.endsWith(pathStr) || pathStr.endsWith(t.relativePath))
-        )
-      );
+    if (newPlaylistId === 'favorites') {
+      rawList = tracks.filter((t) => isTrackFavorite(t, favorites));
+    } else {
+      const p = playlists.find((pl) => pl.id === newPlaylistId);
+      if (p && newPlaylistId !== 'all' && Array.isArray(p.tracks)) {
+        rawList = tracks.filter((t) =>
+          p.tracks.some(
+            (pathStr) => typeof pathStr === 'string' && (t.relativePath === pathStr || t.relativePath.endsWith(pathStr) || pathStr.endsWith(t.relativePath))
+          )
+        );
+      }
     }
     const sorted = getSortedTracks(rawList, sortMode, sortDirection);
     setCurrentQueue(sorted);
-    setCurrentTrackIndex(0);
+    setCurrentTrackIndex(sorted.length > 0 ? 0 : -1);
   };
 
   const handleSortChange = (newMode, newDirection) => {
@@ -419,107 +443,127 @@ export default function App() {
   };
 
   // Render Playlist Column Component
-  const renderPlaylistColumn = () => (
-    <div className="playlist-column-wrapper">
-      <div className="col-playlist glass-card">
-        <div className="playlist-header">
-          <div className="playlist-dropdown-wrapper">
-            <select
-              className="playlist-dropdown"
-              value={selectedPlaylistId}
-              onChange={(e) => handlePlaylistChange(e.target.value)}
-              disabled={config.isLocked}
-            >
-              <option value="none">-- No Playlist --</option>
-              <option value="all">All Songs ({tracks.length})</option>
-              {playlists.map((pl) => (
-                <option key={pl.id} value={pl.id}>
-                  {pl.name} ({Array.isArray(pl.tracks) ? pl.tracks.length : 0})
-                </option>
-              ))}
-            </select>
-            <ChevronDown size={16} className="dropdown-arrow" />
-          </div>
+  const renderPlaylistColumn = () => {
+    const favCount = tracks.filter((t) => isTrackFavorite(t, favorites)).length;
 
-          <div className="playlist-controls">
-            {/* Sort Mode Dropdown */}
-            <div className="sort-dropdown-wrapper" title="Sort Playlist">
-              <ArrowUpDown size={14} className="sort-icon" />
+    return (
+      <div className="playlist-column-wrapper">
+        <div className="col-playlist glass-card">
+          <div className="playlist-header">
+            <div className="playlist-dropdown-wrapper">
               <select
-                className="sort-dropdown"
-                value={sortMode}
-                onChange={(e) => handleSortChange(e.target.value, sortDirection)}
+                className="playlist-dropdown"
+                value={selectedPlaylistId}
+                onChange={(e) => handlePlaylistChange(e.target.value)}
+                disabled={config.isLocked}
               >
-                <option value="date">Date</option>
-                <option value="title">Alphabetical</option>
-                <option value="original">Playlist Order</option>
+                <option value="none">-- No Playlist --</option>
+                <option value="all">All Songs ({tracks.length})</option>
+                <option value="favorites">💎 Favorites ({favCount})</option>
+                {playlists.map((pl) => (
+                  <option key={pl.id} value={pl.id}>
+                    {pl.name} ({Array.isArray(pl.tracks) ? pl.tracks.length : 0})
+                  </option>
+                ))}
               </select>
+              <ChevronDown size={16} className="dropdown-arrow" />
             </div>
 
-            {/* Sort Direction Toggle */}
-            <button
-              className="btn-toggle sort-dir-btn"
-              onClick={() => handleSortChange(sortMode, sortDirection === 'desc' ? 'asc' : 'desc')}
-              title={`Sort Direction: ${sortDirection === 'desc' ? 'Descending (Newest / Z-A)' : 'Ascending (Oldest / A-Z)'}`}
-            >
-              {sortDirection === 'desc' ? <ArrowDownAZ size={17} /> : <ArrowUpAZ size={17} />}
-            </button>
+            <div className="playlist-controls">
+              {/* Sort Mode Dropdown */}
+              <div className="sort-dropdown-wrapper" title="Sort Playlist">
+                <ArrowUpDown size={14} className="sort-icon" />
+                <select
+                  className="sort-dropdown"
+                  value={sortMode}
+                  onChange={(e) => handleSortChange(e.target.value, sortDirection)}
+                >
+                  <option value="date">Date</option>
+                  <option value="title">Alphabetical</option>
+                  <option value="original">Playlist Order</option>
+                </select>
+              </div>
 
-            <button
-              className={`btn-toggle ${isShuffle ? 'active' : ''}`}
-              onClick={() => setIsShuffle(!isShuffle)}
-              title="Toggle Shuffle"
-            >
-              <Shuffle size={18} />
-            </button>
+              {/* Sort Direction Toggle */}
+              <button
+                className="btn-toggle sort-dir-btn"
+                onClick={() => handleSortChange(sortMode, sortDirection === 'desc' ? 'asc' : 'desc')}
+                title={`Sort Direction: ${sortDirection === 'desc' ? 'Descending (Newest / Z-A)' : 'Ascending (Oldest / A-Z)'}`}
+              >
+                {sortDirection === 'desc' ? <ArrowDownAZ size={17} /> : <ArrowUpAZ size={17} />}
+              </button>
 
-            <button
-              className={`btn-toggle ${repeatMode !== 'off' ? 'active' : ''}`}
-              onClick={() => {
-                if (repeatMode === 'off') setRepeatMode('all');
-                else if (repeatMode === 'all') setRepeatMode('one');
-                else setRepeatMode('off');
-              }}
-              title={`Repeat: ${repeatMode}`}
-            >
-              <Repeat size={18} />
-              {repeatMode === 'one' && <span className="repeat-badge">1</span>}
-            </button>
+              <button
+                className={`btn-toggle ${isShuffle ? 'active' : ''}`}
+                onClick={() => setIsShuffle(!isShuffle)}
+                title="Toggle Shuffle"
+              >
+                <Shuffle size={18} />
+              </button>
+
+              <button
+                className={`btn-toggle ${repeatMode !== 'off' ? 'active' : ''}`}
+                onClick={() => {
+                  if (repeatMode === 'off') setRepeatMode('all');
+                  else if (repeatMode === 'all') setRepeatMode('one');
+                  else setRepeatMode('off');
+                }}
+                title={`Repeat: ${repeatMode}`}
+              >
+                <Repeat size={18} />
+                {repeatMode === 'one' && <span className="repeat-badge">1</span>}
+              </button>
+            </div>
+          </div>
+
+          <div className="track-list">
+            {selectedPlaylistId === 'none' ? (
+              <div className="no-tracks">No playlist selected</div>
+            ) : displayTracks.length === 0 ? (
+              <div className="no-tracks">
+                {selectedPlaylistId === 'favorites' ? 'No favorite songs added yet' : 'No songs found'}
+              </div>
+            ) : (
+              displayTracks.map((track, idx) => {
+                const isCurrent = currentTrack && currentTrack.id === track.id;
+                const isFav = isTrackFavorite(track, favorites);
+                return (
+                  <div
+                    key={track.id || idx}
+                    ref={isCurrent ? activeTrackRef : null}
+                    className={`track-row ${isCurrent ? 'active' : ''}`}
+                    onClick={() => playTrack(track, displayTracks)}
+                  >
+                    <div className="track-left">
+                      <span className="track-index">{idx + 1}.</span>
+                      <span className="track-title-name">{track.title}</span>
+                    </div>
+                    <div className="track-right">
+                      {track.publishDate && (
+                        <span className="track-date" title={`Date (${track.dateSource || 'Published'})`}>
+                          {track.publishDate}
+                        </span>
+                      )}
+                      <button
+                        className={`btn-fav-track ${isFav ? 'active' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleFavorite(track);
+                        }}
+                        title={isFav ? 'Remove from Favorites' : 'Add to Favorites'}
+                      >
+                        <RubyFavIcon filled={isFav} size={15} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
-
-        <div className="track-list">
-          {selectedPlaylistId === 'none' ? (
-            <div className="no-tracks">No playlist selected</div>
-          ) : displayTracks.length === 0 ? (
-            <div className="no-tracks">No songs found</div>
-          ) : (
-            displayTracks.map((track, idx) => {
-              const isCurrent = currentTrack && currentTrack.id === track.id;
-              return (
-                <div
-                  key={track.id || idx}
-                  ref={isCurrent ? activeTrackRef : null}
-                  className={`track-row ${isCurrent ? 'active' : ''}`}
-                  onClick={() => playTrack(track, displayTracks)}
-                >
-                  <div className="track-left">
-                    <span className="track-index">{idx + 1}.</span>
-                    <span className="track-title-name">{track.title}</span>
-                  </div>
-                  {track.publishDate && (
-                    <span className="track-date" title={`Date (${track.dateSource || 'Published'})`}>
-                      {track.publishDate}
-                    </span>
-                  )}
-                </div>
-              );
-            })
-          )}
-        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="app-container">
@@ -603,6 +647,8 @@ export default function App() {
         onOpenLyrics={() => setIsLyricsOpen(true)}
         currentUser={currentUser}
         onDownloadTrack={handleDownloadTrack}
+        isFavorite={currentTrack ? isTrackFavorite(currentTrack, favorites) : false}
+        onToggleFavorite={() => handleToggleFavorite(currentTrack)}
       />
 
       {/* Modals */}

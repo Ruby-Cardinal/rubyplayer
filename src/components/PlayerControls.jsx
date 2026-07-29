@@ -11,6 +11,7 @@ import {
   FileText,
   Download,
 } from 'lucide-react';
+import RubyFavIcon from './RubyFavIcon';
 
 export default function PlayerControls({
   currentTrack,
@@ -30,6 +31,8 @@ export default function PlayerControls({
   onOpenLyrics,
   currentUser,
   onDownloadTrack,
+  isFavorite = false,
+  onToggleFavorite,
 }) {
   const formatTime = (secs) => {
     if (!secs || isNaN(secs)) return '0:00';
@@ -108,8 +111,27 @@ export default function PlayerControls({
           </button>
         </div>
 
-        {/* Right Volume & Lyrics Control */}
+        {/* Right Volume, Favorite & Lyrics Control */}
         <div className="controls-right">
+          <button
+            className={`btn-icon-ctrl btn-fav-player ${isFavorite ? 'active' : ''}`}
+            onClick={onToggleFavorite}
+            disabled={!currentTrack}
+            title={
+              !currentTrack
+                ? 'No song loaded'
+                : isFavorite
+                ? 'Remove from Favorites'
+                : 'Add to Favorites'
+            }
+            style={{
+              color: isFavorite ? 'var(--accent-ruby)' : 'var(--text-secondary)',
+              marginRight: '0.5rem',
+            }}
+          >
+            <RubyFavIcon filled={isFavorite} size={18} />
+          </button>
+
           <button
             className="btn-icon-ctrl"
             onClick={onOpenLyrics}
