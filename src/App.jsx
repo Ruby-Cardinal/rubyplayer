@@ -132,6 +132,20 @@ export default function App() {
 
   const audioRef = useRef(null);
   const activeTrackRef = useRef(null);
+  const recentPlayedIdsRef = useRef([]);
+
+  // Track recent played songs for non-repeating shuffle history (last 5 songs)
+  useEffect(() => {
+    if (currentTrack) {
+      const id = currentTrack.relativePath || currentTrack.id;
+      if (id) {
+        recentPlayedIdsRef.current = [
+          ...recentPlayedIdsRef.current.filter((item) => item !== id),
+          id,
+        ].slice(-5);
+      }
+    }
+  }, [currentTrack?.id, currentTrack?.relativePath]);
 
   // Auto-scroll active track into view when currentTrack changes
   useEffect(() => {
@@ -352,6 +366,43 @@ export default function App() {
     }
   };
 
+  // Helper to pick next shuffled track index excluding recent played history (up to 5 tracks)
+  const getShuffledNextIndex = (queue, track) => {
+    if (!queue || queue.length === 0) return 0;
+    if (queue.length === 1) return 0;
+
+    const history = recentPlayedIdsRef.current || [];
+    const maxExcludeCount = Math.min(5, Math.max(0, queue.length - 1));
+    const excludedIds = new Set(history.slice(-maxExcludeCount));
+
+    if (track) {
+      const curId = track.relativePath || track.id;
+      if (curId) excludedIds.add(curId);
+    }
+
+    const candidates = queue
+      .map((t, idx) => ({ t, idx }))
+      .filter(({ t }) => {
+        const id = t.relativePath || t.id;
+        return !excludedIds.has(id);
+      });
+
+    if (candidates.length > 0) {
+      const randomItem = candidates[Math.floor(Math.random() * candidates.length)];
+      return randomItem.idx;
+    }
+
+    const fallbackCandidates = queue
+      .map((t, idx) => ({ t, idx }))
+      .filter(({ t }) => (t.relativePath || t.id) !== (track?.relativePath || track?.id));
+
+    if (fallbackCandidates.length > 0) {
+      return fallbackCandidates[Math.floor(Math.random() * fallbackCandidates.length)].idx;
+    }
+
+    return Math.floor(Math.random() * queue.length);
+  };
+
   const handleSkipNext = () => {
     if (activeQueue.length === 0) return;
     setCurrentQueue(activeQueue);
@@ -360,7 +411,7 @@ export default function App() {
 
     let nextIdx = (currentIdxInActive + 1) % activeQueue.length;
     if (isShuffle) {
-      nextIdx = Math.floor(Math.random() * activeQueue.length);
+      nextIdx = getShuffledNextIndex(activeQueue, currentTrack);
     }
     setCurrentTrackIndex(nextIdx);
     setIsPlaying(true);
@@ -382,7 +433,7 @@ export default function App() {
 
     let prevIdx = (currentIdxInActive - 1 + activeQueue.length) % activeQueue.length;
     if (isShuffle) {
-      prevIdx = Math.floor(Math.random() * activeQueue.length);
+      prevIdx = getShuffledNextIndex(activeQueue, currentTrack);
     }
     setCurrentTrackIndex(prevIdx);
     setIsPlaying(true);
