@@ -33,3 +33,4 @@ pnpm-debug.log*
 .turbo/
 rubyplayer_config.json
 user_rubymusic.json
+rubyplayer_metadata_cache.json
