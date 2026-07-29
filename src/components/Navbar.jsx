@@ -30,6 +30,7 @@ export default function Navbar({
         <span className="brand-name">
           <span className="brand-ruby">Ruby</span>
           <sub className="brand-player-sub">Player</sub>
+          <sup style={{ fontSize: '0.5em', opacity: 0.45, marginLeft: '0.25em', fontWeight: 400, letterSpacing: '0.02em' }}>v0.8</sup>
         </span>
       </div>
 

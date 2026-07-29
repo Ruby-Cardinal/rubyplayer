@@ -135,6 +135,8 @@ export default function App() {
   const currentTrack = currentQueue[currentTrackIndex] || null;
 
   const audioRef = useRef(null);
+  const prefetchAudioRef = useRef(null);
+  const prefetchedTrackIdRef = useRef(null);
   const activeTrackRef = useRef(null);
   const recentPlayedIdsRef = useRef([]);
 
@@ -263,17 +265,45 @@ export default function App() {
     config.LockedPlaylists && config.LockedPlaylists.length > 0 && !currentUser
   );
 
-  // Handle autoplay whenever currentTrack changes
+  // Handle autoplay whenever currentTrack changes — use prefetched audio if available
   useEffect(() => {
     if (!audioRef.current || !currentTrack) return;
 
-    const streamUrl = getAudioStreamUrl(currentTrack);
-    if (audioRef.current.src !== window.location.origin + streamUrl && audioRef.current.src !== streamUrl) {
-      audioRef.current.src = streamUrl;
-    }
+    const trackId = currentTrack.relativePath || currentTrack.id;
 
-    if (isPlaying) {
-      audioRef.current.play().catch((err) => console.warn('Autoplay notice:', err));
+    // If we have a prefetched Audio for this exact track, swap it in
+    if (prefetchAudioRef.current && prefetchedTrackIdRef.current === trackId) {
+      const oldAudio = audioRef.current;
+      const prefetched = prefetchAudioRef.current;
+
+      // Transfer event handlers from the old <audio> to the prefetched one
+      prefetched.ontimeupdate = () => prefetched && setCurrentTime(prefetched.currentTime);
+      prefetched.onloadedmetadata = () => prefetched && setDuration(prefetched.duration);
+      prefetched.onended = handleTrackEnded;
+
+      // Pause and clear old audio
+      oldAudio.pause();
+      oldAudio.removeAttribute('src');
+      oldAudio.load();
+
+      // Replace ref
+      audioRef.current = prefetched;
+      prefetchAudioRef.current = null;
+      prefetchedTrackIdRef.current = null;
+
+      if (isPlaying) {
+        prefetched.play().catch((err) => console.warn('Prefetch autoplay notice:', err));
+      }
+    } else {
+      // Normal path: set src directly
+      const streamUrl = getAudioStreamUrl(currentTrack);
+      if (audioRef.current.src !== window.location.origin + streamUrl && audioRef.current.src !== streamUrl) {
+        audioRef.current.src = streamUrl;
+      }
+
+      if (isPlaying) {
+        audioRef.current.play().catch((err) => console.warn('Autoplay notice:', err));
+      }
     }
   }, [currentTrack]);
 
@@ -310,6 +340,40 @@ export default function App() {
   const activeQueue = selectedPlaylistId === 'none'
     ? []
     : (displayTracks.length > 0 ? displayTracks : (currentQueue.length > 0 ? currentQueue : tracks));
+
+  // Pre-buffer next track when current track is past 50% to ensure seamless transitions
+  useEffect(() => {
+    if (!currentTrack || !duration || duration === 0) return;
+    if (currentTime < duration * 0.5) return;
+
+    // Determine the next track
+    let nextTrack = null;
+    if (repeatMode === 'one') {
+      // Repeat-one restarts the same track, no prefetch needed
+      return;
+    }
+    if (isShuffle) {
+      // For shuffle, we can't predict; skip prefetch
+      return;
+    }
+    const nextIdx = (currentTrackIndex + 1) % activeQueue.length;
+    nextTrack = activeQueue[nextIdx];
+    if (!nextTrack) return;
+
+    const nextTrackId = nextTrack.relativePath || nextTrack.id;
+    // Already prefetched this track
+    if (prefetchedTrackIdRef.current === nextTrackId) return;
+
+    // Create a new Audio element and start loading the next track
+    const nextAudio = new Audio();
+    nextAudio.preload = 'auto';
+    nextAudio.src = getAudioStreamUrl(nextTrack);
+    // Start loading (the browser will buffer the audio data)
+    nextAudio.load();
+
+    prefetchAudioRef.current = nextAudio;
+    prefetchedTrackIdRef.current = nextTrackId;
+  }, [currentTime, duration, currentTrack, currentTrackIndex, activeQueue, repeatMode, isShuffle]);
 
   // Playlist & Sort Handlers
   const handlePlaylistChange = (newPlaylistId) => {
@@ -461,6 +525,56 @@ export default function App() {
   const handleFastForward10 = () => {
     if (audioRef.current) audioRef.current.currentTime = Math.min(duration, audioRef.current.currentTime + 10);
   };
+
+  // Media Session API: lock screen controls + background playback priority
+  // Uses refs for handlers to avoid stale closures and excessive re-registration
+  const handleSkipNextRef = useRef(handleSkipNext);
+  const handleSkipPrevRef = useRef(handleSkipPrev);
+  const handleRewind10Ref = useRef(handleRewind10);
+  const handleFastForward10Ref = useRef(handleFastForward10);
+  useEffect(() => {
+    handleSkipNextRef.current = handleSkipNext;
+    handleSkipPrevRef.current = handleSkipPrev;
+    handleRewind10Ref.current = handleRewind10;
+    handleFastForward10Ref.current = handleFastForward10;
+  });
+
+  useEffect(() => {
+    if (!('mediaSession' in navigator) || !currentTrack) return;
+
+    const coverUrl = currentTrack.hasCover
+      ? getCoverArtUrl(currentTrack.id)
+      : getFolderCoverUrl(currentTrack.id);
+
+    // Build artwork array with absolute URL
+    const artworkArr = coverUrl
+      ? [{ src: new URL(coverUrl, window.location.origin).href, sizes: '512x512', type: 'image/jpeg' }]
+      : [];
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: currentTrack.title || 'Unknown Title',
+      artist: currentTrack.artist || 'Unknown Artist',
+      album: currentTrack.album || '',
+      artwork: artworkArr,
+    });
+
+    navigator.mediaSession.setActionHandler('play', () => {
+      if (audioRef.current) audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+    });
+    navigator.mediaSession.setActionHandler('pause', () => {
+      if (audioRef.current) { audioRef.current.pause(); setIsPlaying(false); }
+    });
+    navigator.mediaSession.setActionHandler('previoustrack', () => handleSkipPrevRef.current());
+    navigator.mediaSession.setActionHandler('nexttrack', () => handleSkipNextRef.current());
+    navigator.mediaSession.setActionHandler('seekbackward', () => handleRewind10Ref.current());
+    navigator.mediaSession.setActionHandler('seekforward', () => handleFastForward10Ref.current());
+
+    return () => {
+      ['play', 'pause', 'previoustrack', 'nexttrack', 'seekbackward', 'seekforward'].forEach((action) => {
+        try { navigator.mediaSession.setActionHandler(action, null); } catch (e) {}
+      });
+    };
+  }, [currentTrack]);
 
   const handleSeek = (newTime) => {
     if (audioRef.current) {
