@@ -20,6 +20,7 @@ import {
   fetchServerConfig,
   scanMediaFolder,
   getAudioStreamUrl,
+  getMediaToken,
   getCoverArtUrl,
   getFolderCoverUrl,
   applySiteThemeColor,
@@ -386,7 +387,7 @@ export default function App() {
     setIsPlaying(true);
   };
 
-  const togglePlayPause = () => {
+  const togglePlayPause = async () => {
     if (!currentTrack && activeQueue.length > 0) {
       playTrack(activeQueue[0], activeQueue);
       return;
@@ -396,6 +397,13 @@ export default function App() {
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
+      const token = await getMediaToken();
+      const currentSrc = audioRef.current.src || '';
+      if (token && currentTrack && !currentSrc.includes(encodeURIComponent(token))) {
+        const savedTime = audioRef.current.currentTime || 0;
+        audioRef.current.src = getAudioStreamUrl(currentTrack);
+        audioRef.current.currentTime = savedTime;
+      }
       audioRef.current.play().then(() => setIsPlaying(true)).catch((err) => console.warn('Play error:', err));
     }
   };
