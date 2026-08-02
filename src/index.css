@@ -561,8 +561,9 @@ body.theme-rainbow-frozen {
 
 .playlist-dropdown-wrapper {
   position: relative;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  max-width: calc(100% - 45px);
 }
 
 .playlist-dropdown {
@@ -576,6 +577,8 @@ body.theme-rainbow-frozen {
   font-size: 1.05rem;
   padding-right: 1.5rem;
   cursor: pointer;
+  width: auto;
+  max-width: 100%;
 }
 
 .playlist-dropdown option {
@@ -583,10 +586,11 @@ body.theme-rainbow-frozen {
   color: var(--text-primary);
 }
 
+.dropdown-arrow,
 .dropdown-icon {
   position: absolute;
   right: 0;
-  color: var(--accent-ruby);
+  color: var(--text-primary);
   pointer-events: none;
 }
 
@@ -2358,7 +2362,40 @@ body.theme-retro .modal-close-btn:hover {
   gap: 0.4rem;
 }
 
-/* Responsive Navbar Breakdown */
+/* Responsive Playlist Header Breakdown (Applies in 2-column mode & stacked when narrow) */
+@media (max-width: 1250px) {
+  .playlist-header {
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 0.55rem;
+    align-items: center;
+  }
+
+  .playlist-dropdown-wrapper {
+    display: inline-flex;
+    position: relative;
+    max-width: calc(100% - 45px);
+    order: 1;
+  }
+
+  .btn-expand-playlist {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .playlist-controls {
+    order: 3;
+    flex-basis: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+}
+
+/* Responsive Navbar & Track Row Breakdown */
 @media (max-width: 768px) {
   .navbar {
     height: auto;
@@ -2381,31 +2418,6 @@ body.theme-retro .modal-close-btn:hover {
     width: 100%;
     max-width: 100%;
     margin-top: 0.1rem;
-  }
-
-  /* Responsive Playlist Header & Track Row Stacking */
-  .playlist-header {
-    flex-wrap: wrap;
-    row-gap: 0.55rem;
-    align-items: center;
-  }
-
-  .playlist-dropdown-wrapper {
-    flex: 1;
-    min-width: 0;
-    order: 1;
-  }
-
-  .btn-expand-playlist {
-    order: 2;
-    margin-left: auto;
-  }
-
-  .playlist-controls {
-    order: 3;
-    width: 100%;
-    justify-content: flex-start;
-    gap: 0.5rem;
   }
 
   .track-info {
