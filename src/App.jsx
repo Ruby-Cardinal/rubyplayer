@@ -3,6 +3,7 @@ import {
   Shuffle,
   Repeat,
   ChevronDown,
+  ChevronUp,
   ArrowUpDown,
   ArrowDownAZ,
   ArrowUpAZ,
@@ -112,6 +113,7 @@ export default function App() {
   const [sortDirection, setSortDirection] = useState(() => localStorage.getItem('rubyplayer_sort_dir') || 'desc');
   const [isShuffle, setIsShuffle] = useState(false);
   const [repeatMode, setRepeatMode] = useState('off');
+  const [isPlaylistExpanded, setIsPlaylistExpanded] = useState(false);
 
   // Favorites state
   const [favorites, setFavorites] = useState(() => getFavoriteTrackIds());
@@ -598,73 +600,81 @@ export default function App() {
 
     return (
       <div className="playlist-column-wrapper">
-        <div className="col-playlist glass-card">
-          <div className="playlist-header">
-            <div className="playlist-dropdown-wrapper">
-              <select
-                className="playlist-dropdown"
-                value={selectedPlaylistId}
-                onChange={(e) => handlePlaylistChange(e.target.value)}
-                disabled={config.isLocked}
-              >
-                <option value="none">-- No Playlist --</option>
-                <option value="all">All Songs ({tracks.length})</option>
-                <option value="favorites">💎 Favorites ({favCount})</option>
-                {sortedPlaylists.map((pl) => (
-                  <option key={pl.id} value={pl.id}>
-                    {pl.isArtistPlaylist ? '🎵 ' : ''}{pl.name} ({Array.isArray(pl.tracks) ? pl.tracks.length : 0})
-                  </option>
-                ))}
-              </select>
-              <ChevronDown size={16} className="dropdown-arrow" />
-            </div>
-
-            <div className="playlist-controls">
-              {/* Sort Mode Dropdown */}
-              <div className="sort-dropdown-wrapper" title="Sort Playlist">
-                <ArrowUpDown size={14} className="sort-icon" />
-                <select
-                  className="sort-dropdown"
-                  value={sortMode}
-                  onChange={(e) => handleSortChange(e.target.value, sortDirection)}
-                >
-                  <option value="date">Date</option>
-                  <option value="title">Alphabetical</option>
-                  <option value="original">Playlist Order</option>
-                </select>
-              </div>
-
-              {/* Sort Direction Toggle */}
-              <button
-                className="btn-toggle sort-dir-btn"
-                onClick={() => handleSortChange(sortMode, sortDirection === 'desc' ? 'asc' : 'desc')}
-                title={`Sort Direction: ${sortDirection === 'desc' ? 'Descending (Newest / Z-A)' : 'Ascending (Oldest / A-Z)'}`}
-              >
-                {sortDirection === 'desc' ? <ArrowDownAZ size={17} /> : <ArrowUpAZ size={17} />}
-              </button>
-
-              <button
-                className={`btn-toggle ${isShuffle ? 'active' : ''}`}
-                onClick={() => setIsShuffle(!isShuffle)}
-                title="Toggle Shuffle"
-              >
-                <Shuffle size={18} />
-              </button>
-
-              <button
-                className={`btn-toggle ${repeatMode !== 'off' ? 'active' : ''}`}
-                onClick={() => {
-                  if (repeatMode === 'off') setRepeatMode('all');
-                  else if (repeatMode === 'all') setRepeatMode('one');
-                  else setRepeatMode('off');
-                }}
-                title={`Repeat: ${repeatMode}`}
-              >
-                <Repeat size={18} />
-                {repeatMode === 'one' && <span className="repeat-badge">1</span>}
-              </button>
-            </div>
+      <div className={`col-playlist glass-card ${isPlaylistExpanded ? 'is-expanded' : ''}`}>
+        <div className="playlist-header">
+          <div className="playlist-dropdown-wrapper">
+            <select
+              className="playlist-dropdown"
+              value={selectedPlaylistId}
+              onChange={(e) => handlePlaylistChange(e.target.value)}
+              disabled={config.isLocked}
+            >
+              <option value="none">-- No Playlist --</option>
+              <option value="all">All Songs ({tracks.length})</option>
+              <option value="favorites">💎 Favorites ({favCount})</option>
+              {sortedPlaylists.map((pl) => (
+                <option key={pl.id} value={pl.id}>
+                  {pl.isArtistPlaylist ? '🎵 ' : ''}{pl.name} ({Array.isArray(pl.tracks) ? pl.tracks.length : 0})
+                </option>
+              ))}
+            </select>
+            <ChevronDown size={16} className="dropdown-arrow" />
           </div>
+
+          <div className="playlist-controls">
+            {/* Sort Mode Dropdown */}
+            <div className="sort-dropdown-wrapper" title="Sort Playlist">
+              <ArrowUpDown size={14} className="sort-icon" />
+              <select
+                className="sort-dropdown"
+                value={sortMode}
+                onChange={(e) => handleSortChange(e.target.value, sortDirection)}
+              >
+                <option value="date">Date</option>
+                <option value="title">Alphabetical</option>
+                <option value="original">Playlist Order</option>
+              </select>
+            </div>
+
+            {/* Sort Direction Toggle */}
+            <button
+              className="btn-toggle sort-dir-btn"
+              onClick={() => handleSortChange(sortMode, sortDirection === 'desc' ? 'asc' : 'desc')}
+              title={`Sort Direction: ${sortDirection === 'desc' ? 'Descending (Newest / Z-A)' : 'Ascending (Oldest / A-Z)'}`}
+            >
+              {sortDirection === 'desc' ? <ArrowDownAZ size={17} /> : <ArrowUpAZ size={17} />}
+            </button>
+
+            <button
+              className={`btn-toggle ${isShuffle ? 'active' : ''}`}
+              onClick={() => setIsShuffle(!isShuffle)}
+              title="Toggle Shuffle"
+            >
+              <Shuffle size={18} />
+            </button>
+
+            <button
+              className={`btn-toggle ${repeatMode !== 'off' ? 'active' : ''}`}
+              onClick={() => {
+                if (repeatMode === 'off') setRepeatMode('all');
+                else if (repeatMode === 'all') setRepeatMode('one');
+                else setRepeatMode('off');
+              }}
+              title={`Repeat: ${repeatMode}`}
+            >
+              <Repeat size={18} />
+              {repeatMode === 'one' && <span className="repeat-badge">1</span>}
+            </button>
+
+            <button
+              className={`btn-toggle btn-expand-playlist ${isPlaylistExpanded ? 'active' : ''}`}
+              onClick={() => setIsPlaylistExpanded(!isPlaylistExpanded)}
+              title={isPlaylistExpanded ? 'Collapse Tracks' : 'Expand Tracks'}
+            >
+              {isPlaylistExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+            </button>
+          </div>
+        </div>
 
           <div className="track-list">
             {selectedPlaylistId === 'none' ? (

@@ -1331,23 +1331,23 @@ body.theme-rainbow-frozen {
 @media (max-width: 1024px) {
   .main-content {
     overflow-y: auto !important;
-    padding: 1.5rem 1.5rem 2.5rem 1.5rem;
+    padding: 1.25rem 1.25rem 1rem 1.25rem;
   }
 
   .compact-deck-layout,
   .inner-deck-layout {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 1.5rem;
     height: auto;
-    padding-bottom: 2rem;
+    padding-bottom: 0.5rem;
   }
 
   .compact-deck-layout .deck-left-col,
   .inner-deck-layout .deck-left-col {
     width: 100%;
     max-width: 520px;
-    margin: 0.75rem auto 0 auto;
+    margin: 0.5rem auto 0 auto;
     position: relative;
     z-index: 1;
   }
@@ -1370,6 +1370,27 @@ body.theme-rainbow-frozen {
   }
 }
 
+/* Compact / Short Viewports: Show ONLY Playlist Selector & Control Buttons Below Vinyl */
+@media (max-height: 720px) and (max-width: 1024px) {
+  .compact-deck-layout .col-playlist:not(.is-expanded),
+  .inner-deck-layout .col-playlist:not(.is-expanded),
+  .col-playlist:not(.is-expanded) {
+    min-height: auto !important;
+    height: auto !important;
+    padding: 0.85rem 1.25rem !important;
+  }
+
+  .col-playlist:not(.is-expanded) .track-list {
+    display: none !important;
+  }
+
+  .col-playlist:not(.is-expanded) .playlist-header {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+    border-bottom: none !important;
+  }
+}
+
 /* Mobile Phone Specific Centering (Down to 412px width & smallest screens) */
 @media (max-width: 600px) {
   .app-container {
@@ -1380,7 +1401,7 @@ body.theme-rainbow-frozen {
   .main-content {
     width: 100%;
     max-width: 100%;
-    padding: 1.5rem 0.5rem 5.5rem 0.5rem;
+    padding: 1rem 0.5rem 1rem 0.5rem;
     box-sizing: border-box;
     overflow-x: hidden;
     overflow-y: auto !important;
