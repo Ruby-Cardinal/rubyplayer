@@ -531,7 +531,7 @@ body.theme-rainbow-frozen {
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 0;
+  min-height: 380px;
   flex: 1;
   overflow: hidden;
 }
@@ -541,7 +541,7 @@ body.theme-rainbow-frozen {
   flex-direction: column;
   flex: 1;
   height: 100%;
-  min-height: 0;
+  min-height: 380px;
   background: rgba(22, 24, 30, 0.6);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-lg);
@@ -696,6 +696,15 @@ body.theme-rainbow-frozen {
   align-items: center;
   gap: 0.6rem;
   overflow: hidden;
+  flex: 1;
+}
+
+.track-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  overflow: hidden;
+  flex: 1;
 }
 
 .track-index {
@@ -1322,11 +1331,12 @@ body.theme-rainbow-frozen {
 @media (max-width: 1024px) {
   .main-content {
     overflow-y: auto !important;
-    padding: 1.5rem 1.5rem 2rem 1.5rem;
+    padding: 1.5rem 1.5rem 2.5rem 1.5rem;
   }
 
   .compact-deck-layout,
   .inner-deck-layout {
+    display: grid;
     grid-template-columns: 1fr;
     gap: 2rem;
     height: auto;
@@ -1355,8 +1365,8 @@ body.theme-rainbow-frozen {
   .compact-deck-layout .col-playlist,
   .inner-deck-layout .col-playlist {
     height: auto;
-    min-height: 340px;
-    max-height: 480px;
+    min-height: 380px;
+    max-height: 520px;
   }
 }
 
@@ -1370,19 +1380,16 @@ body.theme-rainbow-frozen {
   .main-content {
     width: 100%;
     max-width: 100%;
-    padding: 1.5rem 0.5rem 5rem 0.5rem;
+    padding: 1.5rem 0.5rem 5.5rem 0.5rem;
     box-sizing: border-box;
-    align-items: center;
     overflow-x: hidden;
     overflow-y: auto !important;
   }
 
   .compact-deck-layout,
   .inner-deck-layout {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
+    display: grid;
+    grid-template-columns: 1fr;
     width: 100%;
     max-width: 100%;
     margin: 0 auto;
@@ -1400,7 +1407,22 @@ body.theme-rainbow-frozen {
     margin: 0.5rem auto 0 auto;
     padding: 0.5rem 0;
     box-sizing: border-box;
-    flex-shrink: 0;
+  }
+
+  .deck-right-col {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    height: auto;
+  }
+
+  .col-playlist {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    min-height: 380px;
+    max-height: 520px;
+    box-sizing: border-box;
   }
 
   .compact-deck-layout .vinyl-wrapper-stage {
@@ -2313,6 +2335,33 @@ body.theme-retro .modal-close-btn:hover {
     width: 100%;
     max-width: 100%;
     margin-top: 0.1rem;
+  }
+
+  /* Responsive Playlist Header & Track Row Stacking */
+  .playlist-header {
+    flex-wrap: wrap;
+    row-gap: 0.55rem;
+  }
+
+  .playlist-dropdown-wrapper {
+    width: 100%;
+  }
+
+  .playlist-controls {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 0.5rem;
+  }
+
+  .track-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.12rem;
+  }
+
+  .track-date {
+    font-size: 0.72rem;
+    opacity: 0.55;
   }
 
   /* Responsive Player Controls Breakdown */

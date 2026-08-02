@@ -686,14 +686,16 @@ export default function App() {
                   >
                     <div className="track-left">
                       <span className="track-index">{idx + 1}.</span>
-                      <span className="track-title-name">{track.title}</span>
+                      <div className="track-info">
+                        <span className="track-title-name">{track.title}</span>
+                        {track.publishDate && (
+                          <span className="track-date" title={`Date (${track.dateSource || 'Published'})`}>
+                            {track.publishDate}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div className="track-right">
-                      {track.publishDate && (
-                        <span className="track-date" title={`Date (${track.dateSource || 'Published'})`}>
-                          {track.publishDate}
-                        </span>
-                      )}
                       <button
                         className={`btn-fav-track ${isFav ? 'active' : ''}`}
                         onClick={(e) => {
