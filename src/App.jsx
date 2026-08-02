@@ -113,7 +113,7 @@ export default function App() {
   const [sortDirection, setSortDirection] = useState(() => localStorage.getItem('rubyplayer_sort_dir') || 'desc');
   const [isShuffle, setIsShuffle] = useState(false);
   const [repeatMode, setRepeatMode] = useState('off');
-  const [isPlaylistExpanded, setIsPlaylistExpanded] = useState(false);
+  const [isPlaylistCollapsed, setIsPlaylistCollapsed] = useState(false);
 
   // Favorites state
   const [favorites, setFavorites] = useState(() => getFavoriteTrackIds());
@@ -600,7 +600,7 @@ export default function App() {
 
     return (
       <div className="playlist-column-wrapper">
-      <div className={`col-playlist glass-card ${isPlaylistExpanded ? 'is-expanded' : ''}`}>
+      <div className={`col-playlist glass-card ${isPlaylistCollapsed ? 'is-collapsed' : ''}`}>
         <div className="playlist-header">
           <div className="playlist-dropdown-wrapper">
             <select
@@ -665,15 +665,15 @@ export default function App() {
               <Repeat size={18} />
               {repeatMode === 'one' && <span className="repeat-badge">1</span>}
             </button>
-
-            <button
-              className={`btn-toggle btn-expand-playlist ${isPlaylistExpanded ? 'active' : ''}`}
-              onClick={() => setIsPlaylistExpanded(!isPlaylistExpanded)}
-              title={isPlaylistExpanded ? 'Collapse Tracks' : 'Expand Tracks'}
-            >
-              {isPlaylistExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-            </button>
           </div>
+
+          <button
+            className={`btn-toggle btn-expand-playlist ${isPlaylistCollapsed ? 'active' : ''}`}
+            onClick={() => setIsPlaylistCollapsed(!isPlaylistCollapsed)}
+            title={isPlaylistCollapsed ? 'Expand Track List' : 'Collapse Track List'}
+          >
+            {isPlaylistCollapsed ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
+          </button>
         </div>
 
           <div className="track-list">

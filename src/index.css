@@ -656,6 +656,10 @@ body.theme-rainbow-frozen {
   filter: drop-shadow(0 0 6px var(--accent-ruby-glow));
 }
 
+.btn-expand-playlist {
+  display: none;
+}
+
 .track-list {
   flex: 1;
   min-height: 0;
@@ -1368,23 +1372,44 @@ body.theme-rainbow-frozen {
     min-height: 380px;
     max-height: 520px;
   }
-}
 
-/* Compact / Short Viewports: Show ONLY Playlist Selector & Control Buttons Below Vinyl */
-@media (max-height: 720px) and (max-width: 1024px) {
-  .compact-deck-layout .col-playlist:not(.is-expanded),
-  .inner-deck-layout .col-playlist:not(.is-expanded),
-  .col-playlist:not(.is-expanded) {
+  .btn-expand-playlist {
+    display: flex !important;
+  }
+
+  /* Collapsed Playlist View (Only applies when in vertical stack mode <= 1024px) */
+  .col-playlist.is-collapsed {
     min-height: auto !important;
     height: auto !important;
     padding: 0.85rem 1.25rem !important;
   }
 
-  .col-playlist:not(.is-expanded) .track-list {
+  .col-playlist.is-collapsed .track-list {
     display: none !important;
   }
 
-  .col-playlist:not(.is-expanded) .playlist-header {
+  .col-playlist.is-collapsed .playlist-header {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+    border-bottom: none !important;
+  }
+}
+
+/* Compact / Short Viewports: Show ONLY Playlist Selector & Control Buttons Below Vinyl */
+@media (max-height: 720px) and (max-width: 1024px) {
+  .compact-deck-layout .col-playlist:not(.is-collapsed),
+  .inner-deck-layout .col-playlist:not(.is-collapsed),
+  .col-playlist:not(.is-collapsed) {
+    min-height: auto !important;
+    height: auto !important;
+    padding: 0.85rem 1.25rem !important;
+  }
+
+  .col-playlist:not(.is-collapsed) .track-list {
+    display: none !important;
+  }
+
+  .col-playlist:not(.is-collapsed) .playlist-header {
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
     border-bottom: none !important;
@@ -2362,13 +2387,22 @@ body.theme-retro .modal-close-btn:hover {
   .playlist-header {
     flex-wrap: wrap;
     row-gap: 0.55rem;
+    align-items: center;
   }
 
   .playlist-dropdown-wrapper {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
+    order: 1;
+  }
+
+  .btn-expand-playlist {
+    order: 2;
+    margin-left: auto;
   }
 
   .playlist-controls {
+    order: 3;
     width: 100%;
     justify-content: flex-start;
     gap: 0.5rem;
