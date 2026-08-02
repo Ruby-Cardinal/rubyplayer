@@ -70,6 +70,11 @@ export default function AudioVisualizer({ audioRef, isPlaying, mode = 'waveform'
     const ctx = canvas.getContext('2d');
 
     const draw = () => {
+      if (document.hidden) {
+        animationFrameRef.current = null;
+        return;
+      }
+
       animationFrameRef.current = requestAnimationFrame(draw);
 
       const width = canvas.width;
@@ -83,7 +88,6 @@ export default function AudioVisualizer({ audioRef, isPlaying, mode = 'waveform'
       if (analyser && isPlaying) {
         analyser.getByteFrequencyData(rawBins);
       }
-
       if (mode === 'circular' || mode === 'inner-circular') {
         // --- 360-DEGREE SPIROGRAPH FLOWER SCOPE WAVE VISUALIZER ---
         const barCount = 64;
@@ -323,11 +327,21 @@ export default function AudioVisualizer({ audioRef, isPlaying, mode = 'waveform'
       }
     };
 
+    const handleVisibilityChange = () => {
+      if (!document.hidden && !animationFrameRef.current) {
+        draw();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     draw();
 
     return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
       }
     };
   }, [isPlaying, mode]);

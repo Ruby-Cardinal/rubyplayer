@@ -166,10 +166,17 @@ export async function scanMediaFolder(force = false) {
   return res.json();
 }
 
+function getValidMediaTokenOrAuthToken() {
+  if (cachedMediaToken && Date.now() < mediaTokenExpiresAt - 10000) {
+    return cachedMediaToken;
+  }
+  return getAuthToken();
+}
+
 export function getAudioStreamUrl(trackOrPath) {
   if (!trackOrPath) return '';
   getMediaToken().catch(() => { });
-  const token = cachedMediaToken || getAuthToken();
+  const token = getValidMediaTokenOrAuthToken();
   const tokenParam = token ? `&mt=${encodeURIComponent(token)}` : '';
   const rel = typeof trackOrPath === 'object' ? (trackOrPath.relativePath || trackOrPath.id) : trackOrPath;
   return `/api/stream?path=${encodeURIComponent(rel)}${tokenParam}`;
@@ -178,14 +185,14 @@ export function getAudioStreamUrl(trackOrPath) {
 export function getCoverArtUrl(trackId) {
   if (!trackId) return null;
   getMediaToken().catch(() => { });
-  const token = cachedMediaToken || getAuthToken();
+  const token = getValidMediaTokenOrAuthToken();
   const tokenParam = token ? `&mt=${encodeURIComponent(token)}` : '';
   return `/api/cover?id=${encodeURIComponent(trackId)}${tokenParam}`;
 }
 
 export function getFolderCoverUrl(trackId) {
   getMediaToken().catch(() => { });
-  const token = cachedMediaToken || getAuthToken();
+  const token = getValidMediaTokenOrAuthToken();
   const tokenParam = token ? `&mt=${encodeURIComponent(token)}` : '';
   if (!trackId) return `/api/folder-cover?${tokenParam.replace('&', '')}`;
   return `/api/folder-cover?id=${encodeURIComponent(trackId)}${tokenParam}`;
@@ -582,6 +589,13 @@ export function getOrCreateWebAudio(audioElement, initialVolume = 1, isMuted = f
 
       globalGainNode = globalAudioCtx.createGain();
       globalGainNode.gain.value = effectiveVol;
+
+      // Keep Web Audio API context alive in Chrome background tabs
+      globalAudioCtx.onstatechange = () => {
+        if (globalAudioCtx && globalAudioCtx.state === 'suspended' && boundAudioElement && !boundAudioElement.paused) {
+          globalAudioCtx.resume().catch(() => { });
+        }
+      };
     } catch (err) {
       // Context setup notice
     }
@@ -613,7 +627,7 @@ export function getOrCreateWebAudio(audioElement, initialVolume = 1, isMuted = f
     }
   }
 
-  if (globalAudioCtx && globalAudioCtx.state === 'suspended') {
+  if (globalAudioCtx && globalAudioCtx.state === 'suspended' && audioElement && !audioElement.paused) {
     globalAudioCtx.resume().catch(() => { });
   }
 

@@ -215,10 +215,17 @@ function getSessionUser(req) {
   if (activeMediaTokens.has(tHash)) {
     const mtInfo = activeMediaTokens.get(tHash);
     if (Date.now() > mtInfo.expiresAt) {
-      activeMediaTokens.delete(tHash);
-      return null;
+      const parentSession = activeSessions.get(mtInfo.sessionTokenHash);
+      if (parentSession && Date.now() <= parentSession.expiresAt) {
+        mtInfo.expiresAt = Date.now() + FIFTEEN_MINUTES_MS;
+        sessionTokenHash = mtInfo.sessionTokenHash;
+      } else {
+        activeMediaTokens.delete(tHash);
+        return null;
+      }
+    } else {
+      sessionTokenHash = mtInfo.sessionTokenHash;
     }
-    sessionTokenHash = mtInfo.sessionTokenHash;
   }
 
   const session = activeSessions.get(sessionTokenHash);
