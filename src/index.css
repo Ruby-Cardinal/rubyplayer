@@ -2314,4 +2314,54 @@ body.theme-retro .modal-close-btn:hover {
     max-width: 100%;
     margin-top: 0.1rem;
   }
+
+  /* Responsive Player Controls Breakdown */
+  .player-bar {
+    height: auto;
+    padding: 0.65rem 1.25rem 0.75rem 1.25rem;
+    gap: 0.5rem;
+  }
+
+  .controls-row {
+    flex-wrap: wrap;
+    row-gap: 0.55rem;
+  }
+
+  .controls-center {
+    order: 1;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .controls-left {
+    order: 2;
+    width: auto;
+    justify-content: flex-start;
+  }
+
+  .controls-right {
+    order: 3;
+    width: auto;
+    margin-left: auto;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .player-bar {
+    padding: 0.5rem 0.75rem 0.65rem 0.75rem;
+  }
+
+  .controls-center {
+    gap: 0.85rem;
+  }
+
+  .volume-slider {
+    width: 60px;
+  }
+
+  .btn-download {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.78rem;
+  }
 }
