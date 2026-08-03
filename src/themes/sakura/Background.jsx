@@ -9,10 +9,10 @@ export default function SakuraBackground() {
     for (let i = 0; i < petalCount; i++) {
       generated.push({
         id: i,
-        left: Math.random() * 100,
-        animationDuration: 7 + Math.random() * 9,
+        left: Math.random() * 100, // horizontal start %
+        animationDuration: 7 + Math.random() * 9, // 7s - 16s drift
         animationDelay: Math.random() * 10,
-        size: 10 + Math.random() * 14,
+        size: 10 + Math.random() * 14, // 10px - 24px
         rotation: Math.random() * 360,
         swayAmount: 20 + Math.random() * 40,
         opacity: 0.55 + Math.random() * 0.45,
