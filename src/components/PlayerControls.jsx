@@ -10,6 +10,7 @@ import {
   VolumeX,
   FileText,
   Download,
+  HelpCircle,
 } from 'lucide-react';
 import RubyFavIcon from './RubyFavIcon';
 
@@ -29,6 +30,8 @@ export default function PlayerControls({
   isMuted,
   onToggleMute,
   onOpenLyrics,
+  onOpenHelp,
+  isHelpUnread = false,
   currentUser,
   onDownloadTrack,
   isFavorite = false,
@@ -65,8 +68,17 @@ export default function PlayerControls({
 
       {/* Bottom Controls Row */}
       <div className="controls-row">
-        {/* Download button on the left side of player bar */}
+        {/* Download & Help button on the left side of player bar */}
         <div className="controls-left">
+          <button
+            className={`btn-icon-ctrl btn-help-icon ${isHelpUnread ? 'sparkling' : ''}`}
+            onClick={onOpenHelp}
+            title={isHelpUnread ? 'Click to open UI Help Guide' : 'UI Help & Feature Guide'}
+            style={{ marginRight: '0.65rem' }}
+          >
+            <HelpCircle size={20} />
+          </button>
+
           <button
             className={`btn-download ${!currentUser ? 'unauthenticated' : ''}`}
             onClick={onDownloadTrack}

@@ -16,6 +16,7 @@
     "buffer": "^6.0.3",
     "cors": "^2.8.5",
     "express": "^4.19.2",
+    "helmet": "^7.1.0",
     "jsmediatags": "^3.9.7",
     "lucide-react": "^0.380.0",
     "react": "^18.3.1",

@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -17,6 +18,15 @@ const CACHE_FILE = path.join(__dirname, 'rubyplayer_metadata_cache.json');
 
 const app = express();
 const PORT = 3001;
+
+// HTTP Security Headers (Helmet)
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    crossOriginEmbedderPolicy: false,
+  })
+);
 
 const DEFAULT_ALLOWED_ORIGINS = new Set([
   'http://localhost:5173',

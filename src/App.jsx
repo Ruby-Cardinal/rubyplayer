@@ -17,6 +17,7 @@ import LyricsModal from './components/LyricsModal';
 import LoginModal from './components/LoginModal';
 import RubyFavIcon from './components/RubyFavIcon';
 import PlaylistEditorModal from './components/PlaylistEditorModal';
+import HelpModal from './components/HelpModal';
 import {
   fetchServerConfig,
   scanMediaFolder,
@@ -123,7 +124,31 @@ export default function App() {
   const [isLyricsOpen, setIsLyricsOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isPlaylistEditorOpen, setIsPlaylistEditorOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [hasHelpBeenClicked, setHasHelpBeenClicked] = useState(() => {
+    return localStorage.getItem('rubyplayer_help_clicked') === 'true';
+  });
+  const [isHelpSparkling, setIsHelpSparkling] = useState(true);
+
+  useEffect(() => {
+    // Sparkle for at least 2 seconds on page load / reload
+    const timer = setTimeout(() => {
+      if (localStorage.getItem('rubyplayer_help_clicked') === 'true') {
+        setIsHelpSparkling(false);
+      }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleOpenHelp = () => {
+    setIsHelpOpen(true);
+    setIsHelpSparkling(false);
+    if (!hasHelpBeenClicked) {
+      localStorage.setItem('rubyplayer_help_clicked', 'true');
+      setHasHelpBeenClicked(true);
+    }
+  };
 
   const handleToggleFavorite = (trackToToggle) => {
     const target = trackToToggle || currentTrack;
@@ -807,6 +832,8 @@ export default function App() {
         isMuted={isMuted}
         onToggleMute={handleToggleMute}
         onOpenLyrics={() => setIsLyricsOpen(true)}
+        onOpenHelp={handleOpenHelp}
+        isHelpUnread={isHelpSparkling}
         currentUser={currentUser}
         onDownloadTrack={handleDownloadTrack}
         isFavorite={currentTrack ? isTrackFavorite(currentTrack, favorites) : false}
@@ -838,6 +865,11 @@ export default function App() {
         playlists={playlists}
         allTracks={tracks}
         onPlaylistSaved={loadLibraryData}
+      />
+
+      <HelpModal
+        isOpen={isHelpOpen}
+        onClose={() => setIsHelpOpen(false)}
       />
 
     </div>

@@ -1401,6 +1401,7 @@ body.theme-rainbow-frozen {
 
 /* Compact / Short Viewports: Show ONLY Playlist Selector & Control Buttons Below Vinyl */
 @media (max-height: 720px) and (max-width: 1024px) {
+
   .compact-deck-layout .col-playlist:not(.is-collapsed),
   .inner-deck-layout .col-playlist:not(.is-collapsed),
   .col-playlist:not(.is-collapsed) {
@@ -2360,6 +2361,288 @@ body.theme-retro .modal-close-btn:hover {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+}
+
+/* Help Modal & Button Styles */
+.btn-help-icon {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-glass);
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-help-icon:hover {
+  background: var(--accent-ruby-bg-glow);
+  border-color: var(--accent-ruby);
+  color: var(--accent-ruby);
+  transform: scale(1.1);
+  box-shadow: 0 0 12px var(--accent-ruby-glow);
+}
+
+.btn-help-icon.sparkling {
+  position: relative;
+  animation: helpIconSparkle 2s infinite ease-in-out;
+  border-color: var(--accent-ruby);
+  color: var(--accent-ruby);
+  background: var(--accent-ruby-bg-glow);
+}
+
+@keyframes helpIconSparkle {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 8px var(--accent-ruby-glow), 0 0 0 0 rgba(225, 29, 72, 0.5);
+  }
+  50% {
+    transform: scale(1.18);
+    box-shadow: 0 0 20px var(--accent-ruby-glow), 0 0 0 10px rgba(225, 29, 72, 0);
+  }
+}
+
+.sparkle-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  color: #ffd700;
+  filter: drop-shadow(0 0 6px #ffd700);
+  animation: rotateSparkleBadge 3s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rotateSparkleBadge {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.3); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+/* Interactive UI Guide Tour Overlay */
+.ui-tour-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 11, 15, 0.38);
+  backdrop-filter: blur(2px);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  animation: fadeInTour 0.25s ease forwards;
+}
+
+@keyframes fadeInTour {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.tour-header-bar {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  z-index: 10000;
+}
+
+.tour-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  background: rgba(22, 24, 30, 0.9);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-full);
+  padding: 0.45rem 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.tour-sparkle-icon {
+  color: var(--accent-ruby);
+  animation: pulseSparkle 2s infinite ease-in-out;
+}
+
+@keyframes pulseSparkle {
+
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 4px var(--accent-ruby-glow));
+  }
+
+  50% {
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 10px var(--accent-ruby-glow));
+  }
+}
+
+.btn-tour-close {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--accent-ruby);
+  border: none;
+  border-radius: var(--radius-full);
+  color: #ffffff;
+  padding: 0.45rem 1.1rem;
+  font-family: var(--font-main);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 0 16px var(--accent-ruby-glow);
+  transition: all 0.2s ease;
+}
+
+.btn-tour-close:hover {
+  transform: scale(1.06);
+  filter: brightness(1.15);
+  box-shadow: 0 0 24px var(--accent-ruby-glow);
+}
+
+/* Callout Positions */
+.tour-callout {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  z-index: 10000;
+}
+
+.tour-card {
+  width: 250px;
+  padding: 0.85rem 1rem;
+  background: rgba(20, 22, 28, 0.92);
+  border: 1px solid var(--accent-ruby);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 15px var(--accent-ruby-glow);
+  backdrop-filter: blur(16px);
+}
+
+.tour-card.compact {
+  width: 220px;
+}
+
+.tour-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--accent-ruby);
+  margin-bottom: 0.35rem;
+}
+
+.tour-card-body {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* Arrows */
+.tour-arrow {
+  color: var(--accent-ruby);
+  filter: drop-shadow(0 0 8px var(--accent-ruby-glow));
+  animation: bounceArrow 1.5s infinite ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes bounceArrow {
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(0, -5px);
+  }
+}
+
+/* Callout Layout Anchors - 4 Screen Quadrants */
+
+/* 1. Top Left: Search & Navbar Header */
+.tour-navbar {
+  top: 68px;
+  left: 2.5rem;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* 2. Middle Left: Vinyl Record Stage */
+.tour-vinyl {
+  top: 295px;
+  left: 2.5rem;
+  flex-direction: row;
+  align-items: center;
+}
+
+/* 3. Top Right / Middle Right: Playlist Controls */
+.tour-playlist {
+  top: 120px;
+  right: 2.5rem;
+  flex-direction: row;
+  align-items: center;
+}
+
+/* 4. Bottom Center: Media Player Bar */
+.tour-playerbar {
+  bottom: 95px;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (max-width: 1024px) {
+  .tour-navbar {
+    top: 70px;
+    left: 1rem;
+    right: 1rem;
+  }
+
+  .tour-vinyl {
+    top: 230px;
+    left: 1rem;
+    right: 1rem;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tour-playlist {
+    top: 420px;
+    right: 1rem;
+    left: 1rem;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tour-playerbar {
+    bottom: 85px;
+    left: 1rem;
+    right: 1rem;
+    transform: none;
+    align-items: center;
+  }
+
+  .tour-card {
+    width: 100%;
+    max-width: 380px;
+  }
 }
 
 /* Responsive Playlist Header Breakdown (Applies in 2-column mode & stacked when narrow) */
