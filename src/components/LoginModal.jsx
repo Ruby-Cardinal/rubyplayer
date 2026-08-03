@@ -36,7 +36,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
         onClose();
       }
     } catch (err) {
-      setError(err.message || 'Invalid username or password');
+      setError('Invalid username or password');
     } finally {
       setIsSubmitting(false);
     }
@@ -61,7 +61,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
       resetState();
       onClose();
     } catch (err) {
-      setError(err.message || 'Failed to set password');
+      setError('Failed to set password');
     } finally {
       setIsSubmitting(false);
     }

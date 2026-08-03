@@ -47,7 +47,7 @@ export default function ConfigModal({ isOpen, onClose }) {
       setPwdCurrent('');
       setPwdNew('');
     } catch (err) {
-      setPwdErr(err.message || 'Failed to change password');
+      setPwdErr('Failed to change password');
     }
   };
 

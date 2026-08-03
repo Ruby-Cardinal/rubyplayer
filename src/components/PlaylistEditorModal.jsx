@@ -272,7 +272,7 @@ export default function PlaylistEditorModal({
         onClose();
       }, 1200);
     } catch (err) {
-      setErrorMessage(err.message || 'Failed to save playlist');
+      setErrorMessage('Failed to save playlist');
     } finally {
       setIsSaving(false);
     }

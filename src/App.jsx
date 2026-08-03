@@ -268,7 +268,7 @@ export default function App() {
       }
     } catch (err) {
       console.error('Initialization error:', err);
-      setScanError(err.message);
+      setScanError("Ooop ooop beeep");
     } finally {
       setIsLoading(false);
     }
@@ -625,81 +625,81 @@ export default function App() {
 
     return (
       <div className="playlist-column-wrapper">
-      <div className={`col-playlist glass-card ${isPlaylistCollapsed ? 'is-collapsed' : ''}`}>
-        <div className="playlist-header">
-          <div className="playlist-dropdown-wrapper">
-            <select
-              className="playlist-dropdown"
-              value={selectedPlaylistId}
-              onChange={(e) => handlePlaylistChange(e.target.value)}
-              disabled={config.isLocked}
-            >
-              <option value="none">-- No Playlist --</option>
-              <option value="all">All Songs ({tracks.length})</option>
-              <option value="favorites">💎 Favorites ({favCount})</option>
-              {sortedPlaylists.map((pl) => (
-                <option key={pl.id} value={pl.id}>
-                  {pl.isArtistPlaylist ? '🎵 ' : ''}{pl.name} ({Array.isArray(pl.tracks) ? pl.tracks.length : 0})
-                </option>
-              ))}
-            </select>
-            <ChevronDown size={16} className="dropdown-arrow" />
-          </div>
-
-          <div className="playlist-controls">
-            {/* Sort Mode Dropdown */}
-            <div className="sort-dropdown-wrapper" title="Sort Playlist">
-              <ArrowUpDown size={14} className="sort-icon" />
+        <div className={`col-playlist glass-card ${isPlaylistCollapsed ? 'is-collapsed' : ''}`}>
+          <div className="playlist-header">
+            <div className="playlist-dropdown-wrapper">
               <select
-                className="sort-dropdown"
-                value={sortMode}
-                onChange={(e) => handleSortChange(e.target.value, sortDirection)}
+                className="playlist-dropdown"
+                value={selectedPlaylistId}
+                onChange={(e) => handlePlaylistChange(e.target.value)}
+                disabled={config.isLocked}
               >
-                <option value="date">Date</option>
-                <option value="title">Alphabetical</option>
-                <option value="original">Playlist Order</option>
+                <option value="none">-- No Playlist --</option>
+                <option value="all">All Songs ({tracks.length})</option>
+                <option value="favorites">💎 Favorites ({favCount})</option>
+                {sortedPlaylists.map((pl) => (
+                  <option key={pl.id} value={pl.id}>
+                    {pl.isArtistPlaylist ? '🎵 ' : ''}{pl.name} ({Array.isArray(pl.tracks) ? pl.tracks.length : 0})
+                  </option>
+                ))}
               </select>
+              <ChevronDown size={16} className="dropdown-arrow" />
             </div>
 
-            {/* Sort Direction Toggle */}
-            <button
-              className="btn-toggle sort-dir-btn"
-              onClick={() => handleSortChange(sortMode, sortDirection === 'desc' ? 'asc' : 'desc')}
-              title={`Sort Direction: ${sortDirection === 'desc' ? 'Descending (Newest / Z-A)' : 'Ascending (Oldest / A-Z)'}`}
-            >
-              {sortDirection === 'desc' ? <ArrowDownAZ size={17} /> : <ArrowUpAZ size={17} />}
-            </button>
+            <div className="playlist-controls">
+              {/* Sort Mode Dropdown */}
+              <div className="sort-dropdown-wrapper" title="Sort Playlist">
+                <ArrowUpDown size={14} className="sort-icon" />
+                <select
+                  className="sort-dropdown"
+                  value={sortMode}
+                  onChange={(e) => handleSortChange(e.target.value, sortDirection)}
+                >
+                  <option value="date">Date</option>
+                  <option value="title">Alphabetical</option>
+                  <option value="original">Playlist Order</option>
+                </select>
+              </div>
+
+              {/* Sort Direction Toggle */}
+              <button
+                className="btn-toggle sort-dir-btn"
+                onClick={() => handleSortChange(sortMode, sortDirection === 'desc' ? 'asc' : 'desc')}
+                title={`Sort Direction: ${sortDirection === 'desc' ? 'Descending (Newest / Z-A)' : 'Ascending (Oldest / A-Z)'}`}
+              >
+                {sortDirection === 'desc' ? <ArrowDownAZ size={17} /> : <ArrowUpAZ size={17} />}
+              </button>
+
+              <button
+                className={`btn-toggle ${isShuffle ? 'active' : ''}`}
+                onClick={() => setIsShuffle(!isShuffle)}
+                title="Toggle Shuffle"
+              >
+                <Shuffle size={18} />
+              </button>
+
+              <button
+                className={`btn-toggle ${repeatMode !== 'off' ? 'active' : ''}`}
+                onClick={() => {
+                  if (repeatMode === 'off') setRepeatMode('all');
+                  else if (repeatMode === 'all') setRepeatMode('one');
+                  else setRepeatMode('off');
+                }}
+                title={`Repeat: ${repeatMode}`}
+              >
+                <Repeat size={18} />
+                {repeatMode === 'one' && <span className="repeat-badge">1</span>}
+              </button>
+            </div>
 
             <button
-              className={`btn-toggle ${isShuffle ? 'active' : ''}`}
-              onClick={() => setIsShuffle(!isShuffle)}
-              title="Toggle Shuffle"
+              className={`btn-toggle btn-expand-playlist ${isPlaylistCollapsed ? 'active' : ''}`}
+              onClick={() => setIsPlaylistCollapsed(!isPlaylistCollapsed)}
+              title={isPlaylistCollapsed ? 'Expand Track List' : 'Collapse Track List'}
             >
-              <Shuffle size={18} />
-            </button>
-
-            <button
-              className={`btn-toggle ${repeatMode !== 'off' ? 'active' : ''}`}
-              onClick={() => {
-                if (repeatMode === 'off') setRepeatMode('all');
-                else if (repeatMode === 'all') setRepeatMode('one');
-                else setRepeatMode('off');
-              }}
-              title={`Repeat: ${repeatMode}`}
-            >
-              <Repeat size={18} />
-              {repeatMode === 'one' && <span className="repeat-badge">1</span>}
+              {isPlaylistCollapsed ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
             </button>
           </div>
-
-          <button
-            className={`btn-toggle btn-expand-playlist ${isPlaylistCollapsed ? 'active' : ''}`}
-            onClick={() => setIsPlaylistCollapsed(!isPlaylistCollapsed)}
-            title={isPlaylistCollapsed ? 'Expand Track List' : 'Collapse Track List'}
-          >
-            {isPlaylistCollapsed ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
-          </button>
-        </div>
 
           <div className="track-list">
             {selectedPlaylistId === 'none' ? (

@@ -1483,7 +1483,7 @@ app.post('/api/playlist/save', async (req, res) => {
     });
   } catch (err) {
     console.error('Error saving playlist file:', err);
-    res.status(500).json({ error: 'Failed to write playlist file: ' + err.message });
+    res.status(500).json({ error: 'Failed to write playlist file: ' + fileName });
   }
 });
 
@@ -1509,7 +1509,7 @@ app.get('/api/scan', async (req, res) => {
     });
   } catch (err) {
     console.error('Scan error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "Something bad happened while doing this" });
   }
 });
 
@@ -1519,7 +1519,7 @@ app.get('/api/tracks', async (req, res) => {
     const allowedTracks = filterAllowedTracks(files, playlists, req);
     res.json(allowedTracks.map(formatLightTrack));
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "Oh look, a butterfly" });
   }
 });
 
