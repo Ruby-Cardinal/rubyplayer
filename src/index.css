@@ -1196,6 +1196,117 @@ body.theme-rainbow-frozen {
   overflow: hidden;
 }
 
+/* Centered Vinyl Mode (When Playlist Column is Hidden) */
+.main-content.playlist-hidden {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+.inner-deck-layout.playlist-hidden {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: auto !important;
+  padding-bottom: 0 !important;
+}
+
+.inner-deck-layout.playlist-hidden .deck-left-col {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  flex: 1;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: auto !important;
+}
+
+.inner-deck-layout.playlist-hidden .deck-left-col .vinyl-wrapper-stage {
+  width: min(54vw, 58vh);
+  height: min(54vw, 58vh);
+  max-width: 560px;
+  max-height: 560px;
+  margin: auto !important;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 1024px) {
+  .main-content.playlist-hidden {
+    padding: 0.5rem !important;
+  }
+
+  .inner-deck-layout.playlist-hidden .deck-left-col .vinyl-wrapper-stage {
+    width: min(72vw, 42vh);
+    height: min(72vw, 42vh);
+    max-width: 440px;
+    max-height: 440px;
+  }
+}
+
+@media (max-width: 480px) {
+  .inner-deck-layout.playlist-hidden .deck-left-col .vinyl-wrapper-stage {
+    width: min(80vw, 38vh);
+    height: min(80vw, 38vh);
+    max-width: 340px;
+    max-height: 340px;
+  }
+}
+
+/* Centered Playlist Mode (When Vinyl Disc is Hidden) */
+.main-content.vinyl-hidden {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+.inner-deck-layout.vinyl-hidden {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: auto !important;
+}
+
+.inner-deck-layout.vinyl-hidden .deck-right-col {
+  width: 100% !important;
+  max-width: 860px !important;
+  height: 100% !important;
+  max-height: calc(100vh - 170px);
+  margin: auto !important;
+}
+
+.inner-deck-layout.vinyl-hidden .col-playlist {
+  height: 100% !important;
+  max-height: 100% !important;
+}
+
+/* Prompt when both vinyl and playlist are hidden */
+.deck-both-hidden-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin: auto;
+}
+
 .deck-left-col {
   display: flex;
   flex-direction: column;

@@ -11,6 +11,9 @@ import {
   FileText,
   Download,
   HelpCircle,
+  ListMusic,
+  EyeOff,
+  Disc,
 } from 'lucide-react';
 import RubyFavIcon from './RubyFavIcon';
 
@@ -36,6 +39,10 @@ export default function PlayerControls({
   onDownloadTrack,
   isFavorite = false,
   onToggleFavorite,
+  isPlaylistHidden = false,
+  onToggleHidePlaylist,
+  isVinylHidden = false,
+  onToggleHideVinyl,
 }) {
   const formatTime = (secs) => {
     if (!secs || isNaN(secs)) return '0:00';
@@ -87,8 +94,8 @@ export default function PlayerControls({
               !currentTrack
                 ? 'No song loaded'
                 : currentUser
-                ? `Download "${currentTrack.title || 'song'}"`
-                : 'Log in to download song'
+                  ? `Download "${currentTrack.title || 'song'}"`
+                  : 'Log in to download song'
             }
           >
             <Download size={16} />
@@ -133,8 +140,8 @@ export default function PlayerControls({
               !currentTrack
                 ? 'No song loaded'
                 : isFavorite
-                ? 'Remove from Favorites'
-                : 'Add to Favorites'
+                  ? 'Remove from Favorites'
+                  : 'Add to Favorites'
             }
             style={{
               color: isFavorite ? 'var(--accent-ruby)' : 'var(--text-secondary)',
@@ -154,6 +161,30 @@ export default function PlayerControls({
             }}
           >
             <FileText size={18} />
+          </button>
+
+          <button
+            className={`btn-icon-ctrl ${isVinylHidden ? 'active' : ''}`}
+            onClick={onToggleHideVinyl}
+            title={isVinylHidden ? 'Show Vinyl' : 'Hide Vinyl'}
+            style={{
+              color: isVinylHidden ? 'var(--accent-ruby)' : 'var(--text-secondary)',
+              marginRight: '0.5rem',
+            }}
+          >
+            <Disc size={18} />
+          </button>
+
+          <button
+            className={`btn-icon-ctrl ${isPlaylistHidden ? 'active' : ''}`}
+            onClick={onToggleHidePlaylist}
+            title={isPlaylistHidden ? 'Show Playlist' : 'Hide Playlist'}
+            style={{
+              color: isPlaylistHidden ? 'var(--accent-ruby)' : 'var(--text-secondary)',
+              marginRight: '0.5rem',
+            }}
+          >
+            {isPlaylistHidden ? <EyeOff size={18} /> : <ListMusic size={18} />}
           </button>
 
           <div className="volume-wrapper">

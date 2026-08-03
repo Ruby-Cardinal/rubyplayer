@@ -47,28 +47,28 @@ export default function PwaInstallPrompt() {
     );
   }
 
-  // 3. Optional: Install app prompt (respects user dismissal in localStorage)
-  if (isInstallable && !installDismissed) {
-    const handleDismissInstall = () => {
-      setInstallDismissed(true);
-      try {
-        localStorage.setItem(DISMISS_INSTALL_KEY, 'true');
-      } catch (e) { }
-    };
+  // 3. Optional: Install app prompt (respects user dismissal in localStorage) Leave in.  Currently disabled to prevent people being asked.
+  // if (isInstallable && !installDismissed) {
+  //   const handleDismissInstall = () => {
+  //     setInstallDismissed(true);
+  //     try {
+  //       localStorage.setItem(DISMISS_INSTALL_KEY, 'true');
+  //     } catch (e) { }
+  //   };
 
-    return (
-      <div className="pwa-toast install">
-        <Download size={16} />
-        <span>Install RubyPlayer App</span>
-        <button className="pwa-toast-action" onClick={promptInstall}>
-          Install
-        </button>
-        <button className="pwa-toast-close" onClick={handleDismissInstall} title="Don't show again">
-          <X size={14} />
-        </button>
-      </div>
-    );
-  }
+  //   return (
+  //     <div className="pwa-toast install">
+  //       <Download size={16} />
+  //       <span>Install RubyPlayer App</span>
+  //       <button className="pwa-toast-action" onClick={promptInstall}>
+  //         Install
+  //       </button>
+  //       <button className="pwa-toast-close" onClick={handleDismissInstall} title="Don't show again">
+  //         <X size={14} />
+  //       </button>
+  //     </div>
+  //   );
+  // }
 
   return null;
 }

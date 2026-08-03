@@ -7,6 +7,7 @@ import {
   ArrowUpDown,
   ArrowDownAZ,
   ArrowUpAZ,
+  EyeOff,
 } from 'lucide-react';
 import Navbar from './components/Navbar';
 import PlayerControls from './components/PlayerControls';
@@ -122,6 +123,41 @@ export default function App() {
   const [isShuffle, setIsShuffle] = useState(false);
   const [repeatMode, setRepeatMode] = useState('off');
   const [isPlaylistCollapsed, setIsPlaylistCollapsed] = useState(false);
+  const [isPlaylistHidden, setIsPlaylistHidden] = useState(() => {
+    try {
+      return localStorage.getItem('rubyplayer_playlist_hidden') === 'true';
+    } catch (e) {
+      return false;
+    }
+  });
+
+  const handleToggleHidePlaylist = () => {
+    setIsPlaylistHidden((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('rubyplayer_playlist_hidden', next ? 'true' : 'false');
+      } catch (e) { }
+      return next;
+    });
+  };
+
+  const [isVinylHidden, setIsVinylHidden] = useState(() => {
+    try {
+      return localStorage.getItem('rubyplayer_vinyl_hidden') === 'true';
+    } catch (e) {
+      return false;
+    }
+  });
+
+  const handleToggleHideVinyl = () => {
+    setIsVinylHidden((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('rubyplayer_vinyl_hidden', next ? 'true' : 'false');
+      } catch (e) { }
+      return next;
+    });
+  };
 
   // Favorites state
   const [favorites, setFavorites] = useState(() => getFavoriteTrackIds());
@@ -696,6 +732,15 @@ export default function App() {
             </div>
 
             <button
+              className="btn-toggle btn-expand-playlist"
+              onClick={handleToggleHidePlaylist}
+              title="Hide Playlist & Center Vinyl"
+              style={{ marginRight: '0.35rem' }}
+            >
+              <EyeOff size={18} />
+            </button>
+
+            <button
               className={`btn-toggle btn-expand-playlist ${isPlaylistCollapsed ? 'active' : ''}`}
               onClick={() => setIsPlaylistCollapsed(!isPlaylistCollapsed)}
               title={isPlaylistCollapsed ? 'Expand Track List' : 'Collapse Track List'}
@@ -779,7 +824,7 @@ export default function App() {
       />
 
       {/* Main Content Layout */}
-      <main className="main-content">
+      <main className={`main-content ${isPlaylistHidden ? 'playlist-hidden' : ''} ${isVinylHidden ? 'vinyl-hidden' : ''}`}>
         {scanError ? (
           <div className="error-panel">
             <h2>Media Folder Access Error</h2>
@@ -794,27 +839,57 @@ export default function App() {
             <div>Loading RubyPlayer library...</div>
           </div>
         ) : (
-          <div className="inner-deck-layout">
-            {/* Left Column: Round Hero Vinyl + Inward Reflection Visualizer Stage */}
-            <div className="deck-left-col">
-              <div className="vinyl-wrapper-stage inner-deck-stage">
-                <VinylDisc
-                  currentTrack={currentTrack}
-                  isPlaying={isPlaying}
-                  onOpenLyrics={() => setIsLyricsOpen(true)}
-                  theme={currentTheme}
-                >
-                  <div className="inner-deck-visualizer-overlay">
-                    <AudioVisualizer audioRef={audioRef} isPlaying={isPlaying} mode="inner-circular" />
-                  </div>
-                </VinylDisc>
+          <div className={`inner-deck-layout ${isPlaylistHidden ? 'playlist-hidden' : ''} ${isVinylHidden ? 'vinyl-hidden' : ''}`}>
+            {/* Left Column: Round Hero Vinyl (Hidden when isVinylHidden is active) */}
+            {!isVinylHidden && (
+              <div className="deck-left-col">
+                <div className="vinyl-wrapper-stage inner-deck-stage">
+                  <VinylDisc
+                    currentTrack={currentTrack}
+                    isPlaying={isPlaying}
+                    onOpenLyrics={() => setIsLyricsOpen(true)}
+                    theme={currentTheme}
+                  >
+                    <div className="inner-deck-visualizer-overlay">
+                      <AudioVisualizer audioRef={audioRef} isPlaying={isPlaying} mode="inner-circular" />
+                    </div>
+                  </VinylDisc>
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Right Column: Playlist */}
-            <div className="deck-right-col">
-              {renderPlaylistColumn()}
-            </div>
+            {/* Right Column: Playlist (Hidden when isPlaylistHidden is active) */}
+            {!isPlaylistHidden && (
+              <div className="deck-right-col">
+                {renderPlaylistColumn()}
+              </div>
+            )}
+
+            {/* Empty state prompt if user hides both vinyl and playlist */}
+            {isVinylHidden && isPlaylistHidden && (
+              <div className="deck-both-hidden-prompt">
+                <p>All deck elements are currently hidden.</p>
+                <button
+                  className="btn-secondary"
+                  onClick={() => {
+                    handleToggleHideVinyl();
+                    handleToggleHidePlaylist();
+                  }}
+                  style={{
+                    background: 'var(--accent-ruby)',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '0.45rem 1rem',
+                    borderRadius: '8px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    marginTop: '0.5rem',
+                  }}
+                >
+                  Reset View
+                </button>
+              </div>
+            )}
           </div>
         )}
       </main>
@@ -842,6 +917,10 @@ export default function App() {
         onDownloadTrack={handleDownloadTrack}
         isFavorite={currentTrack ? isTrackFavorite(currentTrack, favorites) : false}
         onToggleFavorite={() => handleToggleFavorite(currentTrack)}
+        isPlaylistHidden={isPlaylistHidden}
+        onToggleHidePlaylist={handleToggleHidePlaylist}
+        isVinylHidden={isVinylHidden}
+        onToggleHideVinyl={handleToggleHideVinyl}
       />
 
       {/* Modals */}
