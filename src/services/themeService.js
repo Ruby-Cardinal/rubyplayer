@@ -1,0 +1,211 @@
+import {
+  extractAndApplyAdaptiveComplementaryColor,
+  getSavedRainbowFrozen,
+} from './mediaService';
+
+// Dynamically discover all theme definitions in src/themes/*/index.js at build time
+const themeModules = import.meta.glob('../themes/*/index.js', { eager: true });
+
+const THEMES = Object.values(themeModules).map((mod) => mod.default || mod);
+
+let activeTheme = null;
+let activeBackgroundComponent = null;
+let rainbowIntervalId = null;
+let currentRainbowHue = 0;
+const listeners = new Set();
+
+function getSavedThemeId() {
+  try {
+    return localStorage.getItem('rubyplayer_site_color') || '#ff2e55';
+  } catch (err) {
+    return '#ff2e55';
+  }
+}
+
+function saveThemeId(id) {
+  try {
+    localStorage.setItem('rubyplayer_site_color', id);
+  } catch (err) { }
+}
+
+function injectOrUpdateThemeStyles(cssContent) {
+  let styleEl = document.getElementById('ruby-theme-override');
+  if (!cssContent) {
+    if (styleEl) styleEl.remove();
+    return;
+  }
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'ruby-theme-override';
+    document.head.appendChild(styleEl);
+  }
+  styleEl.textContent = cssContent;
+}
+
+function clearAllThemeBodyClasses() {
+  THEMES.forEach((t) => {
+    if (t.bodyClass) {
+      document.body.classList.remove(t.bodyClass);
+    }
+  });
+  document.body.classList.remove('theme-rainbow-frozen');
+}
+
+export function getThemes() {
+  return THEMES;
+}
+
+export function getThemeById(id) {
+  if (!id) return null;
+  return THEMES.find((t) => t.id.toLowerCase() === id.toLowerCase()) || null;
+}
+
+export function getActiveTheme() {
+  return activeTheme;
+}
+
+export function getActiveBackgroundComponent() {
+  return activeBackgroundComponent;
+}
+
+export function onThemeChange(callback) {
+  listeners.add(callback);
+  return () => listeners.delete(callback);
+}
+
+function notifyListeners() {
+  listeners.forEach((cb) => {
+    try {
+      cb({ activeTheme, activeBackgroundComponent });
+    } catch (e) { }
+  });
+}
+
+export async function applyTheme(themeIdOrHex, currentTrack = null) {
+  if (!themeIdOrHex) themeIdOrHex = '#ff2e55';
+  const root = document.documentElement;
+
+  // Clear existing animation interval if any
+  if (rainbowIntervalId) {
+    clearInterval(rainbowIntervalId);
+    rainbowIntervalId = null;
+  }
+
+  // Clear existing theme body classes
+  clearAllThemeBodyClasses();
+
+  const foundTheme = getThemeById(themeIdOrHex);
+  activeTheme = foundTheme;
+  saveThemeId(themeIdOrHex);
+
+  if (foundTheme) {
+    // Apply body class if specified
+    if (foundTheme.bodyClass) {
+      document.body.classList.add(foundTheme.bodyClass);
+    }
+
+    // Layer 2: Inject custom CSS if present
+    injectOrUpdateThemeStyles(foundTheme.css || '');
+
+    // Handle special theme types
+    if (foundTheme.type === 'animated') {
+      if (getSavedRainbowFrozen()) {
+        document.body.classList.add('theme-rainbow-frozen');
+      }
+
+      const updateRainbowVars = () => {
+        if (getSavedRainbowFrozen()) return;
+        currentRainbowHue = (currentRainbowHue + 0.25) % 360;
+        const hue = currentRainbowHue;
+        const rColor = `hsl(${hue}, 95%, 60%)`;
+        const rDark = `hsl(${hue}, 95%, 42%)`;
+        const rGlow = `hsla(${hue}, 95%, 60%, 0.6)`;
+        const rBgGlow = `hsla(${hue}, 95%, 60%, 0.18)`;
+        const rBorderGlow = `hsla(${hue}, 95%, 60%, 0.45)`;
+
+        root.style.setProperty('--accent-ruby', rColor);
+        root.style.setProperty('--accent-ruby-dark', rDark);
+        root.style.setProperty('--accent-ruby-glow', rGlow);
+        root.style.setProperty('--accent-ruby-bg-glow', rBgGlow);
+        root.style.setProperty('--border-glow', rBorderGlow);
+        root.style.setProperty('--shadow-ruby', `0 0 30px ${rGlow}`);
+      };
+
+      updateRainbowVars();
+      rainbowIntervalId = setInterval(updateRainbowVars, 250);
+    } else if (foundTheme.type === 'adaptive') {
+      if (currentTrack) {
+        const coverArt = currentTrack.hasCover
+          ? `/api/cover?id=${encodeURIComponent(currentTrack.id)}`
+          : `/api/folder-cover?id=${encodeURIComponent(currentTrack.id)}`;
+        extractAndApplyAdaptiveComplementaryColor(coverArt);
+      } else {
+        extractAndApplyAdaptiveComplementaryColor(null);
+      }
+    } else if (foundTheme.vars) {
+      // Layer 1: Apply defined CSS custom properties
+      Object.entries(foundTheme.vars).forEach(([key, val]) => {
+        root.style.setProperty(key, val);
+      });
+    }
+
+    // Lazy load background component if defined
+    if (typeof foundTheme.Background === 'function') {
+      try {
+        const mod = await foundTheme.Background();
+        activeBackgroundComponent = mod.default || mod;
+      } catch (err) {
+        activeBackgroundComponent = null;
+      }
+    } else {
+      activeBackgroundComponent = null;
+    }
+  } else {
+    // Custom / preset hex color logic
+    injectOrUpdateThemeStyles('');
+    activeBackgroundComponent = null;
+
+    const hex = themeIdOrHex;
+    const r = parseInt(hex.slice(1, 3), 16) || 255;
+    const g = parseInt(hex.slice(3, 5), 16) || 46;
+    const b = parseInt(hex.slice(5, 7), 16) || 85;
+
+    const darkHex = `rgb(${Math.max(0, r - 30)}, ${Math.max(0, g - 30)}, ${Math.max(0, b - 30)})`;
+    const glow = `rgba(${r}, ${g}, ${b}, 0.5)`;
+    const bgGlow = `rgba(${r}, ${g}, ${b}, 0.12)`;
+    const borderGlow = `rgba(${r}, ${g}, ${b}, 0.4)`;
+
+    root.style.setProperty('--accent-ruby', hex);
+    root.style.setProperty('--accent-ruby-dark', darkHex);
+    root.style.setProperty('--accent-ruby-glow', glow);
+    root.style.setProperty('--accent-ruby-bg-glow', bgGlow);
+    root.style.setProperty('--border-glow', borderGlow);
+    root.style.setProperty('--shadow-ruby', `0 0 30px ${glow}`);
+  }
+
+  notifyListeners();
+}
+
+export function handleTrackChangeForAdaptiveTheme(track) {
+  if (activeTheme && activeTheme.type === 'adaptive') {
+    applyTheme('adaptive', track);
+  }
+}
+
+export function getSavedThemeOption(themeId, optionId, defaultValue = false) {
+  try {
+    const val = localStorage.getItem(`rubyplayer_theme_${themeId}_${optionId}`);
+    if (val === null) return defaultValue;
+    return val === 'true';
+  } catch (err) {
+    return defaultValue;
+  }
+}
+
+export function setThemeOption(themeId, optionId, value) {
+  try {
+    localStorage.setItem(`rubyplayer_theme_${themeId}_${optionId}`, value ? 'true' : 'false');
+    notifyListeners();
+  } catch (err) { }
+}
+

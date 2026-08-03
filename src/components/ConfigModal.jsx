@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Palette, Sparkles, AlertTriangle, Disc, Activity, User, Lock, Key, CheckCircle, AlertCircle, Flower2 } from 'lucide-react';
+import { getThemes, getThemeById, getSavedThemeOption, setThemeOption } from '../services/themeService';
+
 import {
   applySiteThemeColor,
   getSavedSiteThemeColor,
@@ -11,6 +13,7 @@ import {
   setDisableVisualizerMotion,
   changeUserPassword,
 } from '../services/mediaService';
+
 
 const COLOR_PRESETS = [
   { name: 'Ruby Red', hex: '#ff2e55' },
@@ -32,6 +35,14 @@ export default function ConfigModal({ isOpen, onClose }) {
   const [pwdNew, setPwdNew] = useState('');
   const [pwdMsg, setPwdMsg] = useState(null);
   const [pwdErr, setPwdErr] = useState(null);
+
+  const [optionTick, setOptionTick] = useState(0);
+
+  const handleOptionToggle = (themeId, optionId, value) => {
+    setThemeOption(themeId, optionId, value);
+    setOptionTick((t) => t + 1);
+    applySiteThemeColor(siteColor);
+  };
 
   const handleChangePassword = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
@@ -181,166 +192,134 @@ export default function ConfigModal({ isOpen, onClose }) {
             </label>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.85rem' }}>
-              <button
-                type="button"
-                className="theme-preset-swatch"
-                onClick={() => handleColorChange('rainbow')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.6rem',
-                  padding: '0.5rem 1.1rem',
-                  borderRadius: 'var(--radius-md, 8px)',
-                  background: 'linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #8b00ff)',
-                  color: '#000000ff',
-                  fontWeight: '700',
-                  fontSize: '0.85rem',
-                  border: siteColor.toLowerCase() === 'rainbow' ? '2px solid #ffffff' : '1px solid transparent',
-                  boxShadow: siteColor.toLowerCase() === 'rainbow' ? '0 0 16px rgba(255, 255, 255, 0.8)' : '0 2px 8px rgba(0,0,0,0.3)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  transform: siteColor.toLowerCase() === 'rainbow' ? 'scale(1.03)' : 'scale(1)',
-                  filter: 'none',
-                }}
-              >
-                <Sparkles size={16} />
-                <span>Rainbow</span>
-              </button>
-
-              {/* Retro Theme Button */}
-              <button
-                type="button"
-                className="theme-preset-swatch"
-                onClick={() => handleColorChange('retro')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.6rem',
-                  padding: '0.5rem 1.1rem',
-                  borderRadius: 'var(--radius-md, 8px)',
-                  background: 'linear-gradient(135deg, #3b2008, #7a4c10, #c8820a, #7a4c10)',
-                  color: '#000000ff',
-                  fontWeight: '700',
-                  fontSize: '0.85rem',
-                  border: siteColor.toLowerCase() === 'retro' ? '2px solid #f0d080' : '1px solid transparent',
-                  boxShadow: siteColor.toLowerCase() === 'retro' ? '0 0 14px rgba(200, 130, 10, 0.7)' : '0 2px 8px rgba(0,0,0,0.3)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  transform: siteColor.toLowerCase() === 'retro' ? 'scale(1.03)' : 'scale(1)',
-                  filter: 'none',
-                }}
-              >
-                <Disc size={16} />
-                <span>Retro</span>
-              </button>
-
-              {/* Adaptive Complementary Color Theme Button */}
-              <button
-                type="button"
-                className="theme-preset-swatch"
-                onClick={() => handleColorChange('adaptive')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.6rem',
-                  padding: '0.5rem 1.1rem',
-                  borderRadius: 'var(--radius-md, 8px)',
-                  background: 'linear-gradient(135deg, #00f2fe, #4facfe, #ff0844, #ffb199)',
-                  color: '#ffffff',
-                  fontWeight: '700',
-                  fontSize: '0.85rem',
-                  border: siteColor.toLowerCase() === 'adaptive' ? '2px solid #ffffff' : '1px solid transparent',
-                  boxShadow: siteColor.toLowerCase() === 'adaptive' ? '0 0 14px rgba(0, 242, 254, 0.7)' : '0 2px 8px rgba(0,0,0,0.3)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  transform: siteColor.toLowerCase() === 'adaptive' ? 'scale(1.03)' : 'scale(1)',
-                  filter: 'none',
-                }}
-              >
-                <Palette size={16} />
-                <span>Adaptive Art</span>
-              </button>
-
-              {/* Sakura Ink Art Theme Button */}
-              <button
-                type="button"
-                className="theme-preset-swatch"
-                onClick={() => handleColorChange('sakura')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.6rem',
-                  padding: '0.5rem 1.1rem',
-                  borderRadius: 'var(--radius-md, 8px)',
-                  background: 'linear-gradient(135deg, #1c141a, #ffb7c5, #f472b6, #181218)',
-                  color: '#ffffff',
-                  fontWeight: '700',
-                  fontSize: '0.85rem',
-                  border: siteColor.toLowerCase() === 'sakura' ? '2px solid #ffb7c5' : '1px solid transparent',
-                  boxShadow: siteColor.toLowerCase() === 'sakura' ? '0 0 16px rgba(255, 183, 197, 0.8)' : '0 2px 8px rgba(0,0,0,0.3)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  transform: siteColor.toLowerCase() === 'sakura' ? 'scale(1.03)' : 'scale(1)',
-                  filter: 'none',
-                }}
-              >
-                <Flower2 size={16} style={{ color: '#ffb7c5' }} />
-                <span>Sakura Ink 櫻</span>
-              </button>
+              {getThemes().map((t) => {
+                const IconComponent = t.Icon || Sparkles;
+                const isSelected = siteColor.toLowerCase() === t.id.toLowerCase();
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    className="theme-preset-swatch"
+                    onClick={() => handleColorChange(t.id)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.6rem',
+                      padding: '0.5rem 1.1rem',
+                      borderRadius: 'var(--radius-md, 8px)',
+                      background: t.previewGradient,
+                      color: t.previewTextColor || '#ffffff',
+                      fontWeight: '700',
+                      fontSize: '0.85rem',
+                      border: isSelected ? '2px solid #ffffff' : '1px solid transparent',
+                      boxShadow: isSelected ? '0 0 16px rgba(255, 255, 255, 0.8)' : '0 2px 8px rgba(0,0,0,0.3)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      transform: isSelected ? 'scale(1.03)' : 'scale(1)',
+                      filter: 'none',
+                    }}
+                  >
+                    <IconComponent size={16} />
+                    <span>{t.name}</span>
+                  </button>
+                );
+              })}
             </div>
 
-            {/* Freeze Motion Switch when Rainbow Theme is selected */}
-            {siteColor.toLowerCase() === 'rainbow' && (
-              <div
-                style={{
-                  marginTop: '0.85rem',
-                  marginBottom: '0.85rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  background: 'rgba(255, 255, 255, 0.04)',
-                  padding: '0.65rem 0.85rem',
-                  borderRadius: 'var(--radius-sm, 6px)',
-                  border: '1px solid var(--border-glass)',
-                }}
-              >
-                <div style={{ display: 'flex', flexDirection: 'column', paddingRight: '0.5rem' }}>
-                  <span style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-primary)' }}>
-                    Freeze Rainbow Motion
-                  </span>
-                  <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
-                    Holds last active state to reduce effect on battery life.
-                  </span>
-                </div>
-                <label className="toggle-switch">
-                  <input type="checkbox" checked={isRainbowFrozen} onChange={handleFrozenToggle} />
-                  <span className="toggle-slider"></span>
-                </label>
-              </div>
-            )}
-
-            {/* Performance Warning Box — Rainbow only */}
-            {siteColor.toLowerCase() === 'rainbow' && !isRainbowFrozen && (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '0.65rem',
-                  padding: '0.7rem 0.9rem',
-                  borderRadius: 'var(--radius-sm, 6px)',
-                  background: 'rgba(245, 158, 11, 0.12)',
-                  border: '1px solid rgba(245, 158, 11, 0.35)',
-                  color: '#fcd34d',
-                  fontSize: '0.78rem',
-                  lineHeight: '1.45',
-                }}
-              >
-                <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: '2px', color: '#f59e0b' }} />
-                <div>
-                  <strong>Notice:</strong> May increase battery drain while active.
-                </div>
-              </div>
-            )}
+            {/* Dynamic Options for Selected Special Theme */}
+            {(() => {
+              const activeT = getThemeById(siteColor);
+              if (!activeT || !activeT.options || activeT.options.length === 0) return null;
+              return activeT.options.map((opt) => {
+                if (opt.id === 'freeze') {
+                  return (
+                    <div key={opt.id}>
+                      <div
+                        style={{
+                          marginTop: '0.85rem',
+                          marginBottom: '0.85rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          background: 'rgba(255, 255, 255, 0.04)',
+                          padding: '0.65rem 0.85rem',
+                          borderRadius: 'var(--radius-sm, 6px)',
+                          border: '1px solid var(--border-glass)',
+                        }}
+                      >
+                        <div style={{ display: 'flex', flexDirection: 'column', paddingRight: '0.5rem' }}>
+                          <span style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                            {opt.label}
+                          </span>
+                          <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                            {opt.description}
+                          </span>
+                        </div>
+                        <label className="toggle-switch">
+                          <input type="checkbox" checked={isRainbowFrozen} onChange={handleFrozenToggle} />
+                          <span className="toggle-slider"></span>
+                        </label>
+                      </div>
+                      {!isRainbowFrozen && (
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: '0.65rem',
+                            padding: '0.7rem 0.9rem',
+                            borderRadius: 'var(--radius-sm, 6px)',
+                            background: 'rgba(245, 158, 11, 0.12)',
+                            border: '1px solid rgba(245, 158, 11, 0.35)',
+                            color: '#fcd34d',
+                            fontSize: '0.78rem',
+                            lineHeight: '1.45',
+                          }}
+                        >
+                          <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: '2px', color: '#f59e0b' }} />
+                          <div>
+                            <strong>Notice:</strong> May increase battery drain while active.
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+                const isChecked = getSavedThemeOption(activeT.id, opt.id, false);
+                return (
+                  <div
+                    key={opt.id}
+                    style={{
+                      marginTop: '0.85rem',
+                      marginBottom: '0.85rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      background: 'rgba(255, 255, 255, 0.04)',
+                      padding: '0.65rem 0.85rem',
+                      borderRadius: 'var(--radius-sm, 6px)',
+                      border: '1px solid var(--border-glass)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', flexDirection: 'column', paddingRight: '0.5rem' }}>
+                      <span style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                        {opt.label}
+                      </span>
+                      <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                        {opt.description}
+                      </span>
+                    </div>
+                    <label className="toggle-switch">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={(e) => handleOptionToggle(activeT.id, opt.id, e.target.checked)}
+                      />
+                      <span className="toggle-slider"></span>
+                    </label>
+                  </div>
+                );
+              });
+            })()}
           </div>
 
           {/* Playback Options Section */}

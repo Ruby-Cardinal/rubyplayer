@@ -330,110 +330,12 @@ export function extractAndApplyAdaptiveComplementaryColor(imgUrl) {
   };
 }
 
+import { applyTheme } from './themeService';
+
 export function applySiteThemeColor(hex) {
-  if (!hex) hex = '#ff2e55';
-  const root = document.documentElement;
-
-  if (rainbowIntervalId) {
-    clearInterval(rainbowIntervalId);
-    rainbowIntervalId = null;
-  }
-
-  if (hex.toLowerCase() === 'rainbow') {
-    document.body.classList.add('theme-rainbow');
-    document.body.classList.remove('theme-retro');
-    document.body.classList.remove('theme-adaptive');
-    if (getSavedRainbowFrozen()) {
-      document.body.classList.add('theme-rainbow-frozen');
-    } else {
-      document.body.classList.remove('theme-rainbow-frozen');
-    }
-
-    const updateRainbowVars = () => {
-      if (getSavedRainbowFrozen()) return; // Freeze dynamic interval update when frozen
-      currentRainbowHue = (currentRainbowHue + 0.25) % 360;
-      const hue = currentRainbowHue;
-      const rColor = `hsl(${hue}, 95%, 60%)`;
-      const rDark = `hsl(${hue}, 95%, 42%)`;
-      const rGlow = `hsla(${hue}, 95%, 60%, 0.6)`;
-      const rBgGlow = `hsla(${hue}, 95%, 60%, 0.18)`;
-      const rBorderGlow = `hsla(${hue}, 95%, 60%, 0.45)`;
-
-      root.style.setProperty('--accent-ruby', rColor);
-      root.style.setProperty('--accent-ruby-dark', rDark);
-      root.style.setProperty('--accent-ruby-glow', rGlow);
-      root.style.setProperty('--accent-ruby-bg-glow', rBgGlow);
-      root.style.setProperty('--border-glow', rBorderGlow);
-      root.style.setProperty('--shadow-ruby', `0 0 30px ${rGlow}`);
-    };
-
-    updateRainbowVars();
-    rainbowIntervalId = setInterval(updateRainbowVars, 250);
-  } else if (hex.toLowerCase() === 'retro') {
-    document.body.classList.remove('theme-rainbow');
-    document.body.classList.remove('theme-rainbow-frozen');
-    document.body.classList.remove('theme-adaptive');
-    document.body.classList.remove('theme-sakura');
-    document.body.classList.add('theme-retro');
-
-    root.style.setProperty('--accent-ruby', '#c8820a');
-    root.style.setProperty('--accent-ruby-dark', '#9a640a');
-    root.style.setProperty('--accent-ruby-glow', 'rgba(200, 130, 10, 0.55)');
-    root.style.setProperty('--accent-ruby-bg-glow', 'rgba(200, 130, 10, 0.13)');
-    root.style.setProperty('--border-glow', 'rgba(200, 130, 10, 0.4)');
-    root.style.setProperty('--shadow-ruby', '0 4px 18px rgba(200, 130, 10, 0.35)');
-  } else if (hex.toLowerCase() === 'sakura') {
-    document.body.classList.remove('theme-rainbow');
-    document.body.classList.remove('theme-rainbow-frozen');
-    document.body.classList.remove('theme-retro');
-    document.body.classList.remove('theme-adaptive');
-    document.body.classList.add('theme-sakura');
-
-    root.style.setProperty('--accent-ruby', '#ff9ebb');
-    root.style.setProperty('--accent-ruby-dark', '#db2777');
-    root.style.setProperty('--accent-ruby-glow', 'rgba(255, 158, 187, 0.65)');
-    root.style.setProperty('--accent-ruby-bg-glow', 'rgba(255, 158, 187, 0.16)');
-    root.style.setProperty('--border-glow', 'rgba(244, 114, 182, 0.45)');
-    root.style.setProperty('--shadow-ruby', '0 0 28px rgba(255, 158, 187, 0.4)');
-  } else if (hex.toLowerCase() === 'adaptive' || hex.toLowerCase() === 'complementary') {
-    document.body.classList.remove('theme-rainbow');
-    document.body.classList.remove('theme-rainbow-frozen');
-    document.body.classList.remove('theme-retro');
-    document.body.classList.remove('theme-sakura');
-    document.body.classList.add('theme-adaptive');
-
-    if (lastAdaptiveCoverUrl) {
-      extractAndApplyAdaptiveComplementaryColor(lastAdaptiveCoverUrl);
-    } else {
-      applyHSLAccent(200, 85, 60);
-    }
-  } else {
-    document.body.classList.remove('theme-rainbow');
-    document.body.classList.remove('theme-rainbow-frozen');
-    document.body.classList.remove('theme-retro');
-    document.body.classList.remove('theme-adaptive');
-    document.body.classList.remove('theme-sakura');
-    const r = parseInt(hex.slice(1, 3), 16) || 255;
-    const g = parseInt(hex.slice(3, 5), 16) || 46;
-    const b = parseInt(hex.slice(5, 7), 16) || 85;
-
-    const darkHex = `rgb(${Math.max(0, r - 30)}, ${Math.max(0, g - 30)}, ${Math.max(0, b - 30)})`;
-    const glow = `rgba(${r}, ${g}, ${b}, 0.5)`;
-    const bgGlow = `rgba(${r}, ${g}, ${b}, 0.12)`;
-    const borderGlow = `rgba(${r}, ${g}, ${b}, 0.4)`;
-
-    root.style.setProperty('--accent-ruby', hex);
-    root.style.setProperty('--accent-ruby-dark', darkHex);
-    root.style.setProperty('--accent-ruby-glow', glow);
-    root.style.setProperty('--accent-ruby-bg-glow', bgGlow);
-    root.style.setProperty('--border-glow', borderGlow);
-    root.style.setProperty('--shadow-ruby', `0 0 30px ${glow}`);
-  }
-
-  try {
-    localStorage.setItem('rubyplayer_site_color', hex);
-  } catch (err) { }
+  applyTheme(hex);
 }
+
 
 export function getSavedRainbowFrozen() {
   try {

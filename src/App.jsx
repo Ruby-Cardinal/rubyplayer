@@ -18,7 +18,13 @@ import LoginModal from './components/LoginModal';
 import RubyFavIcon from './components/RubyFavIcon';
 import PlaylistEditorModal from './components/PlaylistEditorModal';
 import HelpModal from './components/HelpModal';
-import SakuraBackground from './components/SakuraBackground';
+import {
+  applyTheme,
+  onThemeChange,
+  getActiveBackgroundComponent,
+  handleTrackChangeForAdaptiveTheme,
+} from './services/themeService';
+
 import {
   fetchServerConfig,
   scanMediaFolder,
@@ -192,27 +198,23 @@ export default function App() {
     }
   }, [currentTrack?.id]);
 
+  const [BackgroundComp, setBackgroundComp] = useState(() => getActiveBackgroundComponent());
+
   useEffect(() => {
-    applySiteThemeColor(getSavedSiteThemeColor());
+    applyTheme(getSavedSiteThemeColor(), currentTrack);
   }, []);
 
-  // Adaptive theme: recalculate complementary color whenever currentTrack changes
   useEffect(() => {
-    const savedTheme = getSavedSiteThemeColor();
-    if ((savedTheme === 'adaptive' || savedTheme === 'complementary') && currentTrack) {
-      const coverUrl = currentTrack.hasCover
-        ? getCoverArtUrl(currentTrack.id)
-        : getFolderCoverUrl(currentTrack.id);
-      extractAndApplyAdaptiveComplementaryColor(coverUrl);
-    }
+    return onThemeChange(({ activeBackgroundComponent }) => {
+      setBackgroundComp(() => activeBackgroundComponent);
+      setCurrentTheme(getSavedSiteThemeColor());
+    });
+  }, []);
+
+  useEffect(() => {
+    handleTrackChangeForAdaptiveTheme(currentTrack);
   }, [currentTrack?.id, currentTrack?.hasCover]);
 
-  // Re-read theme whenever config dialog closes
-  useEffect(() => {
-    if (!isConfigOpen) {
-      setCurrentTheme(getSavedSiteThemeColor());
-    }
-  }, [isConfigOpen]);
 
   // Reload library data function (used on startup and after login/logout)
   const loadLibraryData = async () => {
@@ -755,7 +757,7 @@ export default function App() {
 
   return (
     <div className="app-container">
-      <SakuraBackground />
+      {BackgroundComp && <BackgroundComp />}
       {/* Hidden Audio Element — src is managed imperatively in useEffect when trackId changes */}
       <audio
         ref={audioRef}
