@@ -1,0 +1,1 @@
+I created a media player for my website.  It reads a folder structure (artists, albums, songs) and serves them as playlists. It allows a default playlist of songs, and the ability to show logged in users other playlists. Logged in users are also able do download the songs they are listening to.
