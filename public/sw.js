@@ -40,55 +40,56 @@ self.addEventListener('fetch', (event) => {
 
   if (url.pathname.startsWith('/api/stream') || request.headers.get('range')) {
     return;
+  }
 
-    if (request.mode === 'navigate') {
-      event.respondWith(
-        fetch(request).catch(() => {
-          return caches.match('/index.html') || caches.match('/');
-        })
-      );
-      return;
-    }
-
-    if (url.pathname.startsWith('/api/')) {
-      event.respondWith(
-        fetch(request)
-          .then((response) => {
-            if (response && response.status === 200 && request.method === 'GET') {
-              const copy = response.clone();
-              caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-            }
-            return response;
-          })
-          .catch(() => caches.match(request))
-      );
-      return;
-    }
-
+  if (request.mode === 'navigate') {
     event.respondWith(
-      caches.match(request).then((cachedResponse) => {
-        if (cachedResponse) {
-          fetch(request).then((networkResponse) => {
-            if (networkResponse && networkResponse.status === 200) {
-              caches.open(CACHE_NAME).then((cache) => cache.put(request, networkResponse));
-            }
-          }).catch(() => { });
-          return cachedResponse;
-        }
-
-        return fetch(request).then((networkResponse) => {
-          if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-            return networkResponse;
-          }
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseToCache);
-          });
-          return networkResponse;
-        });
+      fetch(request).catch(() => {
+        return caches.match('/index.html') || caches.match('/');
       })
     );
-  });
+    return;
+  }
+
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response && response.status === 200 && request.method === 'GET') {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request))
+    );
+    return;
+  }
+
+  event.respondWith(
+    caches.match(request).then((cachedResponse) => {
+      if (cachedResponse) {
+        fetch(request).then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, networkResponse));
+          }
+        }).catch(() => { });
+        return cachedResponse;
+      }
+
+      return fetch(request).then((networkResponse) => {
+        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+          return networkResponse;
+        }
+        const responseToCache = networkResponse.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(request, responseToCache);
+        });
+        return networkResponse;
+      });
+    })
+  );
+});
 
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
