@@ -29,6 +29,7 @@ export default defineConfig({
       : []),
   ],
   resolve: {
+    dedupe: ['react', 'react-dom'],
     alias: {
       jsmediatags: 'jsmediatags/dist/jsmediatags.min.js',
     },

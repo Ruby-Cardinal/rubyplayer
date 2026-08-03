@@ -237,14 +237,13 @@ export default function App() {
   const [BackgroundComp, setBackgroundComp] = useState(() => getActiveBackgroundComponent());
 
   useEffect(() => {
-    applyTheme(getSavedSiteThemeColor(), currentTrack);
-  }, []);
-
-  useEffect(() => {
-    return onThemeChange(({ activeBackgroundComponent }) => {
+    const unsubscribe = onThemeChange(({ activeBackgroundComponent }) => {
       setBackgroundComp(() => activeBackgroundComponent);
       setCurrentTheme(getSavedSiteThemeColor());
     });
+    applyTheme(getSavedSiteThemeColor(), currentTrack);
+    setBackgroundComp(() => getActiveBackgroundComponent());
+    return unsubscribe;
   }, []);
 
   useEffect(() => {

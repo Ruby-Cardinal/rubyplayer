@@ -149,13 +149,27 @@ export async function applyTheme(themeIdOrHex, currentTrack = null) {
       }
     }
 
-    // Lazy load background component if defined
-    if (typeof foundTheme.Background === 'function') {
-      try {
-        const mod = await foundTheme.Background();
-        activeBackgroundComponent = mod.default || mod;
-      } catch (err) {
-        activeBackgroundComponent = null;
+    // Load background component if defined
+    if (foundTheme.Background) {
+      if (typeof foundTheme.Background === 'function') {
+        // If it's a direct React component (e.g. named component function like SakuraBackground)
+        if (foundTheme.Background.name && foundTheme.Background.name !== 'Background' && foundTheme.Background.name !== '') {
+          activeBackgroundComponent = foundTheme.Background;
+        } else {
+          try {
+            const res = foundTheme.Background();
+            if (res && typeof res.then === 'function') {
+              const mod = await res;
+              activeBackgroundComponent = mod?.default || mod;
+            } else {
+              activeBackgroundComponent = foundTheme.Background;
+            }
+          } catch (err) {
+            activeBackgroundComponent = foundTheme.Background;
+          }
+        }
+      } else {
+        activeBackgroundComponent = foundTheme.Background;
       }
     } else {
       activeBackgroundComponent = null;

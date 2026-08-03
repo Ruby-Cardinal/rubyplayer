@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 import jsmediatags from 'jsmediatags';
 import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 
 const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
@@ -53,59 +54,18 @@ app.use(cors((req, callback) => {
 }));
 app.use(express.json({ limit: '1mb' }));
 
-let bcrypt = null;
-try {
-  const loaded = require('bcryptjs');
-  bcrypt = (loaded && typeof loaded.compareSync === 'function') ? loaded : (loaded?.default || loaded);
-} catch (e) {
-  try {
-    const loaded = require('bcrypt');
-    bcrypt = (loaded && typeof loaded.compareSync === 'function') ? loaded : (loaded?.default || loaded);
-  } catch (e2) { }
-}
-
-// Password Security Engine (Bcrypt with PBKDF2 fallback)
+// Password Security Engine (bcryptjs)
 function hashPassword(password) {
-  if (bcrypt && typeof bcrypt.hashSync === 'function') {
-    return { hash: bcrypt.hashSync(password, 10) };
-  }
-  const salt = crypto.randomBytes(16).toString('hex');
-  const derivedKey = crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
-  return { hash: `$pbkdf2$100000$${salt}$${derivedKey}` };
+  return { hash: bcrypt.hashSync(password, 10) };
 }
 
 function verifyPassword(password, storedHash) {
   if (!password || !storedHash) return false;
-
-  if (storedHash.startsWith('$2a$') || storedHash.startsWith('$2b$') || storedHash.startsWith('$2y$')) {
-    if (bcrypt && typeof bcrypt.compareSync === 'function') {
-      try {
-        return bcrypt.compareSync(password, storedHash);
-      } catch (err) {
-        return false;
-      }
-    }
+  try {
+    return bcrypt.compareSync(password, storedHash);
+  } catch (err) {
+    return false;
   }
-
-  if (storedHash.startsWith('$pbkdf2$')) {
-    const parts = storedHash.split('$');
-    if (parts.length === 5) {
-      const iterations = parseInt(parts[2], 10);
-      const salt = parts[3];
-      const expectedKey = parts[4];
-      const derivedKey = crypto.pbkdf2Sync(password, salt, iterations, 64, 'sha512').toString('hex');
-      try {
-        const bufA = Buffer.from(derivedKey, 'hex');
-        const bufB = Buffer.from(expectedKey, 'hex');
-        if (bufA.length !== bufB.length) return false;
-        return crypto.timingSafeEqual(bufA, bufB);
-      } catch (err) {
-        return false;
-      }
-    }
-  }
-
-  return false;
 }
 
 // Active Sessions Store (token -> { username, role, expiresAt, lastActive })

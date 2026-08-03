@@ -1,4 +1,5 @@
 import { Flower2 } from 'lucide-react';
+import SakuraBackground from './Background.jsx';
 
 export default {
   id: 'sakura',
@@ -118,7 +119,7 @@ export default {
     } catch (e) { }
     return null;
   },
-  Background: () => import('./Background.jsx'),
+  Background: SakuraBackground,
   options: [
     {
       id: 'sakuraRetroLabel',
