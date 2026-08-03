@@ -11,7 +11,7 @@ export default function Sidebar({
 }) {
   const handleNav = (view) => {
     if (isLocked && view !== 'playlists') {
-      return; // Restrict navigation when locked
+      return;
     }
     setCurrentView(view);
   };

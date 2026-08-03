@@ -77,20 +77,16 @@ export default function PlaylistEditorModal({
   const [playlistName, setPlaylistName] = useState('');
   const [playlistTracks, setPlaylistTracks] = useState([]);
 
-  // Selection states
   const [selectedLeftIndices, setSelectedLeftIndices] = useState(new Set());
   const [selectedRightPaths, setSelectedRightPaths] = useState(new Set());
 
-  // Tree UI state
   const [expandedFolders, setExpandedFolders] = useState(new Set());
   const [rightSearchQuery, setRightSearchQuery] = useState('');
 
-  // Status & loading
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
 
-  // Initialize or reset when modal opens or selected playlist changes
   useEffect(() => {
     if (!isOpen) return;
 
@@ -106,7 +102,6 @@ export default function PlaylistEditorModal({
       const pl = playlists.find((p) => p.id === selectedPlaylistId);
       if (pl) {
         setPlaylistName(pl.name.replace(/\.(m3u8?|pls)$/i, ''));
-        // Resolve playlist track paths to track objects from allTracks
         const loadedTracks = [];
         if (Array.isArray(pl.tracks)) {
           pl.tracks.forEach((pathStr) => {
@@ -120,7 +115,6 @@ export default function PlaylistEditorModal({
             if (matched) {
               loadedTracks.push(matched);
             } else {
-              // Fallback placeholder for raw path
               loadedTracks.push({
                 relativePath: pathStr,
                 title: pathStr.split(/[/\\]/).pop(),
@@ -134,7 +128,6 @@ export default function PlaylistEditorModal({
     }
   }, [isOpen, selectedPlaylistId]);
 
-  // Expand all folders by default when tree changes
   useEffect(() => {
     if (!isOpen) return;
     const paths = new Set();
@@ -149,7 +142,6 @@ export default function PlaylistEditorModal({
 
   if (!isOpen) return null;
 
-  // Filter out tracks already present in playlist to PREVENT DUPLICATION
   const playlistPathSet = new Set(playlistTracks.map((t) => t.relativePath));
   const availableRightTracks = allTracks.filter(
     (t) => !playlistPathSet.has(t.relativePath)
@@ -157,7 +149,6 @@ export default function PlaylistEditorModal({
 
   const folderTreeRoot = buildFolderTree(availableRightTracks, rightSearchQuery);
 
-  // Toggle folder expanded
   const toggleFolderExpand = (folderPath) => {
     const next = new Set(expandedFolders);
     if (next.has(folderPath)) {
@@ -168,7 +159,6 @@ export default function PlaylistEditorModal({
     setExpandedFolders(next);
   };
 
-  // Selection handlers for Left Box (multi-select by default)
   const toggleLeftSelection = (index) => {
     const next = new Set(selectedLeftIndices);
     if (next.has(index)) {
@@ -179,7 +169,6 @@ export default function PlaylistEditorModal({
     setSelectedLeftIndices(next);
   };
 
-  // Selection handlers for Right Tree (multi-select by default)
   const toggleRightTrackSelection = (trackPath) => {
     const next = new Set(selectedRightPaths);
     if (next.has(trackPath)) {
@@ -203,7 +192,6 @@ export default function PlaylistEditorModal({
     setSelectedRightPaths(next);
   };
 
-  // Transfer Actions
   const handleAddSelectedToPlaylist = () => {
     if (selectedRightPaths.size === 0) return;
     const tracksToAdd = availableRightTracks.filter((t) =>
@@ -220,7 +208,6 @@ export default function PlaylistEditorModal({
     setSelectedLeftIndices(new Set());
   };
 
-  // Reorder Left Box
   const handleMoveLeftUp = () => {
     if (selectedLeftIndices.size !== 1) return;
     const idx = Array.from(selectedLeftIndices)[0];
@@ -245,7 +232,6 @@ export default function PlaylistEditorModal({
     setSelectedLeftIndices(new Set([idx + 1]));
   };
 
-  // Save Playlist to server as M3U
   const handleSavePlaylist = async () => {
     if (!playlistName.trim()) {
       setErrorMessage('Please enter a playlist name.');
@@ -278,7 +264,6 @@ export default function PlaylistEditorModal({
     }
   };
 
-  // Recursive Tree Node Renderer for Right Box
   const renderTreeNode = (folderNode, depth = 0) => {
     const isExpanded = expandedFolders.has(folderNode.path) || rightSearchQuery.length > 0;
     const folderTracks = getAllTracksInFolder(folderNode);
@@ -331,12 +316,10 @@ export default function PlaylistEditorModal({
 
         {(isExpanded || !folderNode.path) && (
           <div className="tree-folder-children">
-            {/* Render Subfolders */}
             {Object.values(folderNode.folders).map((sub) =>
               renderTreeNode(sub, folderNode.path ? depth + 1 : depth)
             )}
 
-            {/* Render Files */}
             {folderNode.files.map((file) => {
               const isFileSelected = selectedRightPaths.has(file.relativePath);
               return (
@@ -366,7 +349,6 @@ export default function PlaylistEditorModal({
   return (
     <div className="modal-overlay modal-backdrop" onClick={onClose}>
       <div className="playlist-editor-modal glass-card" onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
         <div className="modal-header">
           <div className="modal-title-row">
             <ListMusic size={22} className="title-icon" />
@@ -377,7 +359,6 @@ export default function PlaylistEditorModal({
           </button>
         </div>
 
-        {/* Top Dropdown & Playlist Name Selection */}
         <div className="editor-top-bar">
           <div className="form-group flex-1">
             <label>Select Playlist to Edit or Create</label>
@@ -414,9 +395,7 @@ export default function PlaylistEditorModal({
           </div>
         </div>
 
-        {/* Dual List Box Layout */}
         <div className="dual-box-container">
-          {/* Left Box: Songs in Playlist */}
           <div className="box-panel left-panel">
             <div className="panel-header">
               <h3>
@@ -471,7 +450,6 @@ export default function PlaylistEditorModal({
             </div>
           </div>
 
-          {/* Middle Controls Column: Transfer Arrows */}
           <div className="transfer-column">
             <button
               type="button"
@@ -496,7 +474,6 @@ export default function PlaylistEditorModal({
             </button>
           </div>
 
-          {/* Right Box: Folder Tree of Available Library Songs */}
           <div className="box-panel right-panel">
             <div className="panel-header">
               <h3>
@@ -538,11 +515,9 @@ export default function PlaylistEditorModal({
           </div>
         </div>
 
-        {/* Notifications & Error messages */}
         {errorMessage && <div className="modal-error">{errorMessage}</div>}
         {successMessage && <div className="modal-success">{successMessage}</div>}
 
-        {/* Modal Footer Actions */}
         <div className="modal-footer">
           <button className="btn-secondary" onClick={onClose} disabled={isSaving}>
             Cancel

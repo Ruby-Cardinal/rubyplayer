@@ -1,13 +1,11 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// Optional plugin loading for vite-plugin-pwa if module is available
 let VitePWA = null;
 try {
   const pwaModule = await import('vite-plugin-pwa');
   VitePWA = pwaModule.VitePWA;
 } catch (e) {
-  // Gracefully fallback to static public/sw.js & public/manifest.json if module not yet installed
 }
 
 export default defineConfig({
@@ -15,17 +13,17 @@ export default defineConfig({
     react(),
     ...(VitePWA
       ? [
-          VitePWA({
-            registerType: 'autoUpdate',
-            injectRegister: 'script',
-            manifest: false, // Use public/manifest.json
-            workbox: {
-              globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-              navigateFallback: '/index.html',
-              navigateFallbackDenylist: [/^\/api/],
-            },
-          }),
-        ]
+        VitePWA({
+          registerType: 'autoUpdate',
+          injectRegister: 'script',
+          manifest: false, // Use public/manifest.json
+          workbox: {
+            globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+            navigateFallback: '/index.html',
+            navigateFallbackDenylist: [/^\/api/],
+          },
+        }),
+      ]
       : []),
   ],
   resolve: {

@@ -4,7 +4,6 @@ import { Disc, Play, ArrowLeft, Music2 } from 'lucide-react';
 export default function AlbumsView({ tracks, onPlayTrack, currentTrack, isPlaying }) {
   const [selectedAlbum, setSelectedAlbum] = useState(null);
 
-  // Group tracks by album
   const albumsMap = {};
   for (const track of tracks) {
     const albumKey = track.album || 'Unknown Album';

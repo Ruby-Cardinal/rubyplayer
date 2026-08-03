@@ -18,7 +18,6 @@ export default function PwaInstallPrompt() {
 
   if (toastDismissed) return null;
 
-  // 1. Critical: Offline mode notification
   if (isOffline) {
     return (
       <div className="pwa-toast offline">
@@ -31,7 +30,6 @@ export default function PwaInstallPrompt() {
     );
   }
 
-  // 2. Critical: Update available notification
   if (updateAvailable) {
     return (
       <div className="pwa-toast update">
@@ -46,29 +44,5 @@ export default function PwaInstallPrompt() {
       </div>
     );
   }
-
-  // 3. Optional: Install app prompt (respects user dismissal in localStorage) Leave in.  Currently disabled to prevent people being asked.
-  // if (isInstallable && !installDismissed) {
-  //   const handleDismissInstall = () => {
-  //     setInstallDismissed(true);
-  //     try {
-  //       localStorage.setItem(DISMISS_INSTALL_KEY, 'true');
-  //     } catch (e) { }
-  //   };
-
-  //   return (
-  //     <div className="pwa-toast install">
-  //       <Download size={16} />
-  //       <span>Install RubyPlayer App</span>
-  //       <button className="pwa-toast-action" onClick={promptInstall}>
-  //         Install
-  //       </button>
-  //       <button className="pwa-toast-close" onClick={handleDismissInstall} title="Don't show again">
-  //         <X size={14} />
-  //       </button>
-  //     </div>
-  //   );
-  // }
-
   return null;
 }

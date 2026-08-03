@@ -49,7 +49,6 @@ import {
   downloadTrack,
 } from './services/mediaService';
 
-// Sort Tracks according to criteria hierarchy: Date (Default) -> Title -> Original Order
 function getSortedTracks(tracksList, mode, direction) {
   if (!tracksList || tracksList.length === 0) return [];
 
@@ -66,10 +65,8 @@ function getSortedTracks(tracksList, mode, direction) {
       if (timeA !== timeB) {
         return direction === 'desc' ? timeB - timeA : timeA - timeB;
       }
-      // Tie-breaker 1: Title
       const titleCmp = (tA.title || '').localeCompare(tB.title || '');
       if (titleCmp !== 0) return titleCmp;
-      // Tie-breaker 2: Original Index
       return a.originalIndex - b.originalIndex;
     }
 
@@ -78,15 +75,12 @@ function getSortedTracks(tracksList, mode, direction) {
       if (titleCmp !== 0) {
         return direction === 'desc' ? -titleCmp : titleCmp;
       }
-      // Tie-breaker 1: Date
       const timeA = tA.publishTimestamp || (tA.publishDate ? new Date(tA.publishDate).getTime() : 0);
       const timeB = tB.publishTimestamp || (tB.publishDate ? new Date(tB.publishDate).getTime() : 0);
       if (timeA !== timeB) return timeB - timeA;
-      // Tie-breaker 2: Original Index
       return a.originalIndex - b.originalIndex;
     }
 
-    // 'original' mode: Original order in playlist / folder
     return direction === 'desc' ? b.originalIndex - a.originalIndex : a.originalIndex - b.originalIndex;
   });
 
@@ -106,7 +100,6 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [scanError, setScanError] = useState(null);
 
-  // Playback State
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [currentQueue, setCurrentQueue] = useState([]);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -115,7 +108,6 @@ export default function App() {
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
 
-  // UI & Sorting State
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPlaylistId, setSelectedPlaylistId] = useState(() => getSavedSelectedPlaylistId());
   const [sortMode, setSortMode] = useState(() => localStorage.getItem('rubyplayer_sort_mode') || 'date');
@@ -159,10 +151,8 @@ export default function App() {
     });
   };
 
-  // Favorites state
   const [favorites, setFavorites] = useState(() => getFavoriteTrackIds());
 
-  // Modals & Auth State
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isLyricsOpen, setIsLyricsOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -175,7 +165,6 @@ export default function App() {
   const [isHelpSparkling, setIsHelpSparkling] = useState(true);
 
   useEffect(() => {
-    // Sparkle for at least 2 seconds on page load / reload
     const timer = setTimeout(() => {
       if (localStorage.getItem('rubyplayer_help_clicked') === 'true') {
         setIsHelpSparkling(false);
@@ -201,7 +190,6 @@ export default function App() {
     setFavorites(updated);
   };
 
-  // Theme tracking (updated when config dialog closes)
   const [currentTheme, setCurrentTheme] = useState(() => getSavedSiteThemeColor());
 
   const currentTrack = currentQueue[currentTrackIndex] || null;
@@ -211,7 +199,6 @@ export default function App() {
   const activeTrackRef = useRef(null);
   const recentPlayedIdsRef = useRef([]);
 
-  // Track recent played songs for non-repeating shuffle history (last 5 songs)
   useEffect(() => {
     if (currentTrack) {
       const id = currentTrack.relativePath || currentTrack.id;
@@ -224,7 +211,6 @@ export default function App() {
     }
   }, [currentTrack?.id, currentTrack?.relativePath]);
 
-  // Auto-scroll active track into view when currentTrack changes
   useEffect(() => {
     if (activeTrackRef.current) {
       activeTrackRef.current.scrollIntoView({
@@ -251,7 +237,6 @@ export default function App() {
   }, [currentTrack?.id, currentTrack?.hasCover]);
 
 
-  // Reload library data function (used on startup and after login/logout)
   const loadLibraryData = async () => {
     try {
       setIsLoading(true);
@@ -331,7 +316,6 @@ export default function App() {
     config.LockedPlaylists && config.LockedPlaylists.length > 0 && !currentUser
   );
 
-  // Handle playback whenever currentTrack changes — single persistent audio element
   useEffect(() => {
     if (!audioRef.current || !currentTrack) return;
 
@@ -343,7 +327,6 @@ export default function App() {
 
     setWebAudioVolume(volume, isMuted, audioRef.current);
 
-    // Update PWA / Android Media Session notification controls
     updateMediaSession(currentTrack, {
       onPlay: () => {
         if (audioRef.current) audioRef.current.play();
@@ -362,7 +345,6 @@ export default function App() {
     }
   }, [currentTrack]);
 
-  // Filtered & Sorted tracks for search & playlist
   const selectedPlaylist = playlists.find((p) => p.id === selectedPlaylistId);
   let baseTrackList = tracks;
 
@@ -396,7 +378,6 @@ export default function App() {
     ? []
     : (displayTracks.length > 0 ? displayTracks : (currentQueue.length > 0 ? currentQueue : tracks));
 
-  // Playlist & Sort Handlers
   const handlePlaylistChange = (newPlaylistId) => {
     setSelectedPlaylistId(newPlaylistId);
     saveSelectedPlaylistId(newPlaylistId);
@@ -436,7 +417,6 @@ export default function App() {
     setCurrentTrackIndex(0);
   };
 
-  // Playback Control Handlers
   const playTrack = (track, queueList) => {
     const q = queueList && queueList.length > 0 ? queueList : activeQueue;
     setCurrentQueue(q);
@@ -473,7 +453,6 @@ export default function App() {
     }
   };
 
-  // Helper to pick next shuffled track index excluding recent played history (up to 5 tracks)
   const getShuffledNextIndex = (queue, track) => {
     if (!queue || queue.length === 0) return 0;
     if (queue.length === 1) return 0;
@@ -527,7 +506,6 @@ export default function App() {
   const handleSkipPrev = () => {
     if (activeQueue.length === 0) return;
 
-    // If more than 5 seconds into song, restart current track to 0:00
     if (audioRef.current && audioRef.current.currentTime > 5) {
       audioRef.current.currentTime = 0;
       setCurrentTime(0);
@@ -554,8 +532,6 @@ export default function App() {
     if (audioRef.current) audioRef.current.currentTime = Math.min(duration, audioRef.current.currentTime + 10);
   };
 
-  // Media Session API: lock screen controls + background playback priority
-  // Uses refs for handlers to avoid stale closures and excessive re-registration
   const handleSkipNextRef = useRef(handleSkipNext);
   const handleSkipPrevRef = useRef(handleSkipPrev);
   const handleRewind10Ref = useRef(handleRewind10);
@@ -574,7 +550,6 @@ export default function App() {
       ? getCoverArtUrl(currentTrack.id)
       : getFolderCoverUrl(currentTrack.id);
 
-    // Build artwork array with absolute URL
     const artworkArr = coverUrl
       ? [{ src: new URL(coverUrl, window.location.origin).href, sizes: '512x512', type: 'image/jpeg' }]
       : [];
@@ -650,7 +625,6 @@ export default function App() {
     }
   };
 
-  // Render Playlist Column Component
   const renderPlaylistColumn = () => {
     const favCount = tracks.filter((t) => isTrackFavorite(t, favorites)).length;
 
@@ -685,7 +659,6 @@ export default function App() {
             </div>
 
             <div className="playlist-controls">
-              {/* Sort Mode Dropdown */}
               <div className="sort-dropdown-wrapper" title="Sort Playlist">
                 <ArrowUpDown size={14} className="sort-icon" />
                 <select
@@ -699,7 +672,6 @@ export default function App() {
                 </select>
               </div>
 
-              {/* Sort Direction Toggle */}
               <button
                 className="btn-toggle sort-dir-btn"
                 onClick={() => handleSortChange(sortMode, sortDirection === 'desc' ? 'asc' : 'desc')}
@@ -802,7 +774,6 @@ export default function App() {
   return (
     <div className="app-container">
       {BackgroundComp && <BackgroundComp />}
-      {/* Hidden Audio Element — src is managed imperatively in useEffect when trackId changes */}
       <audio
         ref={audioRef}
         onTimeUpdate={() => audioRef.current && setCurrentTime(audioRef.current.currentTime)}
@@ -810,7 +781,6 @@ export default function App() {
         onEnded={handleTrackEnded}
       />
 
-      {/* Top Header Navbar */}
       <Navbar
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -822,7 +792,6 @@ export default function App() {
         onOpenPlaylistEditor={() => setIsPlaylistEditorOpen(true)}
       />
 
-      {/* Main Content Layout */}
       <main className={`main-content ${isPlaylistHidden ? 'playlist-hidden' : ''} ${isVinylHidden ? 'vinyl-hidden' : ''}`}>
         {scanError ? (
           <div className="error-panel">
@@ -839,7 +808,6 @@ export default function App() {
           </div>
         ) : (
           <div className={`inner-deck-layout ${isPlaylistHidden ? 'playlist-hidden' : ''} ${isVinylHidden ? 'vinyl-hidden' : ''}`}>
-            {/* Left Column: Round Hero Vinyl (Hidden when isVinylHidden is active) */}
             {!isVinylHidden && (
               <div className="deck-left-col">
                 <div className="vinyl-wrapper-stage inner-deck-stage">
@@ -857,14 +825,12 @@ export default function App() {
               </div>
             )}
 
-            {/* Right Column: Playlist (Hidden when isPlaylistHidden is active) */}
             {!isPlaylistHidden && (
               <div className="deck-right-col">
                 {renderPlaylistColumn()}
               </div>
             )}
 
-            {/* Empty state prompt if user hides both vinyl and playlist */}
             {isVinylHidden && isPlaylistHidden && (
               <div className="deck-both-hidden-prompt">
                 <p>All deck elements are currently hidden.</p>
@@ -893,7 +859,6 @@ export default function App() {
         )}
       </main>
 
-      {/* Bottom Player Controls */}
       <PlayerControls
         currentTrack={currentTrack}
         isPlaying={isPlaying}
@@ -922,7 +887,6 @@ export default function App() {
         onToggleHideVinyl={handleToggleHideVinyl}
       />
 
-      {/* Modals */}
       <ConfigModal
         isOpen={isConfigOpen}
         onClose={() => setIsConfigOpen(false)}
@@ -954,9 +918,7 @@ export default function App() {
         onClose={() => setIsHelpOpen(false)}
       />
 
-      {/* PWA App Installation & Offline Notification Prompt */}
       <PwaInstallPrompt />
-
     </div>
   );
 }

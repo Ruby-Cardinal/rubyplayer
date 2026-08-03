@@ -29,7 +29,6 @@ export default function VinylDisc({ currentTrack, isPlaying, onOpenLyrics, theme
 
   const hasVinylLabel = !!vinylLabelPalette;
 
-  // Dynamically shrink title font size when text is long.
   const MAX_TITLE_SIZE = 24;
   const MIN_TITLE_SIZE = 9;
   const IDEAL_MAX_CHARS = 22;
@@ -38,7 +37,6 @@ export default function VinylDisc({ currentTrack, isPlaying, onOpenLyrics, theme
     Math.floor(MAX_TITLE_SIZE * IDEAL_MAX_CHARS / Math.max(songTitle.length, IDEAL_MAX_CHARS))
   );
 
-  // Determine artwork image (embedded cover art -> folder cover.png -> RubyCardinal.png fallback)
   const coverArt = currentTrack
     ? (currentTrack.hasCover ? getCoverArtUrl(currentTrack.id) : getFolderCoverUrl(currentTrack.id))
     : getFolderCoverUrl();
@@ -51,27 +49,19 @@ export default function VinylDisc({ currentTrack, isPlaying, onOpenLyrics, theme
 
   return (
     <div className="vinyl-container" onClick={onOpenLyrics} title="Click to view lyrics">
-      {/* Outer Glowing Ring */}
       <div className={`vinyl-outer-ring ${isPlaying ? 'playing' : ''}`}>
 
-        {/* Visualizer overlay child layer */}
         {children}
 
-        {/* Center: Classic Vinyl label in Label mode, Album Art otherwise */}
         <div className="vinyl-center-art">
           {hasVinylLabel ? (
-            /* ── Classic vinyl center label — fills the full art circle ── */
             <div className="retro-vinyl-label" style={{ background: vinylLabelPalette.background }}>
-              {/* Brand Logo Watermark Layer */}
               <div className="retro-watermark">
                 <svg viewBox="0 0 44 24" className="retro-watermark-svg" fill="currentColor">
-                  {/* Left Large Soaring Wings */}
                   <path d="M 12.019543,9.84966 C 6.0195435,0.84966 0.23452747,-0.508646 0.23452747,2.491354 1.5863185,4.235654 2.1433225,5.165263 3.8143315,6.33953 4.9739405,7.313472 5.5276865,7.918064 6.9332245,8.437282 8.7459275,8.79624 9.5195435,7.34966 12.019543,9.84966 Z" opacity="0.92" />
                   <path d="M 12.307968,11.059576 C 5.6454687,3.8534248 0.5463824,3.8636644 1.0893481,6.7156874 c 1.4497602,1.354126 2.0852992,2.1125647 3.6996946,2.8529567 1.1491079,0.6650049 1.7230881,1.1151889 2.9962142,1.2925719 1.585706,-0.06658 1.9729055,-1.6158616 4.5227101,0.198365 z" opacity="0.92" style={{ strokeWidth: 0.915573 }} />
                   <path d="M 13.726849,13.503329 C 7.38949,7.854406 2.7501784,8.0780633 3.3531024,10.402154 c 1.3708431,1.053155 1.9780789,1.65047 3.4752957,2.191617 1.0709701,0.498745 1.6104246,0.84499 2.775624,0.937223 1.4403059,-0.121724 1.7334789,-1.413012 4.1228259,-0.02766 z" opacity="0.92" style={{ strokeWidth: 0.793121 }} />
-                  {/* Original Classic Ruby Diamond (Center) */}
                   <path d="M22 3L12 10l10 13 10-13-10-7zm0 3.8L28.2 10 22 18 15.8 10 22 6.8z" />
-                  {/* Right Large Soaring Wings */}
                   <path d="m 32.189158,9.7124763 c 5.999999,-9.00000001 11.785016,-10.35830601 11.785016,-7.358306 -1.351792,1.7443 -1.908795,2.673909 -3.579805,3.848176 -1.159609,0.973942 -1.713354,1.578534 -3.118892,2.097752 -1.812704,0.358958 -2.58632,-1.087622 -5.086319,1.412378 z" opacity="0.92" />
                   <path d="m 31.900733,10.922392 c 6.662499,-7.2061509 11.761586,-7.1959113 11.21862,-4.3438883 -1.44976,1.354126 -2.085299,2.1125647 -3.699695,2.8529567 -1.149108,0.6650046 -1.723088,1.1151886 -2.996214,1.2925716 -1.585706,-0.06658 -1.972905,-1.6158613 -4.52271,0.198365 z" opacity="0.92" style={{ strokeWidth: 0.915573 }} />
                   <path d="m 30.481852,13.366145 c 6.337359,-5.6489227 10.976671,-5.4252654 10.373747,-3.101175 -1.370843,1.053155 -1.978079,1.65047 -3.475296,2.191617 -1.07097,0.498745 -1.610425,0.84499 -2.775624,0.937223 -1.440306,-0.121724 -1.733479,-1.413012 -4.122826,-0.02766 z" opacity="0.92" style={{ strokeWidth: 0.793121 }} />
@@ -108,13 +98,10 @@ export default function VinylDisc({ currentTrack, isPlaying, onOpenLyrics, theme
           ) : (
             <div className="vinyl-placeholder">
               <svg viewBox="0 0 44 24" className="vinyl-placeholder-logo" fill="var(--accent-ruby)">
-                {/* Left Large Soaring Wings */}
                 <path d="M 12.019543,9.84966 C 6.0195435,0.84966 0.23452747,-0.508646 0.23452747,2.491354 1.5863185,4.235654 2.1433225,5.165263 3.8143315,6.33953 4.9739405,7.313472 5.5276865,7.918064 6.9332245,8.437282 8.7459275,8.79624 9.5195435,7.34966 12.019543,9.84966 Z" opacity="0.92" />
                 <path d="M 12.307968,11.059576 C 5.6454687,3.8534248 0.5463824,3.8636644 1.0893481,6.7156874 c 1.4497602,1.354126 2.0852992,2.1125647 3.6996946,2.8529567 1.1491079,0.6650049 1.7230881,1.1151889 2.9962142,1.2925719 1.585706,-0.06658 1.9729055,-1.6158616 4.5227101,0.198365 z" opacity="0.92" style={{ strokeWidth: 0.915573 }} />
                 <path d="M 13.726849,13.503329 C 7.38949,7.854406 2.7501784,8.0780633 3.3531024,10.402154 c 1.3708431,1.053155 1.9780789,1.65047 3.4752957,2.191617 1.0709701,0.498745 1.6104246,0.84499 2.775624,0.937223 1.4403059,-0.121724 1.7334789,-1.413012 4.1228259,-0.02766 z" opacity="0.92" style={{ strokeWidth: 0.793121 }} />
-                {/* Original Classic Ruby Diamond (Center) */}
                 <path d="M22 3L12 10l10 13 10-13-10-7zm0 3.8L28.2 10 22 18 15.8 10 22 6.8z" />
-                {/* Right Large Soaring Wings */}
                 <path d="m 32.189158,9.7124763 c 5.999999,-9.00000001 11.785016,-10.35830601 11.785016,-7.358306 -1.351792,1.7443 -1.908795,2.673909 -3.579805,3.848176 -1.159609,0.973942 -1.713354,1.578534 -3.118892,2.097752 -1.812704,0.358958 -2.58632,-1.087622 -5.086319,1.412378 z" opacity="0.92" />
                 <path d="m 31.900733,10.922392 c 6.662499,-7.2061509 11.761586,-7.1959113 11.21862,-4.3438883 -1.44976,1.354126 -2.085299,2.1125647 -3.699695,2.8529567 -1.149108,0.6650046 -1.723088,1.1151886 -2.996214,1.2925716 -1.585706,-0.06658 -1.972905,-1.6158613 -4.52271,0.198365 z" opacity="0.92" style={{ strokeWidth: 0.915573 }} />
                 <path d="m 30.481852,13.366145 c 6.337359,-5.6489227 10.976671,-5.4252654 10.373747,-3.101175 -1.370843,1.053155 -1.978079,1.65047 -3.475296,2.191617 -1.07097,0.498745 -1.610425,0.84499 -2.775624,0.937223 -1.440306,-0.121724 -1.733479,-1.413012 -4.122826,-0.02766 z" opacity="0.92" style={{ strokeWidth: 0.793121 }} />
@@ -123,17 +110,14 @@ export default function VinylDisc({ currentTrack, isPlaying, onOpenLyrics, theme
           )}
         </div>
 
-        {/* SVG Vector Curved Text Layer (TOP LAYER ABOVE VISUALIZER) */}
         {!hasVinylLabel && (
           <svg viewBox="0 0 300 300" className="vinyl-text-svg">
             <defs>
-              {/* Top arc path for Song Title (clockwise) */}
               <path
                 id="topArc"
                 d="M 42, 150 A 108, 108 0 1, 1 258, 150"
                 fill="none"
               />
-              {/* Bottom arc path for Artist Name (counter-clockwise / flipped) */}
               <path
                 id="bottomArc"
                 d="M 258, 150 A 108, 108 0 0, 1 42, 150"
@@ -141,14 +125,12 @@ export default function VinylDisc({ currentTrack, isPlaying, onOpenLyrics, theme
               />
             </defs>
 
-            {/* Curved Song Title (Top) */}
             <text className="vinyl-curved-text title-text" style={{ fontSize: `${titleFontSize}px` }}>
               <textPath href="#topArc" startOffset="50%" textAnchor="middle">
                 {songTitle}
               </textPath>
             </text>
 
-            {/* Curved Artist Name (Bottom) */}
             <text className="vinyl-curved-text artist-text">
               <textPath href="#bottomArc" startOffset="50%" textAnchor="middle">
                 {artistName}

@@ -115,7 +115,6 @@ export default function ConfigModal({ isOpen, onClose }) {
         </div>
 
         <div>
-          {/* Site Accent Color Picker */}
           <div style={{ marginBottom: '1.5rem' }}>
             <label
               style={{
@@ -174,7 +173,6 @@ export default function ConfigModal({ isOpen, onClose }) {
             </div>
           </div>
 
-          {/* Special Themes Section */}
           <div style={{ marginBottom: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-glass)' }}>
             <label
               style={{
@@ -191,53 +189,135 @@ export default function ConfigModal({ isOpen, onClose }) {
               <span>Special Themes</span>
             </label>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.85rem' }}>
-              {getThemes().map((t) => {
-                const IconComponent = t.Icon || Sparkles;
-                const isSelected = siteColor.toLowerCase() === t.id.toLowerCase();
-                return (
-                  <button
-                    key={t.id}
-                    type="button"
-                    className="theme-preset-swatch"
-                    onClick={() => handleColorChange(t.id)}
+            <div style={{ marginBottom: '0.85rem' }}>
+              <select
+                value={getThemeById(siteColor) ? siteColor.toLowerCase() : 'none'}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === 'none') {
+                    handleColorChange('#ff2e55');
+                  } else {
+                    handleColorChange(val);
+                  }
+                }}
+                style={{
+                  width: '100%',
+                  padding: '0.65rem 0.85rem',
+                  borderRadius: 'var(--radius-sm, 6px)',
+                  border: '1px solid var(--border-glass)',
+                  background: 'rgba(0, 0, 0, 0.4)',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.88rem',
+                  fontWeight: '600',
+                  outline: 'none',
+                  cursor: 'pointer',
+                  appearance: 'none',
+                  WebkitAppearance: 'none',
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'right 0.85rem center',
+                  backgroundSize: '1rem',
+                  paddingRight: '2.5rem',
+                }}
+              >
+                <option value="none" style={{ background: '#18181b', color: '#f4f4f5' }}>
+                  None (Use Standard Accent Color)
+                </option>
+                {getThemes().map((t) => (
+                  <option key={t.id} value={t.id.toLowerCase()} style={{ background: '#18181b', color: '#f4f4f5' }}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {(() => {
+              const activeT = getThemeById(siteColor);
+              if (!activeT) return null;
+
+              const hasOptions = Array.isArray(activeT.options) && activeT.options.length > 0;
+              const IconComponent = activeT.Icon || Sparkles;
+
+              return (
+                <div style={{ marginTop: '0.85rem' }}>
+                  <div
                     style={{
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.6rem',
-                      padding: '0.5rem 1.1rem',
-                      borderRadius: 'var(--radius-md, 8px)',
-                      background: t.previewGradient,
-                      color: t.previewTextColor || '#ffffff',
+                      padding: '0.5rem 0.85rem',
+                      borderRadius: 'var(--radius-sm, 6px)',
+                      background: activeT.previewGradient || 'var(--accent-ruby-bg-glow)',
+                      color: activeT.previewTextColor || '#ffffff',
                       fontWeight: '700',
-                      fontSize: '0.85rem',
-                      border: isSelected ? '2px solid #ffffff' : '1px solid transparent',
-                      boxShadow: isSelected ? '0 0 16px rgba(255, 255, 255, 0.8)' : '0 2px 8px rgba(0,0,0,0.3)',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      transform: isSelected ? 'scale(1.03)' : 'scale(1)',
-                      filter: 'none',
+                      fontSize: '0.82rem',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                      marginBottom: hasOptions ? '0.75rem' : '0',
                     }}
                   >
                     <IconComponent size={16} />
-                    <span>{t.name}</span>
-                  </button>
-                );
-              })}
-            </div>
+                    <span>Active Theme: {activeT.name}</span>
+                  </div>
 
-            {/* Dynamic Options for Selected Special Theme */}
-            {(() => {
-              const activeT = getThemeById(siteColor) || getActiveTheme();
-              if (!activeT || !activeT.options || activeT.options.length === 0) return null;
-              return activeT.options.map((opt) => {
-                if (opt.id === 'freeze') {
-                  return (
-                    <div key={opt.id}>
+                  {hasOptions && activeT.options.map((opt) => {
+                    if (opt.id === 'freeze') {
+                      return (
+                        <div key={opt.id}>
+                          <div
+                            style={{
+                              marginBottom: '0.65rem',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              background: 'rgba(255, 255, 255, 0.04)',
+                              padding: '0.65rem 0.85rem',
+                              borderRadius: 'var(--radius-sm, 6px)',
+                              border: '1px solid var(--border-glass)',
+                            }}
+                          >
+                            <div style={{ display: 'flex', flexDirection: 'column', paddingRight: '0.5rem' }}>
+                              <span style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                                {opt.label}
+                              </span>
+                              <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                                {opt.description}
+                              </span>
+                            </div>
+                            <label className="toggle-switch">
+                              <input type="checkbox" checked={isRainbowFrozen} onChange={handleFrozenToggle} />
+                              <span className="toggle-slider"></span>
+                            </label>
+                          </div>
+                          {!isRainbowFrozen && (
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                gap: '0.65rem',
+                                padding: '0.7rem 0.9rem',
+                                borderRadius: 'var(--radius-sm, 6px)',
+                                background: 'rgba(245, 158, 11, 0.12)',
+                                border: '1px solid rgba(245, 158, 11, 0.35)',
+                                color: '#fcd34d',
+                                fontSize: '0.78rem',
+                                lineHeight: '1.45',
+                              }}
+                            >
+                              <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: '2px', color: '#f59e0b' }} />
+                              <div>
+                                <strong>Notice:</strong> May increase battery drain while active.
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+                    const isChecked = getSavedThemeOption(activeT.id, opt.id, false);
+                    return (
                       <div
+                        key={opt.id}
                         style={{
-                          marginTop: '0.85rem',
-                          marginBottom: '0.85rem',
+                          marginBottom: '0.65rem',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
@@ -256,73 +336,21 @@ export default function ConfigModal({ isOpen, onClose }) {
                           </span>
                         </div>
                         <label className="toggle-switch">
-                          <input type="checkbox" checked={isRainbowFrozen} onChange={handleFrozenToggle} />
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) => handleOptionToggle(activeT.id, opt.id, e.target.checked)}
+                          />
                           <span className="toggle-slider"></span>
                         </label>
                       </div>
-                      {!isRainbowFrozen && (
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'flex-start',
-                            gap: '0.65rem',
-                            padding: '0.7rem 0.9rem',
-                            borderRadius: 'var(--radius-sm, 6px)',
-                            background: 'rgba(245, 158, 11, 0.12)',
-                            border: '1px solid rgba(245, 158, 11, 0.35)',
-                            color: '#fcd34d',
-                            fontSize: '0.78rem',
-                            lineHeight: '1.45',
-                          }}
-                        >
-                          <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: '2px', color: '#f59e0b' }} />
-                          <div>
-                            <strong>Notice:</strong> May increase battery drain while active.
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                }
-                const isChecked = getSavedThemeOption(activeT.id, opt.id, false);
-                return (
-                  <div
-                    key={opt.id}
-                    style={{
-                      marginTop: '0.85rem',
-                      marginBottom: '0.85rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      background: 'rgba(255, 255, 255, 0.04)',
-                      padding: '0.65rem 0.85rem',
-                      borderRadius: 'var(--radius-sm, 6px)',
-                      border: '1px solid var(--border-glass)',
-                    }}
-                  >
-                    <div style={{ display: 'flex', flexDirection: 'column', paddingRight: '0.5rem' }}>
-                      <span style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-primary)' }}>
-                        {opt.label}
-                      </span>
-                      <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
-                        {opt.description}
-                      </span>
-                    </div>
-                    <label className="toggle-switch">
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={(e) => handleOptionToggle(activeT.id, opt.id, e.target.checked)}
-                      />
-                      <span className="toggle-slider"></span>
-                    </label>
-                  </div>
-                );
-              });
+                    );
+                  })}
+                </div>
+              );
             })()}
           </div>
 
-          {/* Playback Options Section */}
           <div style={{ marginBottom: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-glass)' }}>
             <label
               style={{
@@ -339,7 +367,6 @@ export default function ConfigModal({ isOpen, onClose }) {
               <span>Playback Options</span>
             </label>
 
-            {/* Disable Rotation Toggle */}
             <div
               style={{
                 marginBottom: '0.65rem',
@@ -369,7 +396,6 @@ export default function ConfigModal({ isOpen, onClose }) {
               </label>
             </div>
 
-            {/* Disable Visualizer Motion Toggle */}
             <div
               style={{
                 display: 'flex',
@@ -400,7 +426,6 @@ export default function ConfigModal({ isOpen, onClose }) {
           </div>
 
 
-          {/* Account & Password Security Section */}
           <div style={{ marginBottom: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-glass)' }}>
             <label
               style={{

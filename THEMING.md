@@ -68,7 +68,6 @@ export default {
   previewTextColor: '#ffffff',
   bodyClass: 'theme-cyber-neon',
 
-  // Layer 1: Global CSS variables
   vars: {
     '--accent-ruby': '#00f2fe',
     '--accent-ruby-dark': '#00a8b3',
@@ -78,7 +77,6 @@ export default {
     '--shadow-ruby': '0 0 30px rgba(0, 242, 254, 0.45)',
   },
 
-  // Layer 2: Deep CSS overrides (optional)
   css: `
     body.theme-cyber-neon {
       background-color: #050714 !important;
@@ -173,9 +171,7 @@ vinylLabel: {
 
 #### Dynamic / Per-Track Vinyl Label:
 ```javascript
-getDynamicVinylLabel: (track) => {
-  // Return label object or null dynamically
-}
+getDynamicVinylLabel: (track) => { }
 ```
 
 ### 5. Theme Options & Toggles
@@ -268,7 +264,6 @@ To activate a theme programmatically for a specific song:
 ```javascript
 import { applyTheme } from './services/themeService';
 
-// When a track plays with a reactiveTheme metadata tag:
 if (track.reactiveTheme) {
   applyTheme(track.reactiveTheme, track);
 }

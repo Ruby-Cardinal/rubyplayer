@@ -102,7 +102,7 @@ export default {
     '--shadow-ruby': '0 4px 18px rgba(200, 130, 10, 0.35)',
   },
   css: '',
-  vinylLabel: null, // retro uses dynamic palette calculation per track via getRetroPaletteForTrack
+  vinylLabel: null,
   getDynamicVinylLabel: (track) => getRetroPaletteForTrack(track),
   Background: null,
   options: [],

@@ -408,15 +408,12 @@ export function isTrackFavorite(trackOrId, favoritesList) {
   return favoritesList.includes(idStr);
 }
 
-
-// Global Singleton Web Audio API Context & Gain Node
 let globalAudioCtx = null;
 let globalAnalyser = null;
 let globalGainNode = null;
 let globalSource = null;
 let boundAudioElement = null;
 
-// Media Session API integration for Android PWA background playback & notification controls
 export function updateMediaSession(track, callbacks = {}) {
   if (!('mediaSession' in navigator)) return;
 
@@ -461,14 +458,12 @@ export function getOrCreateWebAudio(audioElement, initialVolume = 1, isMuted = f
       globalGainNode = globalAudioCtx.createGain();
       globalGainNode.gain.value = effectiveVol;
 
-      // Keep Web Audio API context alive in Chrome background tabs
       globalAudioCtx.onstatechange = () => {
         if (globalAudioCtx && globalAudioCtx.state === 'suspended' && boundAudioElement && !boundAudioElement.paused) {
           globalAudioCtx.resume().catch(() => { });
         }
       };
     } catch (err) {
-      // Context setup notice
     }
   }
 

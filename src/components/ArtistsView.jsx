@@ -4,7 +4,6 @@ import { User, Play, ArrowLeft, Disc } from 'lucide-react';
 export default function ArtistsView({ tracks, onPlayTrack, currentTrack, isPlaying }) {
   const [selectedArtist, setSelectedArtist] = useState(null);
 
-  // Group tracks by artist
   const artistsMap = {};
   for (const track of tracks) {
     const artistKey = track.artist || 'Unknown Artist';

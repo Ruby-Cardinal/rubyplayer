@@ -55,7 +55,6 @@ export default function PlayerControls({
 
   return (
     <footer className="player-bar">
-      {/* Top Timeline Seekbar Row */}
       <div className="timeline-row">
         <span className="time-display">
           {formatTime(currentTime)} / {formatTime(duration)}
@@ -73,9 +72,7 @@ export default function PlayerControls({
         <span className="percent-display">{progressPercent}%</span>
       </div>
 
-      {/* Bottom Controls Row */}
       <div className="controls-row">
-        {/* Download & Help button on the left side of player bar */}
         <div className="controls-left">
           <button
             className={`btn-icon-ctrl btn-help-icon ${isHelpUnread ? 'sparkling' : ''}`}
@@ -103,7 +100,6 @@ export default function PlayerControls({
           </button>
         </div>
 
-        {/* Center Playback Buttons */}
         <div className="controls-center">
           <button className="btn-icon-ctrl" onClick={onSkipPrev} title="Previous Track">
             <SkipBack size={20} />
@@ -130,7 +126,6 @@ export default function PlayerControls({
           </button>
         </div>
 
-        {/* Right Volume, Favorite & Lyrics Control */}
         <div className="controls-right">
           <button
             className={`btn-icon-ctrl btn-fav-player ${isFavorite ? 'active' : ''}`}

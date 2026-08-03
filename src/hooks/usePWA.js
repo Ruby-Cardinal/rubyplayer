@@ -8,7 +8,6 @@ export function usePWA() {
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
-      // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
       setDeferredPrompt(e);
       setIsInstallable(true);

@@ -6,7 +6,6 @@ export default function AudioVisualizer({ audioRef, isPlaying, mode = 'waveform'
   const animationFrameRef = useRef(null);
   const smoothedBarsRef = useRef(new Float32Array(64));
 
-  // Initialize Web Audio API as a singleton
   useEffect(() => {
     const audio = audioRef?.current;
     if (!audio) return;
@@ -23,7 +22,6 @@ export default function AudioVisualizer({ audioRef, isPlaying, mode = 'waveform'
     };
   }, [audioRef?.current]);
 
-  // Dynamic Resize Observer for live physical scaling with vinyl container
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -63,7 +61,6 @@ export default function AudioVisualizer({ audioRef, isPlaying, mode = 'waveform'
     };
   }, [mode]);
 
-  // Render Visualizer Loop
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -89,7 +86,6 @@ export default function AudioVisualizer({ audioRef, isPlaying, mode = 'waveform'
         analyser.getByteFrequencyData(rawBins);
       }
       if (mode === 'circular' || mode === 'inner-circular') {
-        // --- 360-DEGREE SPIROGRAPH FLOWER SCOPE WAVE VISUALIZER ---
         const barCount = 64;
         const halfCount = 32;
         const halfValues = new Float32Array(halfCount);
@@ -121,7 +117,6 @@ export default function AudioVisualizer({ audioRef, isPlaying, mode = 'waveform'
           halfValues[i] = smoothedBarsRef.current[i];
         }
 
-        // Mirror 32 bins to 64 around circle for smooth symmetry
         const rawSymmetrical = new Float32Array(barCount);
         for (let i = 0; i < halfCount; i++) {
           const val = halfValues[i];
@@ -129,7 +124,6 @@ export default function AudioVisualizer({ audioRef, isPlaying, mode = 'waveform'
           rawSymmetrical[halfCount + i] = val;
         }
 
-        // Spatial Gaussian Smoothing around circle for fluid petal curves
         const gaussianBars = new Float32Array(barCount);
         for (let i = 0; i < barCount; i++) {
           const prev = i > 0 ? rawSymmetrical[i - 1] : rawSymmetrical[barCount - 1];
@@ -153,11 +147,9 @@ export default function AudioVisualizer({ audioRef, isPlaying, mode = 'waveform'
         const isRainbow = document.body.classList.contains('theme-rainbow');
         const isRetro = document.body.classList.contains('theme-retro');
 
-        // In retro mode, visualizer looks like grey record grooves
         const grooveColor = 'rgba(56, 56, 56, 0.75)';
         const grooveGlow = 'rgba(75, 75, 74, 0.18)';
 
-        // RENDER CONCENTRIC SPIROGRAPH FLOWER SCOPE LAYERS (INNER TO OUTER RING)
         const layers = 10;
 
         for (let l = 0; l < layers; l++) {
@@ -222,7 +214,6 @@ export default function AudioVisualizer({ audioRef, isPlaying, mode = 'waveform'
           ctx.globalAlpha = 1.0;
         }
 
-        // INNER AND OUTER BOUNDARY RINGS
         ctx.strokeStyle = isRetro ? grooveColor : accentColor;
         ctx.lineWidth = 1.4;
         ctx.shadowColor = isRetro ? 'transparent' : accentGlow;
@@ -238,7 +229,6 @@ export default function AudioVisualizer({ audioRef, isPlaying, mode = 'waveform'
         ctx.stroke();
         ctx.globalAlpha = 1.0;
       } else {
-        // --- HORIZONTAL SPIKED WAVEFORM WITH REFLECTION ---
         const barCount = 34;
         const barWidth = 5;
         const gap = 5;

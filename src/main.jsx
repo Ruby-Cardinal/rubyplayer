@@ -10,5 +10,4 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   </React.StrictMode>
 );
 
-// Register service worker for Progressive Web App capabilities
 serviceWorkerRegistration.register();

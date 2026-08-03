@@ -42,13 +42,13 @@ body {
   color: var(--text-primary);
   overflow: hidden;
   height: 100vh;
-  /* fallback for browsers without dvh support */
+  
   height: 100dvh;
   width: 100vw;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Scrollbar styling */
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -67,12 +67,12 @@ body {
   background: var(--accent-ruby);
 }
 
-/* Main Container Grid */
+
 .app-container {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  /* fallback for browsers without dvh support */
+  
   height: 100dvh;
   width: 100%;
   max-width: 100%;
@@ -81,7 +81,7 @@ body {
     var(--bg-primary);
 }
 
-/* Header Navbar */
+
 .navbar {
   height: 64px;
   padding: 0 2rem;
@@ -233,7 +233,7 @@ body {
   filter: drop-shadow(0 0 12px var(--accent-ruby-glow));
 }
 
-/* Main Layout */
+
 .main-content {
   flex: 1;
   min-height: 0;
@@ -251,7 +251,7 @@ body {
   align-items: center;
 }
 
-/* Column 1: Crisp Cover Image & Visualizer Stage */
+
 .col-visualizer {
   display: flex;
   flex-direction: column;
@@ -331,7 +331,7 @@ body {
   left: 50%;
   transform: translateX(-50%);
   bottom: -80px;
-  /* Align baselineY (160px in 240px canvas) exactly at bottom edge of cover image */
+  
   z-index: 2;
   pointer-events: none;
 }
@@ -349,7 +349,7 @@ body {
   height: 240px;
 }
 
-/* Column 2: Center Hero Vinyl Disc */
+
 .col-vinyl {
   display: flex;
   flex-direction: column;
@@ -404,13 +404,13 @@ body.disable-rotation .vinyl-outer-ring.playing {
   }
 }
 
-/* Rainbow Theme Active Marker: Dynamic CSS variable cycling handled smoothly via mediaService */
+
 
 body.theme-rainbow-frozen {
   animation-play-state: paused !important;
 }
 
-/* Toggle Switch Component */
+
 .toggle-switch {
   position: relative;
   display: inline-block;
@@ -526,7 +526,7 @@ body.theme-rainbow-frozen {
   transition: all 0.3s ease;
 }
 
-/* Column 3: Playlist & Track List */
+
 .playlist-column-wrapper {
   display: flex;
   flex-direction: column;
@@ -793,7 +793,7 @@ body.theme-rainbow-frozen {
   padding: 2rem 0;
 }
 
-/* Bottom Player Controls */
+
 .player-bar {
   height: 100px;
   background: rgba(16, 17, 21, 0.95);
@@ -808,7 +808,7 @@ body.theme-rainbow-frozen {
   z-index: 30;
 }
 
-/* Timeline Row */
+
 .timeline-row {
   display: flex;
   align-items: center;
@@ -862,7 +862,7 @@ body.theme-rainbow-frozen {
   cursor: pointer;
 }
 
-/* Controls Bottom Row */
+
 .controls-row {
   display: flex;
   align-items: center;
@@ -1035,7 +1035,7 @@ body.theme-rainbow-frozen {
   cursor: pointer;
 }
 
-/* Modals */
+
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -1071,7 +1071,7 @@ body.theme-rainbow-frozen {
   font-weight: 700;
 }
 
-/* Lyrics Modal */
+
 .lyrics-modal {
   max-width: 650px;
   height: 75vh;
@@ -1143,7 +1143,7 @@ body.theme-rainbow-frozen {
   }
 }
 
-/* Theme 2: Vinyl Studio Layout */
+
 .vinyl-studio-layout {
   display: flex;
   flex-direction: column;
@@ -1183,12 +1183,12 @@ body.theme-rainbow-frozen {
   justify-content: center;
 }
 
-/* Theme 3 & 4: Compact Deck & Inner Deck Layouts */
+
 .compact-deck-layout,
 .inner-deck-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  /* 50% / 50% page width split */
+  
   gap: 2.5rem;
   height: 100%;
   min-height: 0;
@@ -1196,7 +1196,7 @@ body.theme-rainbow-frozen {
   overflow: hidden;
 }
 
-/* Centered Vinyl Mode (When Playlist Column is Hidden) */
+
 .main-content.playlist-hidden {
   display: flex !important;
   flex-direction: column !important;
@@ -1261,7 +1261,7 @@ body.theme-rainbow-frozen {
   }
 }
 
-/* Centered Playlist Mode (When Vinyl Disc is Hidden) */
+
 .main-content.vinyl-hidden {
   display: flex !important;
   flex-direction: column !important;
@@ -1294,7 +1294,7 @@ body.theme-rainbow-frozen {
   max-height: 100% !important;
 }
 
-/* Prompt when both vinyl and playlist are hidden */
+
 .deck-both-hidden-prompt {
   display: flex;
   flex-direction: column;
@@ -1354,7 +1354,7 @@ body.theme-rainbow-frozen {
   justify-content: center;
 }
 
-/* Inner Deck Inward Reflection Visualizer (Behind Record Text) */
+
 .inner-deck-stage .vinyl-container {
   position: relative;
   z-index: 2;
@@ -1380,7 +1380,7 @@ body.theme-rainbow-frozen {
   height: 100%;
   aspect-ratio: 1 / 1;
   z-index: 3;
-  /* Behind curved text (z-index: 5) */
+  
   pointer-events: none;
   display: flex;
   align-items: center;
@@ -1446,7 +1446,7 @@ body.theme-rainbow-frozen {
   overflow: hidden;
 }
 
-/* Responsive Stacking & Scrollable Main Container for Deck Themes */
+
 @media (max-width: 1024px) {
   .main-content {
     overflow-y: auto !important;
@@ -1492,7 +1492,7 @@ body.theme-rainbow-frozen {
     display: flex !important;
   }
 
-  /* Collapsed Playlist View (Only applies when in vertical stack mode <= 1024px) */
+  
   .col-playlist.is-collapsed {
     min-height: auto !important;
     height: auto !important;
@@ -1510,7 +1510,7 @@ body.theme-rainbow-frozen {
   }
 }
 
-/* Compact / Short Viewports: Show ONLY Playlist Selector & Control Buttons Below Vinyl */
+
 @media (max-height: 720px) and (max-width: 1024px) {
 
   .compact-deck-layout .col-playlist:not(.is-collapsed),
@@ -1532,7 +1532,7 @@ body.theme-rainbow-frozen {
   }
 }
 
-/* Mobile Phone Specific Centering (Down to 412px width & smallest screens) */
+
 @media (max-width: 600px) {
   .app-container {
     width: 100%;
@@ -1610,10 +1610,7 @@ body.theme-rainbow-frozen {
   }
 }
 
-/* ═══════════════════════════════════════════════════
-   RETRO THEME
-   body.theme-retro — warm walnut record-player aesthetic
-   ═══════════════════════════════════════════════════ */
+
 
 body.theme-retro {
   --bg-primary: #1a1208;
@@ -1627,13 +1624,13 @@ body.theme-retro {
   background-color: #1a1208;
 }
 
-/* ── Navbar ── */
+
 body.theme-retro .navbar {
   background: linear-gradient(180deg, #110c04 0%, #1e1508 100%);
   border-bottom: 1px solid rgba(200, 130, 10, 0.2);
 }
 
-/* ── App background surfaces ── */
+
 body.theme-retro .inner-deck-layout,
 body.theme-retro .main-content {
   background: #1a1208;
@@ -1644,13 +1641,13 @@ body.theme-retro .inner-deck-stage {
   background: rgba(25, 16, 5, 0.6);
 }
 
-/* Remove brown accent border around the center label in Retro mode */
+
 body.theme-retro .vinyl-center-art {
   border: 1px solid rgba(0, 0, 0, 0.8) !important;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.7) !important;
 }
 
-/* ── Vinyl record outer ring in retro mode — matte black with visible grooves ── */
+
 body.theme-retro .vinyl-outer-ring {
   background: repeating-radial-gradient(circle at center,
       #0c0c0c 0px,
@@ -1674,7 +1671,7 @@ body.theme-retro .vinyl-outer-ring.playing {
     inset 0 0 30px rgba(0, 0, 0, 0.7);
 }
 
-/* ── Center label on the record — fills the full vinyl-center-art circle ── */
+
 .retro-vinyl-label {
   width: 100%;
   height: 100%;
@@ -1695,7 +1692,7 @@ body.theme-retro .vinyl-outer-ring.playing {
   box-sizing: border-box;
 }
 
-/* Watermark overlay on vintage retro vinyl label */
+
 .retro-watermark {
   position: absolute;
   top: 50%;
@@ -1807,7 +1804,7 @@ body.theme-retro .vinyl-outer-ring.playing {
   letter-spacing: 0.08em;
 }
 
-/* ── Playlist container: borderless paper sheet ── */
+
 body.theme-retro .col-playlist,
 body.theme-retro .col-playlist.glass-card {
   background: #faf5e8 !important;
@@ -1818,7 +1815,7 @@ body.theme-retro .col-playlist.glass-card {
   overflow: hidden;
 }
 
-/* Left margin red line running down the entire notepad sheet */
+
 body.theme-retro .col-playlist::before {
   content: '';
   position: absolute;
@@ -1831,7 +1828,7 @@ body.theme-retro .col-playlist::before {
   z-index: 10;
 }
 
-/* ── Playlist header: integrated seamlessly on paper background ── */
+
 body.theme-retro .playlist-header {
   background: #faf5e8 !important;
   border-bottom: 2px dashed rgba(180, 150, 90, 0.4) !important;
@@ -1842,7 +1839,7 @@ body.theme-retro .playlist-header {
   z-index: 2;
 }
 
-/* Integrated playlist select dropdown */
+
 body.theme-retro .playlist-dropdown {
   font-family: 'Caveat', cursive !important;
   font-size: 1.25rem !important;
@@ -1862,7 +1859,7 @@ body.theme-retro .dropdown-arrow {
   color: #8a6540 !important;
 }
 
-/* Integrated sort dropdown & controls */
+
 body.theme-retro .sort-dropdown-wrapper {
   background: transparent !important;
   border: 1px dashed rgba(140, 100, 40, 0.35) !important;
@@ -1903,7 +1900,7 @@ body.theme-retro .btn-toggle.active {
   border-color: rgba(139, 28, 16, 0.4) !important;
 }
 
-/* ── Playlist: aged notebook paper track list ── */
+
 body.theme-retro .track-list {
   background-color: transparent !important;
   background-image:
@@ -1915,7 +1912,7 @@ body.theme-retro .track-list {
   position: relative;
 }
 
-/* Disable track-list only red line since col-playlist::before covers the whole sheet */
+
 body.theme-retro .track-list::before {
   display: none !important;
 }
@@ -1982,28 +1979,26 @@ body.theme-retro .no-tracks {
   padding: 1rem 1.5rem;
 }
 
-/* ── Playlist scrollbar in retro mode ── */
+
 body.theme-retro .track-list::-webkit-scrollbar-thumb {
   background: rgba(160, 110, 40, 0.4);
 }
 
-/* ── Player controls bar in retro mode ── */
+
 body.theme-retro .player-controls-bar {
   background: linear-gradient(180deg, #1e1508 0%, #120e04 100%);
   border-top: 1px solid rgba(200, 130, 10, 0.25);
 }
 
-/* ── Modal in retro mode ── */
+
 body.theme-retro .modal-content {
   background: #231810;
   border: 1px solid rgba(200, 130, 10, 0.25);
 }
 
-/* ═══════════════════════════════════════════════════
-   THEMED LOGOUT BUTTON & MODAL CLOSE X BUTTONS
-   ═══════════════════════════════════════════════════ */
 
-/* User badge container in Navbar */
+
+
 .user-badge {
   display: flex;
   align-items: center;
@@ -2018,7 +2013,7 @@ body.theme-retro .modal-content {
   transition: all 0.2s ease;
 }
 
-/* Logout Button */
+
 .btn-logout {
   width: 24px;
   height: 24px;
@@ -2043,7 +2038,7 @@ body.theme-retro .modal-content {
   transform: scale(1.08);
 }
 
-/* Modal Close X Button */
+
 .modal-close-btn {
   width: 32px;
   height: 32px;
@@ -2067,7 +2062,7 @@ body.theme-retro .modal-content {
   box-shadow: 0 0 12px var(--accent-ruby-bg-glow);
 }
 
-/* ── Retro Theme Overrides ── */
+
 body.theme-retro .user-badge {
   background: rgba(35, 24, 16, 0.85) !important;
   border-color: rgba(200, 130, 10, 0.3) !important;
@@ -2098,7 +2093,7 @@ body.theme-retro .modal-close-btn:hover {
   box-shadow: 0 0 12px rgba(200, 130, 10, 0.35) !important;
 }
 
-/* ── Floating Modal Backdrop & Overlay ── */
+
 .modal-overlay,
 .modal-backdrop {
   position: fixed;
@@ -2108,7 +2103,7 @@ body.theme-retro .modal-close-btn:hover {
   bottom: 0;
   width: 100vw;
   height: 100vh;
-  /* fallback for browsers without dvh support */
+  
   height: 100dvh;
   background: rgba(0, 0, 0, 0.78);
   backdrop-filter: blur(12px);
@@ -2121,7 +2116,7 @@ body.theme-retro .modal-close-btn:hover {
   box-sizing: border-box;
 }
 
-/* ── Playlist Editor Modal ── */
+
 .playlist-editor-modal {
   position: relative;
   width: 90vw;
@@ -2231,7 +2226,7 @@ body.theme-retro .modal-close-btn:hover {
   font-size: 0.85rem;
 }
 
-/* Playlist Left Item Rows */
+
 .playlist-item-row {
   display: flex;
   align-items: center;
@@ -2273,7 +2268,7 @@ body.theme-retro .modal-close-btn:hover {
   white-space: nowrap;
 }
 
-/* Transfer Controls Column */
+
 .transfer-column {
   display: flex;
   flex-direction: column;
@@ -2324,7 +2319,7 @@ body.theme-retro .modal-close-btn:hover {
   transform: none !important;
 }
 
-/* Tree Search Input */
+
 .tree-search-wrapper {
   position: relative;
   display: flex;
@@ -2349,7 +2344,7 @@ body.theme-retro .modal-close-btn:hover {
   pointer-events: none;
 }
 
-/* Folder Tree Nodes */
+
 .tree-folder-node {
   display: flex;
   flex-direction: column;
@@ -2474,7 +2469,7 @@ body.theme-retro .modal-close-btn:hover {
   gap: 0.4rem;
 }
 
-/* Help Modal & Button Styles */
+
 .btn-help-icon {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--border-glass);
@@ -2532,7 +2527,7 @@ body.theme-retro .modal-close-btn:hover {
   100% { transform: rotate(360deg) scale(1); }
 }
 
-/* Interactive UI Guide Tour Overlay */
+
 .ui-tour-overlay {
   position: fixed;
   inset: 0;
@@ -2622,7 +2617,7 @@ body.theme-retro .modal-close-btn:hover {
   box-shadow: 0 0 24px var(--accent-ruby-glow);
 }
 
-/* Callout Positions */
+
 .tour-callout {
   position: absolute;
   display: flex;
@@ -2662,7 +2657,7 @@ body.theme-retro .modal-close-btn:hover {
   line-height: 1.4;
 }
 
-/* Arrows */
+
 .tour-arrow {
   color: var(--accent-ruby);
   filter: drop-shadow(0 0 8px var(--accent-ruby-glow));
@@ -2684,9 +2679,9 @@ body.theme-retro .modal-close-btn:hover {
   }
 }
 
-/* Callout Layout Anchors - 4 Screen Quadrants */
 
-/* 1. Top Left: Search & Navbar Header */
+
+
 .tour-navbar {
   top: 68px;
   left: 2.5rem;
@@ -2694,7 +2689,7 @@ body.theme-retro .modal-close-btn:hover {
   align-items: flex-start;
 }
 
-/* 2. Middle Left: Vinyl Record Stage */
+
 .tour-vinyl {
   top: 295px;
   left: 2.5rem;
@@ -2702,7 +2697,7 @@ body.theme-retro .modal-close-btn:hover {
   align-items: center;
 }
 
-/* 3. Top Right / Middle Right: Playlist Controls */
+
 .tour-playlist {
   top: 120px;
   right: 2.5rem;
@@ -2710,7 +2705,7 @@ body.theme-retro .modal-close-btn:hover {
   align-items: center;
 }
 
-/* 4. Bottom Center: Media Player Bar */
+
 .tour-playerbar {
   bottom: 95px;
   left: 50%;
@@ -2756,7 +2751,7 @@ body.theme-retro .modal-close-btn:hover {
   }
 }
 
-/* Responsive Playlist Header Breakdown (Applies in 2-column mode & stacked when narrow) */
+
 @media (max-width: 1250px) {
   .playlist-header {
     display: flex;
@@ -2789,7 +2784,7 @@ body.theme-retro .modal-close-btn:hover {
   }
 }
 
-/* Responsive Navbar & Track Row Breakdown */
+
 @media (max-width: 768px) {
   .navbar {
     height: auto;
@@ -2825,7 +2820,7 @@ body.theme-retro .modal-close-btn:hover {
     opacity: 0.55;
   }
 
-  /* Responsive Player Controls Breakdown */
+  
   .player-bar {
     height: auto;
     padding: 0.65rem 1.25rem 0.75rem 1.25rem;
@@ -2878,7 +2873,7 @@ body.theme-retro .modal-close-btn:hover {
   }
 }
 
-/* PWA Notification Toast Styles */
+
 .pwa-toast {
   position: fixed;
   bottom: 90px;
@@ -2977,4 +2972,4 @@ body.theme-retro .modal-close-btn:hover {
     max-width: calc(100vw - 24px);
     justify-content: space-between;
   }
-}
+}

@@ -18,13 +18,11 @@ export default function RubyFavIcon({
       {...props}
     >
       {filled ? (
-        /* Solid filled Ruby Diamond */
         <path
           d="M 7.893792,0 0,5.525655 7.893792,15.787584 15.787584,5.525655 Z"
           style={{ strokeWidth: 0.789379 }}
         />
       ) : (
-        /* Unfilled / Outline Ruby Diamond from ruby-fav.svg */
         <path
           d="M 7.893792,0 0,5.525655 7.893792,15.787584 15.787584,5.525655 Z m 0,2.999641 4.894151,2.526014 -4.894151,6.315033 -4.894151,-6.315033 z"
           style={{ strokeWidth: 0.789379 }}

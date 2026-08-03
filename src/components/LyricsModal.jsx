@@ -37,7 +37,6 @@ export default function LyricsModal({ isOpen, onClose, currentTrack, currentTime
     }
   }, [isOpen, currentTrack]);
 
-  // Sync active line with currentTime
   useEffect(() => {
     if (lrcLines.length === 0) return;
 

@@ -15,14 +15,12 @@ export default function PlaylistsView({
 }) {
   const currentPlaylist = playlists.find((p) => p.id === selectedPlaylistId);
 
-  // Match playlist track paths with loaded allTracks metadata
   const getPlaylistTracks = (pl) => {
     if (!pl || !pl.tracks) return [];
     return pl.tracks
       .map((relPath) => {
         const found = allTracks.find((t) => t.relativePath === relPath || t.relativePath.endsWith(relPath));
         if (found) return found;
-        // Fallback placeholder track if metadata not matched
         return {
           id: relPath,
           title: relPath.split('/').pop(),
@@ -172,8 +170,8 @@ export default function PlaylistsView({
                   <td style={{ textAlign: 'right', color: 'var(--text-muted)' }}>
                     {t.duration
                       ? `${Math.floor(t.duration / 60)}:${Math.floor(t.duration % 60)
-                          .toString()
-                          .padStart(2, '0')}`
+                        .toString()
+                        .padStart(2, '0')}`
                       : '--:--'}
                   </td>
                 </tr>

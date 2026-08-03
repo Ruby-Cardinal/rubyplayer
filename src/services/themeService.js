@@ -5,7 +5,6 @@ import {
   getFolderCoverUrl,
 } from './mediaService';
 
-// Dynamically discover all theme definitions in src/themes/*/index.js at build time
 const themeModules = import.meta.glob('../themes/*/index.js', { eager: true });
 
 const THEMES = Object.values(themeModules).map((mod) => mod.default || mod);
@@ -87,29 +86,26 @@ export async function applyTheme(themeIdOrHex, currentTrack = null) {
   if (!themeIdOrHex) themeIdOrHex = '#ff2e55';
   const root = document.documentElement;
 
-  // Clear existing animation interval if any
   if (rainbowIntervalId) {
     clearInterval(rainbowIntervalId);
     rainbowIntervalId = null;
   }
 
-  // Clear existing theme body classes
   clearAllThemeBodyClasses();
+  root.style.removeProperty('--bg-primary');
+  root.style.removeProperty('--text-primary');
 
   const foundTheme = getThemeById(themeIdOrHex);
   activeTheme = foundTheme;
   saveThemeId(themeIdOrHex);
 
   if (foundTheme) {
-    // Apply body class if specified
     if (foundTheme.bodyClass) {
       document.body.classList.add(foundTheme.bodyClass);
     }
 
-    // Layer 2: Inject custom CSS if present
     injectOrUpdateThemeStyles(foundTheme.css || '');
 
-    // Handle theme custom application logic or special types
     if (typeof foundTheme.apply === 'function') {
       foundTheme.apply(currentTrack);
     } else if (foundTheme.type === 'animated') {
@@ -140,7 +136,6 @@ export async function applyTheme(themeIdOrHex, currentTrack = null) {
       updateRainbowVars();
       rainbowIntervalId = setInterval(updateRainbowVars, 250);
     } else if (foundTheme.vars) {
-      // Layer 1: Apply defined CSS custom properties
       Object.entries(foundTheme.vars).forEach(([key, val]) => {
         root.style.setProperty(key, val);
       });
@@ -149,10 +144,8 @@ export async function applyTheme(themeIdOrHex, currentTrack = null) {
       }
     }
 
-    // Load background component if defined
     if (foundTheme.Background) {
       if (typeof foundTheme.Background === 'function') {
-        // If it's a direct React component (e.g. named component function like SakuraBackground)
         if (foundTheme.Background.name && foundTheme.Background.name !== 'Background' && foundTheme.Background.name !== '') {
           activeBackgroundComponent = foundTheme.Background;
         } else {
@@ -175,7 +168,6 @@ export async function applyTheme(themeIdOrHex, currentTrack = null) {
       activeBackgroundComponent = null;
     }
   } else {
-    // Custom / preset hex color logic
     injectOrUpdateThemeStyles('');
     activeBackgroundComponent = null;
 

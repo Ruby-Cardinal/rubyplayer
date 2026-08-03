@@ -11,7 +11,6 @@ function RubyBirdSvg({ fill = '#ff2e55', flapSpeed = '0.6s', glow = true }) {
         filter: glow ? 'drop-shadow(0 0 8px rgba(255, 46, 85, 0.85)) drop-shadow(0 0 16px rgba(225, 29, 72, 0.5))' : 'none',
       }}
     >
-      {/*wings*/}
       <defs>
         <linearGradient id="rubyCardinalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#ff4d6d" />

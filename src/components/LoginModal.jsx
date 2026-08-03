@@ -104,7 +104,6 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
         </div>
 
         {mustReset ? (
-          /* ── First-Time Password Reset Screen ── */
           <form onSubmit={handlePasswordSetSubmit} style={{ marginTop: '0.5rem' }}>
             <div
               style={{
@@ -251,7 +250,6 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
             </div>
           </form>
         ) : (
-          /* ── Standard Login Screen ── */
           <form onSubmit={handleLoginSubmit} style={{ marginTop: '0.5rem' }}>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
               Unlock playlists and enable downloads by logging in!

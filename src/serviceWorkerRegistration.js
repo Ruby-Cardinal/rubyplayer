@@ -1,5 +1,3 @@
-// Service Worker Registration for RubyPlayer PWA
-
 export function register(config) {
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
