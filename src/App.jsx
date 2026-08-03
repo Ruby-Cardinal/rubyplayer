@@ -18,6 +18,7 @@ import LoginModal from './components/LoginModal';
 import RubyFavIcon from './components/RubyFavIcon';
 import PlaylistEditorModal from './components/PlaylistEditorModal';
 import HelpModal from './components/HelpModal';
+import SakuraBackground from './components/SakuraBackground';
 import {
   fetchServerConfig,
   scanMediaFolder,
@@ -754,6 +755,7 @@ export default function App() {
 
   return (
     <div className="app-container">
+      <SakuraBackground />
       {/* Hidden Audio Element — src is managed imperatively in useEffect when trackId changes */}
       <audio
         ref={audioRef}

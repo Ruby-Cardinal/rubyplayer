@@ -373,6 +373,7 @@ export function applySiteThemeColor(hex) {
     document.body.classList.remove('theme-rainbow');
     document.body.classList.remove('theme-rainbow-frozen');
     document.body.classList.remove('theme-adaptive');
+    document.body.classList.remove('theme-sakura');
     document.body.classList.add('theme-retro');
 
     root.style.setProperty('--accent-ruby', '#c8820a');
@@ -381,10 +382,24 @@ export function applySiteThemeColor(hex) {
     root.style.setProperty('--accent-ruby-bg-glow', 'rgba(200, 130, 10, 0.13)');
     root.style.setProperty('--border-glow', 'rgba(200, 130, 10, 0.4)');
     root.style.setProperty('--shadow-ruby', '0 4px 18px rgba(200, 130, 10, 0.35)');
+  } else if (hex.toLowerCase() === 'sakura') {
+    document.body.classList.remove('theme-rainbow');
+    document.body.classList.remove('theme-rainbow-frozen');
+    document.body.classList.remove('theme-retro');
+    document.body.classList.remove('theme-adaptive');
+    document.body.classList.add('theme-sakura');
+
+    root.style.setProperty('--accent-ruby', '#ff9ebb');
+    root.style.setProperty('--accent-ruby-dark', '#db2777');
+    root.style.setProperty('--accent-ruby-glow', 'rgba(255, 158, 187, 0.65)');
+    root.style.setProperty('--accent-ruby-bg-glow', 'rgba(255, 158, 187, 0.16)');
+    root.style.setProperty('--border-glow', 'rgba(244, 114, 182, 0.45)');
+    root.style.setProperty('--shadow-ruby', '0 0 28px rgba(255, 158, 187, 0.4)');
   } else if (hex.toLowerCase() === 'adaptive' || hex.toLowerCase() === 'complementary') {
     document.body.classList.remove('theme-rainbow');
     document.body.classList.remove('theme-rainbow-frozen');
     document.body.classList.remove('theme-retro');
+    document.body.classList.remove('theme-sakura');
     document.body.classList.add('theme-adaptive');
 
     if (lastAdaptiveCoverUrl) {
@@ -397,6 +412,7 @@ export function applySiteThemeColor(hex) {
     document.body.classList.remove('theme-rainbow-frozen');
     document.body.classList.remove('theme-retro');
     document.body.classList.remove('theme-adaptive');
+    document.body.classList.remove('theme-sakura');
     const r = parseInt(hex.slice(1, 3), 16) || 255;
     const g = parseInt(hex.slice(3, 5), 16) || 46;
     const b = parseInt(hex.slice(5, 7), 16) || 85;

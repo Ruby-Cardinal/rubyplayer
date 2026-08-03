@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Palette, Sparkles, AlertTriangle, Disc, Activity, User, Lock, Key, CheckCircle, AlertCircle } from 'lucide-react';
+import { X, Palette, Sparkles, AlertTriangle, Disc, Activity, User, Lock, Key, CheckCircle, AlertCircle, Flower2 } from 'lucide-react';
 import {
   applySiteThemeColor,
   getSavedSiteThemeColor,
@@ -259,6 +259,33 @@ export default function ConfigModal({ isOpen, onClose }) {
               >
                 <Palette size={16} />
                 <span>Adaptive Art</span>
+              </button>
+
+              {/* Sakura Ink Art Theme Button */}
+              <button
+                type="button"
+                className="theme-preset-swatch"
+                onClick={() => handleColorChange('sakura')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.6rem',
+                  padding: '0.5rem 1.1rem',
+                  borderRadius: 'var(--radius-md, 8px)',
+                  background: 'linear-gradient(135deg, #1c141a, #ffb7c5, #f472b6, #181218)',
+                  color: '#ffffff',
+                  fontWeight: '700',
+                  fontSize: '0.85rem',
+                  border: siteColor.toLowerCase() === 'sakura' ? '2px solid #ffb7c5' : '1px solid transparent',
+                  boxShadow: siteColor.toLowerCase() === 'sakura' ? '0 0 16px rgba(255, 183, 197, 0.8)' : '0 2px 8px rgba(0,0,0,0.3)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  transform: siteColor.toLowerCase() === 'sakura' ? 'scale(1.03)' : 'scale(1)',
+                  filter: 'none',
+                }}
+              >
+                <Flower2 size={16} style={{ color: '#ffb7c5' }} />
+                <span>Sakura Ink 櫻</span>
               </button>
             </div>
 

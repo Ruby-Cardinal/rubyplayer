@@ -92,7 +92,17 @@ export default function VinylDisc({ currentTrack, isPlaying, onOpenLyrics, theme
   const songTitle = currentTrack?.title || 'No Song Selected';
   const artistName = currentTrack?.artist || 'Unknown Artist';
   const isRetro = theme === 'retro';
-  const retroPalette = getRetroPaletteForTrack(currentTrack);
+  const isSakura = theme === 'sakura' || document.body.classList.contains('theme-sakura');
+  const sakuraPalette = {
+    name: 'Japanese Sakura Blossom 櫻',
+    background: 'radial-gradient(circle at 38% 35%, #ffe4e9 0%, #ffb7c5 40%, #f472b6 75%, #301424 100%)',
+    textColor: '#2d0c1e',
+    subtextColor: 'rgba(45, 12, 30, 0.85)',
+    dividerColor: 'rgba(45, 12, 30, 0.4)',
+    spindleBg: '#180712',
+    spindleBorder: 'rgba(255, 183, 197, 0.6)',
+  };
+  const retroPalette = isSakura ? sakuraPalette : getRetroPaletteForTrack(currentTrack);
 
   // Dynamically shrink title font size when text is long.
   // Arc circumference at r=108 is ~339px. At 24px, ~14px avg char width → ~24 chars fit.
