@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1528"/>
+      <stop offset="50%" stop-color="#120c18"/>
+      <stop offset="100%" stop-color="#0a060e"/>
+    </linearGradient>
+    <linearGradient id="rubyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff5e7e"/>
+      <stop offset="40%" stop-color="#ff2e55"/>
+      <stop offset="100%" stop-color="#b3002d"/>
+    </linearGradient>
+    <linearGradient id="innerGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ff9ebb"/>
+      <stop offset="100%" stop-color="#ff2e55"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Rounded Rect -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  <rect width="504" height="504" x="4" y="4" rx="108" fill="none" stroke="#ff2e55" stroke-opacity="0.25" stroke-width="4" />
+
+  <!-- Main Ruby Gem Icon -->
+  <g transform="translate(256, 256) scale(18) translate(-7.893792, -7.893792)" filter="url(#glow)">
+    <!-- Outer Gem Base -->
+    <path d="M 7.893792,0 L 0,5.525655 L 7.893792,15.787584 L 15.787584,5.525655 Z" fill="url(#rubyGrad)"/>
+    <!-- Inner Gem Facet -->
+    <path d="M 7.893792,2.999641 L 12.787943,5.525655 L 7.893792,11.840688 L 2.999641,5.525655 Z" fill="url(#innerGrad)"/>
+  </g>
+</svg>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Palette, Sparkles, AlertTriangle, Disc, Activity, User, Lock, Key, CheckCircle, AlertCircle, Flower2 } from 'lucide-react';
-import { getThemes, getThemeById, getSavedThemeOption, setThemeOption } from '../services/themeService';
+import { getThemes, getThemeById, getActiveTheme, getSavedThemeOption, setThemeOption } from '../services/themeService';
 
 import {
   applySiteThemeColor,
@@ -228,7 +228,7 @@ export default function ConfigModal({ isOpen, onClose }) {
 
             {/* Dynamic Options for Selected Special Theme */}
             {(() => {
-              const activeT = getThemeById(siteColor);
+              const activeT = getThemeById(siteColor) || getActiveTheme();
               if (!activeT || !activeT.options || activeT.options.length === 0) return null;
               return activeT.options.map((opt) => {
                 if (opt.id === 'freeze') {

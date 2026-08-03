@@ -1,0 +1,48 @@
+{
+  "name": "RubyPlayer",
+  "short_name": "RubyPlayer",
+  "description": "Modern, elegant web & desktop music player with audio visualization, themes, and library management.",
+  "start_url": "/",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f0d13",
+  "theme_color": "#ff2e55",
+  "categories": ["music", "entertainment", "utilities"],
+  "icons": [
+    {
+      "src": "/ruby-fav.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icon-maskable.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/ruby-winged-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Play Library",
+      "short_name": "Play",
+      "description": "Open RubyPlayer and resume music playback",
+      "url": "/",
+      "icons": [{ "src": "/ruby-fav.svg", "sizes": "any" }]
+    }
+  ]
+}

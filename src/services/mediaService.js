@@ -252,6 +252,19 @@ function rgbToHsl(r, g, b) {
   return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
 }
 
+export function updateMetaThemeColor(color) {
+  if (!color) return;
+  try {
+    let meta = document.querySelector('meta[name="theme-color"]');
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.setAttribute('name', 'theme-color');
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute('content', color);
+  } catch (err) { }
+}
+
 function applyHSLAccent(hue, saturation, lightness) {
   const root = document.documentElement;
   const mainColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
@@ -266,68 +279,8 @@ function applyHSLAccent(hue, saturation, lightness) {
   root.style.setProperty('--accent-ruby-bg-glow', bgGlow);
   root.style.setProperty('--border-glow', borderGlow);
   root.style.setProperty('--shadow-ruby', `0 0 30px ${glow}`);
-}
 
-export function extractAndApplyAdaptiveComplementaryColor(imgUrl) {
-  if (!imgUrl) {
-    applyHSLAccent(200, 85, 60);
-    return;
-  }
-
-  lastAdaptiveCoverUrl = imgUrl;
-
-  const img = new Image();
-  img.crossOrigin = 'Anonymous';
-  img.src = imgUrl;
-
-  img.onload = () => {
-    try {
-      const canvas = document.createElement('canvas');
-      canvas.width = 50;
-      canvas.height = 50;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, 50, 50);
-      const imageData = ctx.getImageData(0, 0, 50, 50).data;
-
-      let rSum = 0, gSum = 0, bSum = 0, count = 0;
-
-      for (let i = 0; i < imageData.length; i += 4) {
-        const r = imageData[i];
-        const g = imageData[i + 1];
-        const b = imageData[i + 2];
-        const a = imageData[i + 3];
-
-        if (a < 128) continue;
-        if ((r < 15 && g < 15 && b < 15) || (r > 240 && g > 240 && b > 240)) continue;
-
-        rSum += r;
-        gSum += g;
-        bSum += b;
-        count++;
-      }
-
-      let avgR = 255, avgG = 46, avgB = 85;
-      if (count > 0) {
-        avgR = Math.round(rSum / count);
-        avgG = Math.round(gSum / count);
-        avgB = Math.round(bSum / count);
-      }
-
-      const [h, s] = rgbToHsl(avgR, avgG, avgB);
-      // Calculate analogous color (+30 degrees clockwise on color wheel)
-      const analogousHue = (h + 30) % 360;
-      const compSat = Math.max(s, 80);
-      const compLight = 58;
-
-      applyHSLAccent(analogousHue, compSat, compLight);
-    } catch (e) {
-      applyHSLAccent(340, 85, 60);
-    }
-  };
-
-  img.onerror = () => {
-    applyHSLAccent(340, 85, 60);
-  };
+  updateMetaThemeColor(mainColor);
 }
 
 import { applyTheme } from './themeService';

@@ -1,6 +1,8 @@
 import {
-  extractAndApplyAdaptiveComplementaryColor,
   getSavedRainbowFrozen,
+  updateMetaThemeColor,
+  getCoverArtUrl,
+  getFolderCoverUrl,
 } from './mediaService';
 
 // Dynamically discover all theme definitions in src/themes/*/index.js at build time
@@ -107,8 +109,10 @@ export async function applyTheme(themeIdOrHex, currentTrack = null) {
     // Layer 2: Inject custom CSS if present
     injectOrUpdateThemeStyles(foundTheme.css || '');
 
-    // Handle special theme types
-    if (foundTheme.type === 'animated') {
+    // Handle theme custom application logic or special types
+    if (typeof foundTheme.apply === 'function') {
+      foundTheme.apply(currentTrack);
+    } else if (foundTheme.type === 'animated') {
       if (getSavedRainbowFrozen()) {
         document.body.classList.add('theme-rainbow-frozen');
       }
@@ -129,24 +133,20 @@ export async function applyTheme(themeIdOrHex, currentTrack = null) {
         root.style.setProperty('--accent-ruby-bg-glow', rBgGlow);
         root.style.setProperty('--border-glow', rBorderGlow);
         root.style.setProperty('--shadow-ruby', `0 0 30px ${rGlow}`);
+
+        updateMetaThemeColor(rColor);
       };
 
       updateRainbowVars();
       rainbowIntervalId = setInterval(updateRainbowVars, 250);
-    } else if (foundTheme.type === 'adaptive') {
-      if (currentTrack) {
-        const coverArt = currentTrack.hasCover
-          ? `/api/cover?id=${encodeURIComponent(currentTrack.id)}`
-          : `/api/folder-cover?id=${encodeURIComponent(currentTrack.id)}`;
-        extractAndApplyAdaptiveComplementaryColor(coverArt);
-      } else {
-        extractAndApplyAdaptiveComplementaryColor(null);
-      }
     } else if (foundTheme.vars) {
       // Layer 1: Apply defined CSS custom properties
       Object.entries(foundTheme.vars).forEach(([key, val]) => {
         root.style.setProperty(key, val);
       });
+      if (foundTheme.vars['--accent-ruby']) {
+        updateMetaThemeColor(foundTheme.vars['--accent-ruby']);
+      }
     }
 
     // Lazy load background component if defined
@@ -181,6 +181,8 @@ export async function applyTheme(themeIdOrHex, currentTrack = null) {
     root.style.setProperty('--accent-ruby-bg-glow', bgGlow);
     root.style.setProperty('--border-glow', borderGlow);
     root.style.setProperty('--shadow-ruby', `0 0 30px ${glow}`);
+
+    updateMetaThemeColor(hex);
   }
 
   notifyListeners();

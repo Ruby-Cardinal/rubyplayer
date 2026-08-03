@@ -18,6 +18,7 @@ import LoginModal from './components/LoginModal';
 import RubyFavIcon from './components/RubyFavIcon';
 import PlaylistEditorModal from './components/PlaylistEditorModal';
 import HelpModal from './components/HelpModal';
+import PwaInstallPrompt from './components/PwaInstallPrompt';
 import {
   applyTheme,
   onThemeChange,
@@ -33,7 +34,6 @@ import {
   getCoverArtUrl,
   getFolderCoverUrl,
   applySiteThemeColor,
-  extractAndApplyAdaptiveComplementaryColor,
   getSavedSiteThemeColor,
   getSavedSelectedPlaylistId,
   saveSelectedPlaylistId,
@@ -875,6 +875,9 @@ export default function App() {
         isOpen={isHelpOpen}
         onClose={() => setIsHelpOpen(false)}
       />
+
+      {/* PWA App Installation & Offline Notification Prompt */}
+      <PwaInstallPrompt />
 
     </div>
   );

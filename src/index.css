@@ -2766,3 +2766,104 @@ body.theme-retro .modal-close-btn:hover {
     font-size: 0.78rem;
   }
 }
+
+/* PWA Notification Toast Styles */
+.pwa-toast {
+  position: fixed;
+  bottom: 90px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 1rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #ffffff;
+  background: rgba(26, 18, 33, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 46, 85, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 46, 85, 0.15);
+  animation: pwaToastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes pwaToastSlideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.pwa-toast.install {
+  border-color: rgba(255, 46, 85, 0.5);
+}
+
+.pwa-toast.offline {
+  border-color: rgba(255, 180, 0, 0.5);
+  background: rgba(33, 26, 18, 0.94);
+}
+
+.pwa-toast.update {
+  border-color: rgba(0, 210, 255, 0.5);
+  background: rgba(18, 28, 38, 0.94);
+}
+
+.pwa-toast-action {
+  background: #ff2e55;
+  color: #ffffff;
+  border: none;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pwa-toast-action:hover {
+  background: #ff4d6d;
+  transform: translateY(-1px);
+}
+
+.pwa-toast-close {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 4px;
+  transition: color 0.2s ease;
+}
+
+.pwa-toast-close:hover {
+  color: #ffffff;
+}
+
+.spin-icon {
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 600px) {
+  .pwa-toast {
+    bottom: 95px;
+    right: 12px;
+    left: 12px;
+    max-width: calc(100vw - 24px);
+    justify-content: space-between;
+  }
+}

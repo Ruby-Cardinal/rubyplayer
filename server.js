@@ -1744,6 +1744,22 @@ app.get('/api/download', async (req, res) => {
   });
 });
 
+// Serve frontend production build (dist) if available
+const DIST_DIR = path.join(__dirname, 'dist');
+if (fs.existsSync(DIST_DIR)) {
+  app.use(express.static(DIST_DIR, {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('index.html') || filePath.endsWith('sw.js') || filePath.endsWith('manifest.json')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      }
+    },
+  }));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api/')) return next();
+    res.sendFile(path.join(DIST_DIR, 'index.html'));
+  });
+}
+
 app.listen(PORT, '0.0.0.0', async () => {
   console.log(`RubyPlayer Server listening on http://0.0.0.0:${PORT} (all network interfaces)`);
   console.log(`[Server Ready] MusicLocation: "${appConfig.MusicLocation || appConfig.mediaFolder}"`);
