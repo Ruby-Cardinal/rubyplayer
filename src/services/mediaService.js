@@ -206,29 +206,46 @@ export async function fetchTrackLyrics(trackId) {
   return data.lyrics || null;
 }
 
+export function stripLrcTimestamps(lrcText) {
+  if (!lrcText || typeof lrcText !== 'string') return '';
+  return lrcText
+    .split(/\r?\n/)
+    .map((line) => line.replace(/\[\d{2}:\d{2}(?:[\.:]\d{2,3})?\]/g, '').trim())
+    .filter((line) => line.length > 0)
+    .join('\n');
+}
 
 export function parseLrcLyrics(lrcText) {
   if (!lrcText || typeof lrcText !== 'string') return [];
   const lines = lrcText.split(/\r?\n/);
   const result = [];
-  const timeRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
+  const timeGlobalRegex = /\[(\d{2}):(\d{2})(?:[\.:](\d{2,3}))?\]/g;
 
   for (const line of lines) {
-    const match = line.match(timeRegex);
-    if (match) {
+    let match;
+    const timestamps = [];
+    timeGlobalRegex.lastIndex = 0;
+    while ((match = timeGlobalRegex.exec(line)) !== null) {
       const minutes = parseInt(match[1], 10);
       const seconds = parseInt(match[2], 10);
-      const ms = parseInt(match[3].padEnd(3, '0'), 10);
+      const msStr = match[3] ? match[3].padEnd(3, '0') : '0';
+      const ms = parseInt(msStr, 10);
       const timestamp = minutes * 60 + seconds + ms / 1000;
-      const text = line.replace(timeRegex, '').trim();
+      timestamps.push(timestamp);
+    }
+    if (timestamps.length > 0) {
+      const text = line.replace(/\[\d{2}:\d{2}(?:[\.:]\d{2,3})?\]/g, '').trim();
       if (text) {
-        result.push({ timestamp, text });
+        for (const timestamp of timestamps) {
+          result.push({ timestamp, time: timestamp, text });
+        }
       }
     }
   }
 
   return result.sort((a, b) => a.timestamp - b.timestamp);
 }
+
 
 let rainbowIntervalId = null;
 let currentRainbowHue = 0;
@@ -346,6 +363,22 @@ export function setDisableVisualizerMotion(disabled) {
     }
   } catch (err) { }
 }
+
+export function getSavedLyricSync() {
+  try {
+    const val = localStorage.getItem('rubyplayer_lyric_sync');
+    return val === null ? true : val === 'true';
+  } catch (err) {
+    return true;
+  }
+}
+
+export function setLyricSync(enabled) {
+  try {
+    localStorage.setItem('rubyplayer_lyric_sync', enabled ? 'true' : 'false');
+  } catch (err) { }
+}
+
 
 export function getSavedSiteThemeColor() {
   try {

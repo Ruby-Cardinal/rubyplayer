@@ -3,7 +3,7 @@ import { Music2 } from 'lucide-react';
 import { getCoverArtUrl, getFolderCoverUrl } from '../services/mediaService';
 import { getActiveTheme, onThemeChange } from '../services/themeService';
 
-export default function VinylDisc({ currentTrack, isPlaying, onOpenLyrics, theme, children }) {
+export default function VinylDisc({ currentTrack, isPlaying, onOpenLyrics, theme, children, overlay }) {
   const [activeThemeState, setActiveThemeState] = useState(() => getActiveTheme());
 
   useEffect(() => {
@@ -140,6 +140,8 @@ export default function VinylDisc({ currentTrack, isPlaying, onOpenLyrics, theme
         )}
 
       </div>
+      {overlay}
     </div>
   );
 }
+

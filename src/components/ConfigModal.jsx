@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Palette, Sparkles, AlertTriangle, Disc, Activity, User, Lock, Key, CheckCircle, AlertCircle, Flower2 } from 'lucide-react';
+import { X, Palette, Sparkles, AlertTriangle, Disc, Activity, User, Lock, Key, CheckCircle, AlertCircle, Flower2, FileText } from 'lucide-react';
 import { getThemes, getThemeById, getActiveTheme, getSavedThemeOption, setThemeOption } from '../services/themeService';
 
 import {
@@ -11,6 +11,8 @@ import {
   setDisableRotation,
   getSavedDisableVisualizerMotion,
   setDisableVisualizerMotion,
+  getSavedLyricSync,
+  setLyricSync,
   changeUserPassword,
 } from '../services/mediaService';
 
@@ -30,6 +32,7 @@ export default function ConfigModal({ isOpen, onClose }) {
   const [isRainbowFrozen, setIsRainbowFrozen] = useState(() => getSavedRainbowFrozen());
   const [disableRotation, setDisableRotationState] = useState(() => getSavedDisableRotation());
   const [disableVisualizerMotion, setDisableVisualizerMotionState] = useState(() => getSavedDisableVisualizerMotion());
+  const [lyricSync, setLyricSyncState] = useState(() => getSavedLyricSync());
 
   const [pwdCurrent, setPwdCurrent] = useState('');
   const [pwdNew, setPwdNew] = useState('');
@@ -68,6 +71,7 @@ export default function ConfigModal({ isOpen, onClose }) {
     setIsRainbowFrozen(getSavedRainbowFrozen());
     setDisableRotationState(getSavedDisableRotation());
     setDisableVisualizerMotionState(getSavedDisableVisualizerMotion());
+    setLyricSyncState(getSavedLyricSync());
     applySiteThemeColor(currentThemeColor);
     setDisableRotation(getSavedDisableRotation());
     setDisableVisualizerMotion(getSavedDisableVisualizerMotion());
@@ -96,6 +100,12 @@ export default function ConfigModal({ isOpen, onClose }) {
     const nextVal = e.target.checked;
     setDisableVisualizerMotionState(nextVal);
     setDisableVisualizerMotion(nextVal);
+  };
+
+  const handleLyricSyncToggle = (e) => {
+    const nextVal = e.target.checked;
+    setLyricSyncState(nextVal);
+    setLyricSync(nextVal);
   };
 
   const handleSubmit = (e) => {
@@ -398,6 +408,7 @@ export default function ConfigModal({ isOpen, onClose }) {
 
             <div
               style={{
+                marginBottom: '0.65rem',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
@@ -420,6 +431,34 @@ export default function ConfigModal({ isOpen, onClose }) {
               </div>
               <label className="toggle-switch">
                 <input type="checkbox" checked={disableVisualizerMotion} onChange={handleVisualizerMotionToggle} />
+                <span className="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                background: 'rgba(255, 255, 255, 0.04)',
+                padding: '0.65rem 0.85rem',
+                borderRadius: 'var(--radius-sm, 6px)',
+                border: '1px solid var(--border-glass)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <FileText size={15} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                    Lyric Sync
+                  </span>
+                  <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                    If lyrics have LRC time tags, it will display the live lyrics when playing.
+                  </span>
+                </div>
+              </div>
+              <label className="toggle-switch">
+                <input type="checkbox" checked={lyricSync} onChange={handleLyricSyncToggle} />
                 <span className="toggle-slider"></span>
               </label>
             </div>

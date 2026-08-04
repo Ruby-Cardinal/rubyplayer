@@ -13,6 +13,7 @@ import Navbar from './components/Navbar';
 import PlayerControls from './components/PlayerControls';
 import AudioVisualizer from './components/AudioVisualizer';
 import VinylDisc from './components/VinylDisc';
+import LiveLyricsOverlay from './components/LiveLyricsOverlay';
 import ConfigModal from './components/ConfigModal';
 import LyricsModal from './components/LyricsModal';
 import LoginModal from './components/LoginModal';
@@ -47,6 +48,9 @@ import {
   checkAuthStatus,
   logoutUser,
   downloadTrack,
+  fetchTrackLyrics,
+  parseLrcLyrics,
+  getSavedLyricSync,
 } from './services/mediaService';
 
 function getSortedTracks(tracksList, mode, direction) {
@@ -232,9 +236,36 @@ export default function App() {
     return unsubscribe;
   }, []);
 
+  const [currentTrackLrcLines, setCurrentTrackLrcLines] = useState([]);
+  const [isLyricSyncEnabled, setIsLyricSyncEnabled] = useState(() => getSavedLyricSync());
+
   useEffect(() => {
     handleTrackChangeForAdaptiveTheme(currentTrack);
   }, [currentTrack?.id, currentTrack?.hasCover]);
+
+  useEffect(() => {
+    setIsLyricSyncEnabled(getSavedLyricSync());
+    if (!currentTrack) {
+      setCurrentTrackLrcLines([]);
+      return;
+    }
+
+    if (currentTrack.lyrics) {
+      setCurrentTrackLrcLines(parseLrcLyrics(currentTrack.lyrics));
+    } else if (currentTrack.hasLyrics) {
+      fetchTrackLyrics(currentTrack.id).then((txt) => {
+        if (txt) {
+          setCurrentTrackLrcLines(parseLrcLyrics(txt));
+        } else {
+          setCurrentTrackLrcLines([]);
+        }
+      }).catch(() => {
+        setCurrentTrackLrcLines([]);
+      });
+    } else {
+      setCurrentTrackLrcLines([]);
+    }
+  }, [currentTrack?.id, currentTrack?.lyrics, isConfigOpen]);
 
 
   const loadLibraryData = async () => {
@@ -816,6 +847,15 @@ export default function App() {
                     isPlaying={isPlaying}
                     onOpenLyrics={() => setIsLyricsOpen(true)}
                     theme={currentTheme}
+                    overlay={
+                      <LiveLyricsOverlay
+                        lrcLines={currentTrackLrcLines}
+                        currentTime={currentTime}
+                        isPlaying={isPlaying}
+                        onOpenLyrics={() => setIsLyricsOpen(true)}
+                        enabled={isLyricSyncEnabled}
+                      />
+                    }
                   >
                     <div className="inner-deck-visualizer-overlay">
                       <AudioVisualizer audioRef={audioRef} isPlaying={isPlaying} mode="inner-circular" />

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { X, FileText, Music2 } from 'lucide-react';
-import { parseLrcLyrics, fetchTrackLyrics } from '../services/mediaService';
+import { parseLrcLyrics, fetchTrackLyrics, stripLrcTimestamps } from '../services/mediaService';
 
 export default function LyricsModal({ isOpen, onClose, currentTrack, currentTime, onSeek }) {
   const [lyricsText, setLyricsText] = useState(null);
@@ -98,7 +98,7 @@ export default function LyricsModal({ isOpen, onClose, currentTrack, currentTime
                 );
               })
             ) : (
-              <div className="lyrics-plain">{lyricsText}</div>
+              <div className="lyrics-plain">{stripLrcTimestamps(lyricsText)}</div>
             )
           ) : (
             <div style={{ padding: '3rem 1rem', color: 'var(--text-muted)' }}>
