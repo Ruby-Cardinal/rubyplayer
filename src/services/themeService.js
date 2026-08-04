@@ -196,7 +196,7 @@ export async function applyTheme(themeIdOrHex, currentTrack = null) {
 
 export function handleTrackChangeForAdaptiveTheme(track) {
   if (activeTheme && activeTheme.type === 'adaptive') {
-    applyTheme('adaptive', track);
+    applyTheme(activeTheme.id, track);
   }
 }
 
