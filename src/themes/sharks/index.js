@@ -236,22 +236,6 @@ export default {
     }
   `,
   vinylLabel: null,
-  getDynamicVinylLabel: () => {
-    try {
-      const enabled = getSavedThemeOption('sharks', 'retroLabel', false);
-      if (enabled) {
-        return {
-          name: 'Deep Ocean Sharks 🦈',
-          background: 'radial-gradient(circle at 38% 35%, #38bdf8 0%, #0284c7 35%, #032b53 70%, #020c16 100%)',
-          textColor: '#f0f9ff',
-          subtextColor: 'rgba(240, 249, 255, 0.85)',
-          dividerColor: 'rgba(240, 249, 255, 0.4)',
-          spindleBg: '#01070e',
-          spindleBorder: 'rgba(56, 189, 248, 0.8)',
-        };
-      }
-    } catch (e) { }
-    return null;
-  },
+  getDynamicVinylLabel: () => { },
   Background: () => import('./Background.jsx'),
 };

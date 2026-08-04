@@ -115,31 +115,8 @@ export default {
     }
   `,
   vinylLabel: null,
-  getDynamicVinylLabel: () => {
-    try {
-      const enabled = getSavedThemeOption('ducks-chickens', 'retroLabel', false);
-      if (enabled) {
-        return {
-          name: 'Farmyard Vinyl 🦆🐔',
-          background: 'radial-gradient(circle at 38% 35%, #ffffff 0%, #d4d4d8 35%, #52525b 70%, #18181b 100%)',
-          textColor: '#18181b',
-          subtextColor: 'rgba(24, 24, 27, 0.85)',
-          dividerColor: 'rgba(24, 24, 27, 0.4)',
-          spindleBg: '#09090b',
-          spindleBorder: 'rgba(249, 115, 22, 0.8)',
-        };
-      }
-    } catch (e) { }
-    return null;
-  },
+  getDynamicVinylLabel: () => { },
   Background: () => import('./Background.jsx'),
-  options: [
-    {
-      id: 'retroLabel',
-      label: 'Use Farmyard Vinyl Label',
-      description: 'Displays custom Ducks & Chickens vinyl center label instead of album cover art.',
-    },
-  ],
   apply: (currentTrack) => {
     extractAndApplyAdaptiveColor(currentTrack);
   },

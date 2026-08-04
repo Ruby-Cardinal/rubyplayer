@@ -3,11 +3,12 @@ import React, { useEffect, useState } from 'react';
 function DuckSvg({ flapSpeed = '0.45s', glow = true }) {
   return (
     <svg
-      viewBox="0 0 64 56"
+      viewBox="0 -14 66 64"
       className="duck-bird-svg"
       style={{
         width: '100%',
         height: '100%',
+        overflow: 'visible',
         filter: glow
           ? 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.85)) drop-shadow(0 3px 8px rgba(0, 0, 0, 0.45))'
           : 'none',
@@ -77,13 +78,11 @@ function DuckSvg({ flapSpeed = '0.45s', glow = true }) {
       </g>
 
       {/* 4. MAIN BODY, CHEST, NECK & HEAD */}
-      {/* Plump Body & Chest */}
       <path
         d="M 16 42 C 16 48 30 50 40 40 C 46 34 40 28 30 32 C 22 35 18 38 16 42 Z"
         fill="url(#duckBodyGrad)"
       />
 
-      {/* Graceful Forward-Curving Duck Neck & Head */}
       <path
         d="M 32 31 C 38 27 44 24 53 25 C 58 25 60 30 52 34 C 44 37 36 36 32 31 Z"
         fill="url(#duckBodyGrad)"
@@ -135,11 +134,12 @@ function DuckSvg({ flapSpeed = '0.45s', glow = true }) {
 function ChickenSvg({ flapSpeed = '0.4s', glow = true }) {
   return (
     <svg
-      viewBox="0 0 56 44"
+      viewBox="0 -14 60 58"
       className="chicken-bird-svg"
       style={{
         width: '100%',
         height: '100%',
+        overflow: 'visible',
         filter: glow
           ? 'drop-shadow(0 0 9px rgba(60, 60, 60, 0.85)) drop-shadow(0 3px 8px rgba(0, 0, 0, 0.65))'
           : 'none',
@@ -281,7 +281,7 @@ export default function DucksChickensBackground() {
             style={{
               top: `${b.startY}%`,
               width: `${b.size}px`,
-              height: `${b.size * 0.75}px`,
+              height: `${b.size * 0.95}px`,
               opacity: b.opacity,
               animationDuration: `${b.duration}s`,
               animationDelay: `${b.delay}s`,
