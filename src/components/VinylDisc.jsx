@@ -53,7 +53,7 @@ export default function VinylDisc({ currentTrack, isPlaying, onOpenLyrics, theme
 
         {children}
 
-        <div className="vinyl-center-art">
+        <div className="vinyl-center-art" style={hasVinylLabel ? { borderColor: '#121212' } : {}}>
           {hasVinylLabel ? (
             <div className="retro-vinyl-label" style={{ background: vinylLabelPalette.background }}>
               <div className="retro-watermark">

@@ -89,6 +89,7 @@ export function getRetroPaletteForTrack(track) {
 export default {
   id: 'retro',
   name: 'Retro',
+  visualizerMode: 'retro',
   Icon: Disc,
   previewGradient: 'linear-gradient(135deg, #3b2008, #7a4c10, #c8820a, #7a4c10)',
   previewTextColor: '#000000',

@@ -50,6 +50,7 @@ function clearAllThemeBodyClasses() {
     }
   });
   document.body.classList.remove('theme-rainbow-frozen');
+  document.body.removeAttribute('data-visualizer-mode');
 }
 
 export function getThemes() {
@@ -103,6 +104,8 @@ export async function applyTheme(themeIdOrHex, currentTrack = null) {
     if (foundTheme.bodyClass) {
       document.body.classList.add(foundTheme.bodyClass);
     }
+    const visMode = foundTheme.visualizerMode || (foundTheme.id === 'retro' ? 'retro' : foundTheme.id === 'rainbow' ? 'rainbow' : 'neon');
+    document.body.setAttribute('data-visualizer-mode', visMode);
 
     injectOrUpdateThemeStyles(foundTheme.css || '');
 

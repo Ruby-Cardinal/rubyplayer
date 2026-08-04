@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { getOrCreateWebAudio } from '../services/mediaService';
+import { getActiveTheme } from '../services/themeService';
 
 export default function AudioVisualizer({ audioRef, isPlaying, mode = 'waveform' }) {
   const canvasRef = useRef(null);
@@ -144,8 +145,12 @@ export default function AudioVisualizer({ audioRef, isPlaying, mode = 'waveform'
         const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-ruby').trim() || '#ff2e55';
         const accentGlow = getComputedStyle(document.documentElement).getPropertyValue('--accent-ruby-glow').trim() || 'rgba(255, 46, 85, 0.5)';
 
-        const isRainbow = document.body.classList.contains('theme-rainbow');
-        const isRetro = document.body.classList.contains('theme-retro');
+        const activeThemeObj = getActiveTheme();
+        const themeId = activeThemeObj?.id?.toLowerCase() || '';
+        const visMode = activeThemeObj?.visualizerMode || document.body.getAttribute('data-visualizer-mode') || 'neon';
+
+        const isRainbow = visMode === 'rainbow';
+        const isRetro = visMode === 'retro';
 
         const grooveColor = 'rgba(56, 56, 56, 0.75)';
         const grooveGlow = 'rgba(75, 75, 74, 0.18)';

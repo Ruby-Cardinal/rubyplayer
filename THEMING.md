@@ -99,6 +99,7 @@ Every theme exports a default object with the following properties:
 |---|---|---|
 | `id` | `string` | Unique identifier (e.g., `'sakura'`, `'retro'`). Used in state and `localStorage`. |
 | `name` | `string` | Display name shown in the Theme Personalization UI. |
+| `visualizerMode` | `string \| undefined` | Visualizer preset style: `'retro'` (analog vinyl grooves), `'rainbow'`, or `'neon'`. |
 | `Icon` | `LucideIcon` | A React component from `lucide-react` rendered on the theme button. |
 | `previewGradient` | `string` | CSS gradient string used for the theme swatch in settings. |
 | `previewTextColor` | `string` | Text color overlaid on the swatch button (e.g. `#ffffff` or `#000000`). |
