@@ -81,7 +81,27 @@ function AutumnTreeSvg() {
   );
 }
 
-function RoadSignSvg() {
+const truncateAtWord = (str, maxLength) => {
+  const words = str.toUpperCase().replace(/[^a-z0-9 ]/gi, '').slice(0, 14).split(' ').filter(w => w);
+  let result = '';
+
+  for (const word of words) {
+    const test = result ? result + ' ' + word : word;
+    if (test.length <= maxLength) {
+      result = test;
+    } else {
+      break;
+    }
+  }
+
+  return result;
+};
+
+function RoadSignSvg({ songTitle }) {
+  const displayTitle = songTitle ? truncateAtWord(songTitle, 14) : 'HOME';
+  const maxChars = 14;
+  const fontSize = Math.max(5.5, Math.min(8.5, (maxChars / Math.max(displayTitle.length, maxChars)) * 8.5));
+
   return (
     <svg viewBox="-10 -15 110 110" className="roadside-svg" style={{ overflow: 'visible' }}>
       <rect x="22" y="35" width="4" height="55" fill="#475569" />
@@ -90,8 +110,8 @@ function RoadSignSvg() {
       <rect x="5" y="8" width="90" height="38" rx="4" fill="#14532d" stroke="#e2e8f0" strokeWidth="2" />
       <rect x="7" y="10" width="86" height="34" rx="3" fill="none" stroke="rgba(255, 255, 255, 0.3)" strokeWidth="1" />
 
-      <text x="50" y="23" fill="#ffffff" fontSize="9.5" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif" letterSpacing="0.5">
-        HOME
+      <text x="50" y="22" fill="#ffffff" fontSize="9.5" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif" letterSpacing="0.3">
+        {displayTitle}
       </text>
       <text x="50" y="36" fill="#ffffff" fontSize="8" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif" letterSpacing="0.3">
         NEXT EXIT
@@ -150,7 +170,7 @@ function CloudSvg() {
   );
 }
 
-export default function RollingBackground() {
+export default function RollingBackground({ currentTrack }) {
   const [scenery, setScenery] = useState([]);
   const [clouds, setClouds] = useState([]);
   const [stars, setStars] = useState([]);
@@ -175,19 +195,17 @@ export default function RollingBackground() {
     // 2. GENERATE CONTINUOUS SCENERY
     const generated = [];
 
-    // EXACTLY ONE GREEN HIGHWAY SIGN READING "HOME NEXT EXIT"
     generated.push({
       id: 'single-home-next-exit-sign',
       type: 'sign',
       dist: 0.0,
-      size: 95,
-      bottom: 34.5,
+      size: 120,
+      bottom: 30.5,
       duration: 21.0,
       delay: -6.0,
       zIndex: 100,
     });
 
-    // TWO BIG RED BARNS
     generated.push({
       id: 'red-barn-1',
       type: 'barn',
@@ -209,7 +227,6 @@ export default function RollingBackground() {
       zIndex: 50,
     });
 
-    // TREES & WINDMILLS
     const treeTypes = ['deciduous', 'pine', 'autumn'];
     for (let i = 0; i < 38; i++) {
       const dist = Math.random() * 0.95;
@@ -236,7 +253,6 @@ export default function RollingBackground() {
 
     setScenery(generated);
 
-    // Sky Clouds
     const cloudCount = 10;
     const generatedClouds = [];
 
@@ -259,10 +275,8 @@ export default function RollingBackground() {
 
   return (
     <div className="rolling-theme-canvas" aria-hidden="true">
-      {/* Dark Sky Gradient */}
       <div className="rolling-sky" />
 
-      {/* Twinkling Night Sky Stars */}
       <div className="rolling-stars-container">
         {stars.map((s) => (
           <div
@@ -281,7 +295,6 @@ export default function RollingBackground() {
         ))}
       </div>
 
-      {/* Floating Sky Clouds */}
       <div className="rolling-clouds-container">
         {clouds.map((c) => (
           <div
@@ -299,35 +312,27 @@ export default function RollingBackground() {
         ))}
       </div>
 
-      {/* Atmospheric Horizon Glow behind Mountains */}
       <div className="rolling-horizon-glow" />
 
-      {/* Snow-Capped Alpine Mountain Range with Slope-Matched Darker Snow */}
       <div className="rolling-mountains">
         <svg viewBox="0 0 1200 140" preserveAspectRatio="none" className="mountains-svg">
-          {/* Main Dark Mountain Base Silhouette */}
           <polygon points="0,140 0,65 150,15 300,75 450,10 600,68 750,18 900,72 1050,12 1200,60 1200,140" fill="#1e293b" />
           <polygon points="0,140 0,85 200,45 380,95 620,40 820,90 980,48 1200,82 1200,140" fill="#0f172a" opacity="0.85" />
 
-          {/* Peak 1 (Apex: 150, 15) - Slopes match left (78,39) and right (210,39) */}
           <polygon points="150,15 78,39 125,32 150,43 175,32 210,39" fill="#cbd5e1" />
           <polygon points="150,15 150,43 175,32 210,39" fill="#64748b" />
 
-          {/* Peak 2 (Apex: 450, 10) - Slopes match left (390,36) and right (517,36) */}
           <polygon points="450,10 390,36 425,30 450,40 475,30 517,36" fill="#cbd5e1" />
           <polygon points="450,10 450,40 475,30 517,36" fill="#64748b" />
 
-          {/* Peak 3 (Apex: 750, 18) - Slopes match left (678,42) and right (817,42) */}
           <polygon points="750,18 678,42 720,35 750,45 780,35 817,42" fill="#cbd5e1" />
           <polygon points="750,18 750,45 780,35 817,42" fill="#64748b" />
 
-          {/* Peak 4 (Apex: 1050, 12) - Slopes match left (988,37) and right (1128,37) */}
           <polygon points="1050,12 988,37 1025,31 1050,41 1075,31 1128,37" fill="#cbd5e1" />
           <polygon points="1050,12 1050,41 1075,31 1128,37" fill="#64748b" />
         </svg>
       </div>
 
-      {/* Continuous Parallax Scenery Field */}
       <div className="rolling-scenery-field">
         {scenery.map((item) => (
           <div
@@ -345,17 +350,33 @@ export default function RollingBackground() {
             {item.type === 'deciduous' && <DeciduousTreeSvg />}
             {item.type === 'pine' && <PineTreeSvg />}
             {item.type === 'autumn' && <AutumnTreeSvg />}
-            {item.type === 'sign' && <RoadSignSvg />}
             {item.type === 'barn' && <BarnSvg />}
             {item.type === 'windmill' && <WindmillSvg />}
           </div>
         ))}
       </div>
 
-      {/* Asphalt Road Track */}
+      <div className="rolling-sign-field">
+        {scenery.map((item) => (
+          <div
+            key={item.id}
+            className={'rolling-item-wrapper roadside-item'}
+            style={{
+              bottom: `${item.bottom}vh`,
+              width: `${item.size}px`,
+              height: `${item.size * 1.55}px`,
+              zIndex: item.zIndex,
+              animationDuration: `${item.duration}s`,
+              animationDelay: `${item.delay}s`,
+            }}
+          >
+            {item.type === 'sign' && <RoadSignSvg songTitle={currentTrack?.title} />}
+          </div>
+        ))}
+      </div>
+
       <div className="rolling-road-container">
         <div className="rolling-asphalt">
-          {/* Dashed Centerline */}
           <div className="rolling-road-dashes" />
         </div>
       </div>

@@ -38,7 +38,6 @@ export default {
       background: linear-gradient(180deg, #020617 0%, #0b1324 45%, #1e293b 80%, #030712 100%);
     }
 
-    /* Twinkling Night Sky Stars */
     .rolling-stars-container {
       position: absolute;
       top: 0;
@@ -82,7 +81,6 @@ export default {
       will-change: transform;
     }
 
-    /* Atmospheric Horizon Backlight Glow behind Mountains */
     .rolling-horizon-glow {
       position: absolute;
       bottom: 44vh;
@@ -94,7 +92,6 @@ export default {
       z-index: 3;
     }
 
-    /* Distant Horizon Mountains */
     .rolling-mountains {
       position: absolute;
       bottom: 46vh;
@@ -109,8 +106,15 @@ export default {
       height: 100%;
     }
 
-    /* Scenery Field */
     .rolling-scenery-field {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: visible !important;
+      z-index: 5;
+    }
+
+    .rolling-sign-field {
       position: absolute;
       inset: 0;
       pointer-events: none;
@@ -125,7 +129,6 @@ export default {
       filter: brightness(0.9) drop-shadow(0 6px 12px rgba(0, 0, 0, 0.85));
     }
 
-    /* Dark Asphalt Road Container */
     .rolling-road-container {
       position: absolute;
       bottom: 0;
@@ -137,7 +140,6 @@ export default {
       z-index: 6;
     }
 
-    /* Pitch Black Night Asphalt Road Surface */
     .rolling-asphalt {
       position: absolute;
       bottom: 0;
@@ -149,20 +151,21 @@ export default {
       box-shadow: inset 0 10px 24px rgba(0, 0, 0, 0.95);
     }
 
-    /* Dashed Road Centerline */
     .rolling-road-dashes {
       position: absolute;
       top: 12vh;
       left: 0;
       right: 0;
       height: 12px;
-      background: repeating-linear-gradient(
+      background-image: repeating-linear-gradient(
         90deg,
         #757575ff 0px,
         #757575ff 60px,
         transparent 60px,
         transparent 120px
       );
+      background-size: 120px 100%;
+      background-repeat: repeat-x;
       animation: rollingRoadDashes 3.0s linear infinite;
     }
 
@@ -188,14 +191,13 @@ export default {
 
     @keyframes rollingRoadDashes {
       0% {
-        background-position: -240px 0;
+        background-position: 0 0;
       }
       100% {
-        background-position: 0 0;
+        background-position: 240px 0;
       }
     }
 
-    /* Movement Keyframes from LEFT to RIGHT */
     @keyframes rollingItemLeftToRight {
       0% {
         transform: translate3d(-160px, 0, 0);
@@ -205,13 +207,11 @@ export default {
       }
     }
 
-    /* Solid Black Outer Rim on the Vinyl Record */
     body.theme-rolling .vinyl-outer-ring {
       border-color: #111111 !important;
       box-shadow: 0 12px 35px rgba(0, 0, 0, 0.95), inset 0 0 20px rgba(0, 0, 0, 0.95) !important;
     }
 
-    /* Clean realistic dark asphalt drop-shadow under vinyl disc */
     body.theme-rolling .vinyl-container {
       filter: drop-shadow(0 24px 32px rgba(0, 0, 0, 0.95)) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.85)) !important;
     }
