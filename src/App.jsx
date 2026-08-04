@@ -804,7 +804,7 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {BackgroundComp && <BackgroundComp currentTrack={currentTrack} isPlaying={isPlaying} />}
+      {BackgroundComp && <BackgroundComp currentTrack={currentTrack} isPlaying={isPlaying} currentTime={currentTime} />}
       <audio
         ref={audioRef}
         onTimeUpdate={() => audioRef.current && setCurrentTime(audioRef.current.currentTime)}

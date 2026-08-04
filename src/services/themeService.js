@@ -16,11 +16,12 @@ let activeBackgroundComponent = null;
 let rainbowIntervalId = null;
 let currentRainbowHue = 0;
 let userPreferredThemeId = null;
+let isSongThemeActive = false;
 const listeners = new Set();
 
 function getSavedThemeId() {
   try {
-    return localStorage.getItem('rubyplayer_site_color') || '#ff2e55';
+    return localStorage.getItem('rubyplayer_user_preferred_theme') || localStorage.getItem('rubyplayer_site_color') || '#ff2e55';
   } catch (err) {
     return '#ff2e55';
   }
@@ -62,7 +63,7 @@ export function getThemes() {
 
 export function getThemeById(id) {
   if (!id) return null;
-  return THEMES.find((t) => t.id.toLowerCase() === id.toLowerCase()) || null;
+  return THEMES.find((t) => t.id === id) || null;
 }
 
 export function getActiveTheme() {
@@ -81,7 +82,10 @@ export function onThemeChange(callback) {
 function notifyListeners() {
   listeners.forEach((cb) => {
     try {
-      cb({ activeTheme, activeBackgroundComponent });
+      cb({
+        activeTheme,
+        activeBackgroundComponent,
+      });
     } catch (e) { }
   });
 }
@@ -91,9 +95,12 @@ export async function applyTheme(themeIdOrHexOrObj, currentTrack = null, isSongT
   if (!themeIdOrHex && typeof themeIdOrHexOrObj === 'object') themeIdOrHex = themeIdOrHexOrObj.id || 'song-theme';
   if (!themeIdOrHex) themeIdOrHex = '#ff2e55';
 
-  if (!isSongThemeAuto && typeof themeIdOrHex === 'string') {
+  if (!isSongThemeAuto) {
     userPreferredThemeId = themeIdOrHex;
     try { localStorage.setItem('rubyplayer_user_preferred_theme', themeIdOrHex); } catch (e) { }
+    isSongThemeActive = false;
+  } else {
+    isSongThemeActive = true;
   }
   const root = document.documentElement;
 
@@ -111,7 +118,7 @@ export async function applyTheme(themeIdOrHexOrObj, currentTrack = null, isSongT
     : getThemeById(themeIdOrHex);
 
   activeTheme = foundTheme;
-  if (typeof themeIdOrHex === 'string') {
+  if (!isSongThemeAuto && typeof themeIdOrHex === 'string') {
     saveThemeId(themeIdOrHex);
   }
 
@@ -219,18 +226,17 @@ export async function handleTrackChange(track) {
   }
 
   const allowSongThemes = getSavedAllowSongThemes();
-  if (!allowSongThemes) return;
+  const songTheme = allowSongThemes ? getSongThemeForTrack(track) : null;
 
-  const songTheme = getSongThemeForTrack(track);
   if (songTheme) {
     const targetThemeId = songTheme.themeId || songTheme.id || songTheme.folderName;
     if (targetThemeId && activeTheme?.id !== targetThemeId) {
       await applyTheme(songTheme.themeId ? songTheme.themeId : songTheme, track, true);
     }
-  } else {
+  } else if (isSongThemeActive) {
     const userPref = localStorage.getItem('rubyplayer_user_preferred_theme') || getSavedThemeId();
-    if (userPref && activeTheme?.id !== userPref) {
-      await applyTheme(userPref, track, true);
+    if (userPref) {
+      await applyTheme(userPref, track, false);
     }
   }
 }

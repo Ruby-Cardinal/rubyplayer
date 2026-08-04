@@ -1466,9 +1466,9 @@ body.theme-rainbow-frozen {
   .inner-deck-layout .deck-left-col {
     width: 100%;
     max-width: 520px;
-    margin: 0.5rem auto 0 auto;
+    margin: 0.5rem auto 3.6rem auto;
     position: relative;
-    z-index: 1;
+    z-index: 2;
   }
 
   .compact-deck-layout .deck-right-col,
@@ -1477,7 +1477,7 @@ body.theme-rainbow-frozen {
     max-width: 560px;
     margin: 0 auto;
     position: relative;
-    z-index: 2;
+    z-index: 1;
     height: auto;
   }
 
@@ -3043,6 +3043,7 @@ body.theme-retro .modal-close-btn:hover {
   .live-lyrics-overlay,
   .inner-deck-layout:not(.playlist-hidden) .live-lyrics-overlay {
     max-width: min(92vw, 650px);
+    top: calc(100% + 0.8rem);
   }
 }
 
