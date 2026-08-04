@@ -148,7 +148,6 @@ export default function AudioVisualizer({ audioRef, isPlaying, mode = 'waveform'
         const activeThemeObj = getActiveTheme();
         const themeId = activeThemeObj?.id?.toLowerCase() || '';
         const visMode = activeThemeObj?.visualizerMode || document.body.getAttribute('data-visualizer-mode') || 'neon';
-
         const isRainbow = visMode === 'rainbow';
         const isRetro = visMode === 'retro';
 

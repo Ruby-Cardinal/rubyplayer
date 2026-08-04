@@ -5,6 +5,7 @@ export default {
   id: 'rolling',
   name: 'Rolling Road 🛣️',
   Icon: Navigation,
+  visualizerMode: 'retro',
   previewGradient: 'linear-gradient(135deg, #020617 0%, #0f172a 40%, #c8820a 75%, #451a03 100%)',
   previewTextColor: '#ffffff',
   bodyClass: 'theme-rolling',
