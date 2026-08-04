@@ -13,6 +13,8 @@ import {
   setDisableVisualizerMotion,
   getSavedLyricSync,
   setLyricSync,
+  getSavedAllowSongThemes,
+  setAllowSongThemes,
   changeUserPassword,
 } from '../services/mediaService';
 
@@ -33,6 +35,7 @@ export default function ConfigModal({ isOpen, onClose }) {
   const [disableRotation, setDisableRotationState] = useState(() => getSavedDisableRotation());
   const [disableVisualizerMotion, setDisableVisualizerMotionState] = useState(() => getSavedDisableVisualizerMotion());
   const [lyricSync, setLyricSyncState] = useState(() => getSavedLyricSync());
+  const [allowSongThemes, setAllowSongThemesState] = useState(() => getSavedAllowSongThemes());
 
   const [pwdCurrent, setPwdCurrent] = useState('');
   const [pwdNew, setPwdNew] = useState('');
@@ -72,6 +75,7 @@ export default function ConfigModal({ isOpen, onClose }) {
     setDisableRotationState(getSavedDisableRotation());
     setDisableVisualizerMotionState(getSavedDisableVisualizerMotion());
     setLyricSyncState(getSavedLyricSync());
+    setAllowSongThemesState(getSavedAllowSongThemes());
     applySiteThemeColor(currentThemeColor);
     setDisableRotation(getSavedDisableRotation());
     setDisableVisualizerMotion(getSavedDisableVisualizerMotion());
@@ -106,6 +110,12 @@ export default function ConfigModal({ isOpen, onClose }) {
     const nextVal = e.target.checked;
     setLyricSyncState(nextVal);
     setLyricSync(nextVal);
+  };
+
+  const handleAllowSongThemesToggle = (e) => {
+    const nextVal = e.target.checked;
+    setAllowSongThemesState(nextVal);
+    setAllowSongThemes(nextVal);
   };
 
   const handleSubmit = (e) => {
@@ -459,6 +469,35 @@ export default function ConfigModal({ isOpen, onClose }) {
               </div>
               <label className="toggle-switch">
                 <input type="checkbox" checked={lyricSync} onChange={handleLyricSyncToggle} />
+                <span className="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div
+              style={{
+                marginTop: '0.65rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                background: 'rgba(255, 255, 255, 0.04)',
+                padding: '0.65rem 0.85rem',
+                borderRadius: 'var(--radius-sm, 6px)',
+                border: '1px solid var(--border-glass)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <Sparkles size={15} style={{ color: 'var(--accent-ruby)', flexShrink: 0 }} />
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                    Song-Specific Custom Themes
+                  </span>
+                  <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                    Allow songs to automatically activate custom themes
+                  </span>
+                </div>
+              </div>
+              <label className="toggle-switch">
+                <input type="checkbox" checked={allowSongThemes} onChange={handleAllowSongThemesToggle} />
                 <span className="toggle-slider"></span>
               </label>
             </div>

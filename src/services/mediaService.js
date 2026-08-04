@@ -379,6 +379,21 @@ export function setLyricSync(enabled) {
   } catch (err) { }
 }
 
+export function getSavedAllowSongThemes() {
+  try {
+    const val = localStorage.getItem('rubyplayer_allow_song_themes');
+    return val === null ? true : val === 'true';
+  } catch (err) {
+    return true;
+  }
+}
+
+export function setAllowSongThemes(enabled) {
+  try {
+    localStorage.setItem('rubyplayer_allow_song_themes', enabled ? 'true' : 'false');
+  } catch (err) { }
+}
+
 
 export function getSavedSiteThemeColor() {
   try {

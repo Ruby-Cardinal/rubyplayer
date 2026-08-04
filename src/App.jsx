@@ -25,7 +25,7 @@ import {
   applyTheme,
   onThemeChange,
   getActiveBackgroundComponent,
-  handleTrackChangeForAdaptiveTheme,
+  handleTrackChange,
 } from './services/themeService';
 
 import {
@@ -240,7 +240,7 @@ export default function App() {
   const [isLyricSyncEnabled, setIsLyricSyncEnabled] = useState(() => getSavedLyricSync());
 
   useEffect(() => {
-    handleTrackChangeForAdaptiveTheme(currentTrack);
+    handleTrackChange(currentTrack);
   }, [currentTrack?.id, currentTrack?.hasCover]);
 
   useEffect(() => {

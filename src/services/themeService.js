@@ -3,7 +3,9 @@ import {
   updateMetaThemeColor,
   getCoverArtUrl,
   getFolderCoverUrl,
+  getSavedAllowSongThemes,
 } from './mediaService';
+import { getSongThemeForTrack } from '../song-themes/index.js';
 
 const themeModules = import.meta.glob('../themes/*/index.js', { eager: true });
 
@@ -13,6 +15,7 @@ let activeTheme = null;
 let activeBackgroundComponent = null;
 let rainbowIntervalId = null;
 let currentRainbowHue = 0;
+let userPreferredThemeId = null;
 const listeners = new Set();
 
 function getSavedThemeId() {
@@ -83,8 +86,15 @@ function notifyListeners() {
   });
 }
 
-export async function applyTheme(themeIdOrHex, currentTrack = null) {
+export async function applyTheme(themeIdOrHexOrObj, currentTrack = null, isSongThemeAuto = false) {
+  let themeIdOrHex = typeof themeIdOrHexOrObj === 'object' ? (themeIdOrHexOrObj.themeId || themeIdOrHexOrObj.id) : themeIdOrHexOrObj;
+  if (!themeIdOrHex && typeof themeIdOrHexOrObj === 'object') themeIdOrHex = themeIdOrHexOrObj.id || 'song-theme';
   if (!themeIdOrHex) themeIdOrHex = '#ff2e55';
+
+  if (!isSongThemeAuto && typeof themeIdOrHex === 'string') {
+    userPreferredThemeId = themeIdOrHex;
+    try { localStorage.setItem('rubyplayer_user_preferred_theme', themeIdOrHex); } catch (e) { }
+  }
   const root = document.documentElement;
 
   if (rainbowIntervalId) {
@@ -96,9 +106,14 @@ export async function applyTheme(themeIdOrHex, currentTrack = null) {
   root.style.removeProperty('--bg-primary');
   root.style.removeProperty('--text-primary');
 
-  const foundTheme = getThemeById(themeIdOrHex);
+  const foundTheme = typeof themeIdOrHexOrObj === 'object' && !themeIdOrHexOrObj.themeId
+    ? themeIdOrHexOrObj
+    : getThemeById(themeIdOrHex);
+
   activeTheme = foundTheme;
-  saveThemeId(themeIdOrHex);
+  if (typeof themeIdOrHex === 'string') {
+    saveThemeId(themeIdOrHex);
+  }
 
   if (foundTheme) {
     if (foundTheme.bodyClass) {
@@ -197,9 +212,26 @@ export async function applyTheme(themeIdOrHex, currentTrack = null) {
   notifyListeners();
 }
 
-export function handleTrackChangeForAdaptiveTheme(track) {
+export async function handleTrackChange(track) {
   if (activeTheme && activeTheme.type === 'adaptive') {
     applyTheme(activeTheme.id, track);
+    return;
+  }
+
+  const allowSongThemes = getSavedAllowSongThemes();
+  if (!allowSongThemes) return;
+
+  const songTheme = getSongThemeForTrack(track);
+  if (songTheme) {
+    const targetThemeId = songTheme.themeId || songTheme.id || songTheme.folderName;
+    if (targetThemeId && activeTheme?.id !== targetThemeId) {
+      await applyTheme(songTheme.themeId ? songTheme.themeId : songTheme, track, true);
+    }
+  } else {
+    const userPref = localStorage.getItem('rubyplayer_user_preferred_theme') || getSavedThemeId();
+    if (userPref && activeTheme?.id !== userPref) {
+      await applyTheme(userPref, track, true);
+    }
   }
 }
 
