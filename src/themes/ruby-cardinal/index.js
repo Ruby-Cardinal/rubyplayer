@@ -38,10 +38,34 @@ export default {
         radial-gradient(circle at 80% 80%, rgba(225, 29, 72, 0.12), transparent 55%),
         radial-gradient(circle at 50% 50%, rgba(20, 3, 6, 0.5), rgba(12, 2, 4, 0.96));
     }
+    .ruby-cardinal-clouds-container {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .ruby-cardinal-cloud-wrapper {
+      position: absolute;
+      left: 0;
+      top: 0;
+      pointer-events: none;
+      will-change: transform;
+      animation: cardinalCloudFloat linear infinite;
+    }
+    @keyframes cardinalCloudFloat {
+      0% {
+        transform: translate3d(-300px, 0, 0);
+      }
+      100% {
+        transform: translate3d(calc(100vw + 320px), 0, 0);
+      }
+    }
     .ruby-cardinal-birds-container {
       position: absolute;
       inset: 0;
       overflow: hidden;
+      z-index: 2;
     }
     .ruby-cardinal-bird-wrapper {
       position: absolute;

@@ -1,5 +1,41 @@
 import React, { useEffect, useState } from 'react';
 
+function RubyCloudSvg1() {
+  return (
+    <svg viewBox="0 0 160 60" className="ruby-cardinal-cloud-svg" style={{ overflow: 'visible', width: '100%', height: '100%' }}>
+      <path
+        d="M 15 45 Q 0 45 8 30 Q 15 15 35 18 Q 50 2 80 8 Q 105 0 125 18 Q 145 15 152 32 Q 162 45 145 45 Z"
+        fill="rgba(255, 255, 255, 0.08)"
+        style={{ filter: 'drop-shadow(0 0 14px rgba(255, 46, 85, 0.14))' }}
+      />
+    </svg>
+  );
+}
+
+function RubyCloudSvg2() {
+  return (
+    <svg viewBox="0 0 200 45" className="ruby-cardinal-cloud-svg" style={{ overflow: 'visible', width: '100%', height: '100%' }}>
+      <path
+        d="M 5 35 Q 25 35 35 25 Q 50 12 85 15 Q 115 8 150 18 Q 175 12 195 28 Q 205 35 180 35 Z"
+        fill="rgba(255, 255, 255, 0.07)"
+        style={{ filter: 'drop-shadow(0 0 10px rgba(244, 63, 94, 0.15))' }}
+      />
+    </svg>
+  );
+}
+
+function RubyCloudSvg3() {
+  return (
+    <svg viewBox="0 0 180 55" className="ruby-cardinal-cloud-svg" style={{ overflow: 'visible', width: '100%', height: '100%' }}>
+      <path
+        d="M 12 42 Q 0 32 18 20 Q 32 8 62 14 Q 82 2 112 10 Q 138 5 158 22 Q 178 35 155 42 Z"
+        fill="rgba(255, 255, 255, 0.09)"
+        style={{ filter: 'drop-shadow(0 0 16px rgba(225, 29, 72, 0.18))' }}
+      />
+    </svg>
+  );
+}
+
 function RubyBirdSvg({ fill = '#ff2e55', flapSpeed = '0.6s', glow = true }) {
   return (
     <svg
@@ -66,10 +102,11 @@ function RubyBirdSvg({ fill = '#ff2e55', flapSpeed = '0.6s', glow = true }) {
 
 export default function RubyCardinalBackground() {
   const [birds, setBirds] = useState([]);
+  const [clouds, setClouds] = useState([]);
 
   useEffect(() => {
     const birdCount = 18;
-    const generated = [];
+    const generatedBirds = [];
 
     for (let i = 0; i < birdCount; i++) {
       const isLeftToRight = i % 2 === 0;
@@ -81,7 +118,7 @@ export default function RubyCardinalBackground() {
       const flapSpeed = `${0.35 + Math.random() * 0.4}s`;
       const opacity = 0.5 + Math.random() * 0.5;
 
-      generated.push({
+      generatedBirds.push({
         id: i,
         isLeftToRight,
         size,
@@ -93,13 +130,56 @@ export default function RubyCardinalBackground() {
         opacity,
       });
     }
+    setBirds(generatedBirds);
 
-    setBirds(generated);
+    // 2. Generate 3 Varieties of Floating Ruby Clouds
+    const cloudCount = 11;
+    const generatedClouds = [];
+
+    for (let c = 0; c < cloudCount; c++) {
+      const cloudType = (c % 3) + 1; // 1, 2, or 3
+      const width = 140 + Math.random() * 120;
+      const top = 3 + Math.random() * 42;
+      const duration = 100 + Math.random() * 80;
+      const delay = -Math.random() * duration;
+      const opacity = 0.6 + Math.random() * 0.4;
+
+      generatedClouds.push({
+        id: c,
+        cloudType,
+        width,
+        top,
+        duration,
+        delay,
+        opacity,
+      });
+    }
+    setClouds(generatedClouds);
   }, []);
 
   return (
     <div className="ruby-cardinal-theme-canvas" aria-hidden="true">
       <div className="ruby-cardinal-bg-overlay" />
+
+      <div className="ruby-cardinal-clouds-container">
+        {clouds.map((c) => (
+          <div
+            key={c.id}
+            className="ruby-cardinal-cloud-wrapper"
+            style={{
+              top: `${c.top}%`,
+              width: `${c.width}px`,
+              opacity: c.opacity,
+              animationDuration: `${c.duration}s`,
+              animationDelay: `${c.delay}s`,
+            }}
+          >
+            {c.cloudType === 1 && <RubyCloudSvg1 />}
+            {c.cloudType === 2 && <RubyCloudSvg2 />}
+            {c.cloudType === 3 && <RubyCloudSvg3 />}
+          </div>
+        ))}
+      </div>
 
       <div className="ruby-cardinal-birds-container">
         {birds.map((b) => (
