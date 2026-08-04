@@ -3,104 +3,129 @@ import React, { useEffect, useState } from 'react';
 function DuckSvg({ flapSpeed = '0.45s', glow = true }) {
   return (
     <svg
-      viewBox="0 0 56 42"
+      viewBox="0 0 64 56"
       className="duck-bird-svg"
       style={{
         width: '100%',
         height: '100%',
         filter: glow
-          ? 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.8)) drop-shadow(0 3px 8px rgba(0, 0, 0, 0.45))'
+          ? 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.85)) drop-shadow(0 3px 8px rgba(0, 0, 0, 0.45))'
           : 'none',
       }}
     >
       <defs>
         <linearGradient id="duckBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#ffffff" />
-          <stop offset="65%" stopColor="#f1f5f9" />
+          <stop offset="70%" stopColor="#f8fafc" />
           <stop offset="100%" stopColor="#cbd5e1" />
         </linearGradient>
 
-        {/* Far Wing Gradient (Darker Shaded / Other Side) */}
         <linearGradient id="duckWingFarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#ffffff" />
-          <stop offset="70%" stopColor="#e2e8f0" />
-          <stop offset="100%" stopColor="#cbd5e1" />
+          <stop offset="0%" stopColor="#e2e8f0" />
+          <stop offset="60%" stopColor="#cbd5e1" />
+          <stop offset="100%" stopColor="#94a3b8" />
         </linearGradient>
 
-        {/* Near Wing Gradient (Bright Foreground / Near Side) */}
         <linearGradient id="duckWingNearGrad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#ffffff" />
-          <stop offset="70%" stopColor="#e2e8f0" />
+          <stop offset="70%" stopColor="#f1f5f9" />
           <stop offset="100%" stopColor="#cbd5e1" />
         </linearGradient>
       </defs>
 
-      {/* 1. FAR WING (On the OTHER side of body - Darker & Attached behind back) */}
+      {/* 1. FAR BIRD WING (High V-Shape Background Wing with Primary Feather Fan) */}
       <g
         className="duck-far-wing"
         style={{
-          transformOrigin: '24px 16px',
+          transformOrigin: '28px 30px',
           animation: `duckWingFlapFar ${flapSpeed} ease-in-out infinite alternate`,
         }}
       >
         <path
-          d="M 24 16 C 15 -1 4 0 1 7 C -1 12 7 15 24 16 Z"
+          d="M 28 30 L 16 8 L 12 11 L 9 15 L 7 20 L 6 25 L 8 29 L 14 33 Z"
           fill="url(#duckWingFarGrad)"
-          stroke="#475569"
+          stroke="#64748b"
           strokeWidth="0.5"
-          opacity="0.9"
+          opacity="0.92"
         />
         <path
-          d="M 24 16 C 17 2 7 2 5 8 C 6 12 13 15 24 16 Z"
-          fill="url(#duckWingFarGrad)"
-          opacity="0.8"
+          d="M 24 24 L 16 8 M 22 26 L 12 11 M 21 27 L 9 15 M 20 28 L 7 20"
+          stroke="#94a3b8"
+          strokeWidth="0.4"
+          opacity="0.7"
         />
       </g>
 
       {/* 2. TAIL FEATHERS */}
-      <path d="M 8 20 Q 1 13 3 20 Q 1 24 9 24 Z" fill="#cbd5e1" />
-
-      {/* 3. MAIN BODY & HEAD (Occludes the Far Wing) */}
-      {/* Main Torso */}
       <path
-        d="M 10 21 C 10 31 35 33 42 22 C 46 16 39 12 33 16 C 24 18 14 15 10 21 Z"
+        d="M 16 42 L 8 46 L 10 50 L 14 51 L 20 46 Z"
+        fill="#cbd5e1"
+        stroke="#94a3b8"
+        strokeWidth="0.4"
+      />
+
+      {/* 3. TUCKED ORANGE FEET */}
+      <g className="duck-tucked-feet">
+        <path
+          d="M 22 44 L 17 50 L 22 52 L 20 48 M 24 45 L 21 52 L 25 53"
+          stroke="#f97316"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+      </g>
+
+      {/* 4. MAIN BODY, CHEST, NECK & HEAD */}
+      {/* Plump Body & Chest */}
+      <path
+        d="M 16 42 C 16 48 30 50 40 40 C 46 34 40 28 30 32 C 22 35 18 38 16 42 Z"
         fill="url(#duckBodyGrad)"
       />
 
-      {/* Head & Neck */}
+      {/* Graceful Forward-Curving Duck Neck & Head */}
       <path
-        d="M 30 17 Q 36 8 42 8 C 48 8 49 17 40 20 Z"
+        d="M 32 31 C 38 27 44 24 53 25 C 58 25 60 30 52 34 C 44 37 36 36 32 31 Z"
         fill="url(#duckBodyGrad)"
       />
 
-      {/* Orange Beak */}
+      {/* ORANGE DUCK/GOOSE BILL */}
       <path
-        d="M 46 11 Q 54 11 53 15 Q 46 16 44 14 Z"
+        d="M 57 26 C 61 26 64 28 65 30 C 65 31 60 33 55 31 Z"
         fill="#f97316"
+        stroke="#ea580c"
+        strokeWidth="0.4"
       />
+      <line x1="57" y1="29" x2="63" y2="30" stroke="#7c2d12" strokeWidth="0.5" />
+      <circle cx="58.5" cy="27.8" r="0.4" fill="#7c2d12" />
 
-      {/* Eye */}
-      <circle cx="44" cy="11" r="1.6" fill="#0f172a" />
-      <circle cx="44.4" cy="10.6" r="0.6" fill="#ffffff" />
+      {/* EYE */}
+      <circle cx="53" cy="28" r="1.5" fill="#0f172a" />
+      <circle cx="53.3" cy="27.5" r="0.5" fill="#ffffff" />
 
-      {/* 4. NEAR WING (On THIS side of body - Bright White Foreground) */}
+      {/* 5. NEAR BIRD WING (Foreground High V-Wing with Fanned Primary Feathers) */}
       <g
         className="duck-near-wing"
         style={{
-          transformOrigin: '28px 21px',
+          transformOrigin: '30px 32px',
           animation: `duckWingFlapNear ${flapSpeed} ease-in-out infinite alternate`,
         }}
       >
         <path
-          d="M 28 21 C 18 3 5 3 2 10 C 1 15 10 19 28 21 Z"
+          d="M 30 32 L 44 2 L 39 5 L 35 9 L 31 14 L 27 19 L 24 24 L 22 29 Z"
           fill="url(#duckWingNearGrad)"
-          stroke="#cbd5e1"
+          stroke="#94a3b8"
           strokeWidth="0.6"
         />
         <path
-          d="M 28 21 C 20 6 8 6 5 12 C 7 16 15 19 28 21 Z"
+          d="M 30 32 L 40 12 C 35 15 28 20 23 28 Z"
           fill="url(#duckWingNearGrad)"
-          opacity="0.85"
+          opacity="0.9"
+        />
+        <path
+          d="M 30 30 L 44 2 M 29 30 L 39 5 M 28 31 L 35 9 M 27 31 L 31 14 M 26 31 L 27 19"
+          stroke="#cbd5e1"
+          strokeWidth="0.5"
         />
       </g>
     </svg>
@@ -127,98 +152,83 @@ function ChickenSvg({ flapSpeed = '0.4s', glow = true }) {
           <stop offset="100%" stopColor="#18181b" />
         </linearGradient>
 
-        {/* Far Wing Gradient (Darker Shaded / Other Side) */}
         <linearGradient id="chickenWingFarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#71717a" />
-          <stop offset="100%" stopColor="#27272a" />
+          <stop offset="0%" stopColor="#a1a1aa" />
+          <stop offset="100%" stopColor="#3f3f46" />
         </linearGradient>
 
-        {/* Near Wing Gradient (Near Side Foreground) */}
         <linearGradient id="chickenWingNearGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#71717a" />
+          <stop offset="0%" stopColor="#464646ff" />
+          <stop offset="60%" stopColor="#71717a" />
           <stop offset="100%" stopColor="#27272a" />
         </linearGradient>
       </defs>
 
-      {/* 1. FAR WING (On OTHER side of body - Dark Charcoal behind back) */}
+      {/* 1. FAR BIRD WING (Behind body) */}
       <g
         className="chicken-far-wing"
         style={{
-          transformOrigin: '23px 16px',
+          transformOrigin: '24px 16px',
           animation: `chickenWingFlapFar ${flapSpeed} ease-in-out infinite alternate`,
         }}
       >
         <path
-          d="M 23 16 C 14 -1 3 0 1 7 C -1 12 7 15 23 16 Z"
+          d="M 24 16 L 15 2 C 10 -2 5 -2 2 1 C 0 3 2 6 5 7 L 9 10 L 13 13 L 18 15 Z"
           fill="url(#chickenWingFarGrad)"
-          stroke="#09090b"
+          stroke="#e4e4e7"
           strokeWidth="0.5"
           opacity="0.95"
         />
-        <path
-          d="M 23 16 C 16 2 6 2 4 8 C 5 12 12 15 23 16 Z"
-          fill="url(#chickenWingFarGrad)"
-          opacity="0.8"
-        />
+        <path d="M 15 2 L 5 7 M 13 6 L 9 10 M 16 10 L 13 13" stroke="#71717a" strokeWidth="0.4" opacity="0.6" />
       </g>
 
       {/* 2. TAIL TUFT FEATHERS */}
       <path d="M 7 20 Q 1 9 9 14 Q 2 16 8 21 Q 0 22 7 25 Z" fill="#18181b" />
 
-      {/* 3. MAIN BODY & HEAD (Occludes Far Wing) */}
-      {/* Plump Body */}
+      {/* 3. MAIN BODY & HEAD */}
       <path
         d="M 9 22 C 8 33 32 35 40 24 C 44 17 39 12 33 16 C 23 18 12 15 9 22 Z"
         fill="url(#chickenBodyGrad)"
       />
-
-      {/* Head */}
       <path
         d="M 31 17 Q 35 8 42 8 C 48 8 48 17 39 20 Z"
         fill="url(#chickenBodyGrad)"
       />
-
-      {/* Red Comb */}
       <path
         d="M 38 8 Q 38 2 41 5 Q 43 1 45 5 Q 47 3 47 8 Z"
         fill="#ef4444"
       />
-
-      {/* Red Wattle */}
       <path
         d="M 46 15 Q 49 19 46 21 Q 44 19 45 15 Z"
         fill="#dc2626"
       />
-
-      {/* Pointy Yellow Beak */}
       <path
         d="M 46 11 L 54 13 L 46 15 Z"
         fill="#f59e0b"
       />
-
-      {/* Eye */}
       <circle cx="43" cy="12" r="1.6" fill="#fef08a" />
       <circle cx="43.3" cy="11.7" r="0.7" fill="#09090b" />
 
-      {/* 4. NEAR WING (On THIS side of body - Foreground Slate Grey) */}
+      {/* 4. NEAR BIRD WING (Foreground Avian Wing) */}
       <g
         className="chicken-near-wing"
         style={{
-          transformOrigin: '27px 20px',
+          transformOrigin: '25px 17px',
           animation: `chickenWingFlapNear ${flapSpeed} ease-in-out infinite alternate`,
         }}
       >
         <path
-          d="M 27 20 C 18 3 5 3 2 10 C 1 15 9 19 27 20 Z"
+          d="M 25 17 L 15 2 C 11 -3 6 -3 2 0 C 0 2 2 5 5 6 L 9 10 L 13 13 L 18 16 Z"
           fill="url(#chickenWingNearGrad)"
-          stroke="#52525b"
+          stroke="#a1a1aa"
           strokeWidth="0.6"
         />
         <path
-          d="M 27 20 C 20 6 9 6 6 12 C 7 16 14 19 27 20 Z"
+          d="M 25 17 C 19 6 12 6 9 10 C 11 13 16 16 25 17 Z"
           fill="url(#chickenWingNearGrad)"
           opacity="0.85"
         />
+        <path d="M 15 2 L 5 6 M 13 6 L 9 10 M 16 10 L 13 13" stroke="#e4e4e7" strokeWidth="0.5" />
       </g>
     </svg>
   );

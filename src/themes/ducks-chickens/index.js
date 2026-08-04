@@ -56,21 +56,21 @@ export default {
     }
 
     @keyframes duckWingFlapFar {
-      0% { transform: rotate(-36deg) translateY(-2px) scale(0.94); }
-      100% { transform: rotate(10deg) translateY(1px) scale(0.94); }
+      0% { transform: rotate(-22deg) translateY(-2px) scale(0.95); }
+      100% { transform: rotate(14deg) translateY(1px) scale(0.95); }
     }
     @keyframes duckWingFlapNear {
-      0% { transform: rotate(-34deg) translateY(-1px); }
-      100% { transform: rotate(12deg) translateY(1px); }
+      0% { transform: rotate(-20deg) translateY(-1px); }
+      100% { transform: rotate(16deg) translateY(1px); }
     }
 
     @keyframes chickenWingFlapFar {
-      0% { transform: rotate(-36deg) translateY(-2px) scale(0.94); }
-      100% { transform: rotate(10deg) translateY(1px) scale(0.94); }
+      0% { transform: rotate(-22deg) translateY(-2px) scale(0.95); }
+      100% { transform: rotate(14deg) translateY(1px) scale(0.95); }
     }
     @keyframes chickenWingFlapNear {
-      0% { transform: rotate(-34deg) translateY(-1px); }
-      100% { transform: rotate(12deg) translateY(1px); }
+      0% { transform: rotate(-20deg) translateY(-1px); }
+      100% { transform: rotate(16deg) translateY(1px); }
     }
 
     @keyframes duckChickenFlyLeftToRight {
