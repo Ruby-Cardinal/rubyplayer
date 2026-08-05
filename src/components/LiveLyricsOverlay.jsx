@@ -2,7 +2,7 @@ import React from 'react';
 import { AlignLeft } from 'lucide-react';
 
 export default function LiveLyricsOverlay({ lrcLines, currentTime, isPlaying, onOpenLyrics, enabled }) {
-  if (!enabled || !isPlaying || !lrcLines || lrcLines.length === 0) {
+  if (!enabled || !lrcLines || lrcLines.length === 0) {
     return null;
   }
 

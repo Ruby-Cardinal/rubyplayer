@@ -43,6 +43,38 @@ router.get('/tracks', async (req, res) => {
   }
 });
 
+router.get('/song', async (req, res) => {
+  try {
+    const songQuery = req.query.song;
+    if (!songQuery) {
+      return res.status(400).json({ error: 'Missing song query parameter' });
+    }
+
+    const { files, playlists } = await getOrScanMediaFolder(false);
+    const allowedTracks = filterAllowedTracks(files, playlists, req);
+    const query = String(songQuery).trim().toLowerCase();
+
+    const matchedTrack = allowedTracks.find((t) => {
+      if (!t) return false;
+      const title = (t.title || '').toLowerCase();
+      return title === query;
+    });
+
+    if (!matchedTrack) {
+      return res.json({ found: false, allowed: false });
+    }
+
+    res.json({
+      found: true,
+      allowed: true,
+      track: formatLightTrack(matchedTrack),
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to look up song' });
+  }
+});
+
+
 router.get('/cover', async (req, res) => {
   const { playlists } = await getOrScanMediaFolder(false);
   const trackId = req.query.id;

@@ -588,4 +588,18 @@ export async function savePlaylistOnServer(name, tracks) {
   return res.json();
 }
 
+export async function fetchSongAccess(songQuery) {
+  if (!songQuery) return { found: false, allowed: false };
+  try {
+    const res = await fetch(`/api/song?song=${encodeURIComponent(songQuery)}`, {
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) return { found: false, allowed: false };
+    return await res.json();
+  } catch (err) {
+    return { found: false, allowed: false };
+  }
+}
+
+
 

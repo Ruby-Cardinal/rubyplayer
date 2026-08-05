@@ -10,6 +10,7 @@ import {
   VolumeX,
   FileText,
   Download,
+  Share2,
   HelpCircle,
   ListMusic,
   EyeOff,
@@ -53,6 +54,20 @@ export default function PlayerControls({
 
   const progressPercent = duration > 0 ? Math.round((currentTime / duration) * 100) : 0;
 
+  const [copiedLink, setCopiedLink] = React.useState(false);
+
+  const handleCopySongLink = () => {
+    if (!currentTrack) return;
+    const songName = currentTrack.title || currentTrack.relativePath;
+    const url = `${window.location.origin}/?song=${encodeURIComponent(songName)}`;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(() => {
+        setCopiedLink(true);
+        setTimeout(() => setCopiedLink(false), 2000);
+      }).catch(() => {});
+    }
+  };
+
   return (
     <footer className="player-bar">
       <div className="timeline-row">
@@ -81,6 +96,17 @@ export default function PlayerControls({
             style={{ marginRight: '0.65rem' }}
           >
             <HelpCircle size={20} />
+          </button>
+
+          <button
+            className="btn-download"
+            onClick={handleCopySongLink}
+            disabled={!currentTrack}
+            title={!currentTrack ? 'No song loaded' : copiedLink ? 'Song link copied to clipboard!' : `Copy direct link for "${currentTrack.title || 'song'}"`}
+            style={{ marginRight: '0.5rem' }}
+          >
+            <Share2 size={16} />
+            <span>{copiedLink ? 'Copied!' : 'Share'}</span>
           </button>
 
           <button

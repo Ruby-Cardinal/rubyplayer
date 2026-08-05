@@ -340,30 +340,41 @@ export default function ScriptedPinkySharkBackground({ currentTrack, currentTime
   const spawnTimerRef = useRef(0);
 
   useEffect(() => {
+    let timerId = null;
+
     const updateVinylPosition = () => {
       const el = document.querySelector('.vinyl-container') || document.querySelector('.vinyl-outer-ring');
       if (el) {
         const rect = el.getBoundingClientRect();
-        const centerX = ((rect.left + rect.width / 2) / window.innerWidth) * 100;
-        const centerY = ((rect.top + rect.height / 2) / window.innerHeight) * 100;
-        const radiusX = ((rect.width / 2) / window.innerWidth) * 100 + 6;
-        const radiusY = radiusX * 0.75;
-        vinylCenterRef.current = { x: centerX, y: centerY, rx: radiusX, ry: radiusY };
-      } else {
-        const isMobile = window.innerWidth < 1024;
-        vinylCenterRef.current = { x: isMobile ? 50 : 25, y: isMobile ? 38 : 46, rx: 20, ry: 15 };
+        if (rect.width > 0 && rect.height > 0) {
+          const centerX = ((rect.left + rect.width / 2) / window.innerWidth) * 100;
+          const centerY = ((rect.top + rect.height / 2) / window.innerHeight) * 100;
+          const radiusX = ((rect.width / 2) / window.innerWidth) * 100 + 6;
+          const radiusY = radiusX * 0.75;
+          vinylCenterRef.current = { x: centerX, y: centerY, rx: radiusX, ry: radiusY };
+          return;
+        }
       }
+      const isMobile = window.innerWidth < 1024;
+      vinylCenterRef.current = { x: isMobile ? 50 : 25, y: isMobile ? 38 : 46, rx: 20, ry: 15 };
     };
 
     updateVinylPosition();
+
+    timerId = setTimeout(updateVinylPosition, 120);
+
     const targetEl = document.querySelector('.vinyl-container') || document.body;
     let observer;
     if (window.ResizeObserver) {
       observer = new ResizeObserver(updateVinylPosition);
       observer.observe(targetEl);
+      if (targetEl !== document.body) {
+        observer.observe(document.body);
+      }
     }
     window.addEventListener('resize', updateVinylPosition);
     return () => {
+      if (timerId) clearTimeout(timerId);
       if (observer) observer.disconnect();
       window.removeEventListener('resize', updateVinylPosition);
     };

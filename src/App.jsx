@@ -51,6 +51,7 @@ import {
   fetchTrackLyrics,
   parseLrcLyrics,
   getSavedLyricSync,
+  fetchSongAccess,
 } from './services/mediaService';
 
 function getSortedTracks(tracksList, mode, direction) {
@@ -288,37 +289,63 @@ export default function App() {
 
       const savedId = getSavedSelectedPlaylistId();
       const isValidSaved = savedId === 'none' || savedId === 'all' || savedId === 'favorites' || loadedPlaylists.some((p) => p.id === savedId);
-      const initialId = isValidSaved ? savedId : 'all';
+      let initialId = isValidSaved ? savedId : 'all';
+
+      if (!authData.authenticated && serverCfg.isLocked && serverCfg.lockedPlaylistId) {
+        initialId = serverCfg.lockedPlaylistId;
+      }
 
       setSelectedPlaylistId(initialId);
 
+      let initTracks = loadedTracks;
       if (initialId === 'none') {
-        setCurrentQueue([]);
-        setCurrentTrackIndex(-1);
-      } else {
+        initTracks = [];
+      } else if (initialId === 'favorites') {
+        const currentFavs = getFavoriteTrackIds();
+        initTracks = loadedTracks.filter((t) => isTrackFavorite(t, currentFavs));
+      } else if (initialId !== 'all') {
         const selPl = loadedPlaylists.find((p) => p.id === initialId);
-        let initTracks = loadedTracks;
-        if (initialId === 'favorites') {
-          const currentFavs = getFavoriteTrackIds();
-          initTracks = loadedTracks.filter((t) => isTrackFavorite(t, currentFavs));
-        } else if (selPl && initialId !== 'all' && Array.isArray(selPl.tracks)) {
+        if (selPl && Array.isArray(selPl.tracks)) {
           initTracks = loadedTracks.filter((t) =>
             selPl.tracks.some(
               (p) => typeof p === 'string' && (t.relativePath === p || t.relativePath.endsWith(p) || p.endsWith(t.relativePath))
             )
           );
         }
-        const sortedInit = getSortedTracks(initTracks, sortMode, sortDirection);
-        setCurrentQueue(sortedInit);
-        if (sortedInit.length > 0) {
-          setCurrentTrackIndex(0);
-        } else {
-          setCurrentTrackIndex(-1);
-        }
       }
 
-      if (!authData.authenticated && serverCfg.isLocked && serverCfg.lockedPlaylistId) {
-        setSelectedPlaylistId(serverCfg.lockedPlaylistId);
+      const sortedInit = getSortedTracks(initTracks, sortMode, sortDirection);
+      setCurrentQueue(sortedInit);
+
+      // Check for ?song= in URL for direct song focus (only if permitted for current session)
+      const urlParams = new URLSearchParams(window.location.search);
+      let songParam = urlParams.get('song');
+      if (!songParam && window.location.hash) {
+        const hashParams = new URLSearchParams(window.location.hash.replace(/^#\/?/, '?'));
+        songParam = hashParams.get('song');
+      }
+
+      let focusedIndex = -1;
+      if (songParam) {
+        const songAccess = await fetchSongAccess(songParam);
+        if (songAccess && songAccess.found && songAccess.allowed && songAccess.track) {
+          const targetTrack = songAccess.track;
+          focusedIndex = sortedInit.findIndex(
+            (t) => t.id === targetTrack.id || t.relativePath === targetTrack.relativePath
+          );
+        }
+        try {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } catch (e) { }
+      }
+
+      if (focusedIndex >= 0) {
+        setCurrentTrackIndex(focusedIndex);
+        setIsPlaying(true);
+      } else if (sortedInit.length > 0 && initialId !== 'none') {
+        setCurrentTrackIndex(0);
+      } else {
+        setCurrentTrackIndex(-1);
       }
     } catch (err) {
       console.error('Initialization error:', err);
@@ -372,9 +399,30 @@ export default function App() {
     });
 
     if (isPlaying) {
-      audioRef.current.play().catch((err) => console.warn('Autoplay notice:', err));
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((err) => {
+          console.warn('Autoplay blocked by browser policy:', err);
+          setIsPlaying(false);
+
+          const resumeAutoplay = () => {
+            if (audioRef.current) {
+              audioRef.current.play().then(() => {
+                setIsPlaying(true);
+              }).catch(() => { });
+            }
+            window.removeEventListener('pointerdown', resumeAutoplay);
+            window.removeEventListener('keydown', resumeAutoplay);
+          };
+
+          window.addEventListener('pointerdown', resumeAutoplay, { once: true });
+          window.addEventListener('keydown', resumeAutoplay, { once: true });
+        });
+      }
+    } else {
+      audioRef.current.pause();
     }
-  }, [currentTrack]);
+  }, [currentTrack?.id, isPlaying]);
 
   const selectedPlaylist = playlists.find((p) => p.id === selectedPlaylistId);
   let baseTrackList = tracks;
