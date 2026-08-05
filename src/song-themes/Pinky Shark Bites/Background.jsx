@@ -1,164 +1,34 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 
-// Forest & Blue Sky SVG Layer (Dense Woodland Forest, Pines & Deciduous Oaks, Brown Wood Trunks, Sunbeams & Floating Clouds)
 function ForestBackgroundSvg() {
   return (
-    <svg
-      viewBox="0 0 1440 900"
-      preserveAspectRatio="xMidYMid slice"
-      style={{
-        position: 'absolute',
-        inset: 0,
-        width: '100%',
-        height: '100%',
-        pointerEvents: 'none',
-      }}
-    >
-      <defs>
-        {/* Sky Gradient */}
-        <linearGradient id="forestSkyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#0369a1" />
-          <stop offset="35%" stopColor="#0284c7" />
-          <stop offset="65%" stopColor="#38bdf8" />
-          <stop offset="100%" stopColor="#bae6fd" />
-        </linearGradient>
-
-        {/* Sunbeam Light Rays */}
-        <linearGradient id="sunbeamGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="rgba(254, 240, 138, 0.35)" />
-          <stop offset="50%" stopColor="rgba(253, 230, 138, 0.15)" />
-          <stop offset="100%" stopColor="transparent" />
-        </linearGradient>
-
-        {/* Brown Wood Bark Trunk Gradient */}
-        <linearGradient id="treeBarkGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#291d09" />
-          <stop offset="45%" stopColor="#452715" />
-          <stop offset="80%" stopColor="#603813" />
-          <stop offset="100%" stopColor="#1e1406" />
-        </linearGradient>
-
-        {/* Distant Misty Mountain & Ridge Gradient */}
-        <linearGradient id="mistyForestGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#0d9488" />
-          <stop offset="100%" stopColor="#0f766e" />
-        </linearGradient>
-
-        {/* Midground Foliage Gradient */}
-        <linearGradient id="midFoliageGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#059669" />
-          <stop offset="100%" stopColor="#047857" />
-        </linearGradient>
-
-        {/* Foreground Deciduous Leaf Gradient */}
-        <linearGradient id="deciduousLeafGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#10b981" />
-          <stop offset="50%" stopColor="#047857" />
-          <stop offset="100%" stopColor="#064e3b" />
-        </linearGradient>
-
-        <linearGradient id="darkFoliageGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#064e3b" />
-          <stop offset="100%" stopColor="#022c22" />
-        </linearGradient>
-      </defs>
-
-      {/* 1. BLUE SKY BASE */}
-      <rect width="1440" height="900" fill="url(#forestSkyGrad)" />
-
-      {/* 2. GOLDEN SUNBEAMS THROUGH CANOPY */}
-      <polygon points="0,0 280,0 650,900 0,900" fill="url(#sunbeamGrad)" />
-      <polygon points="120,0 450,0 950,900 350,900" fill="url(#sunbeamGrad)" opacity="0.6" />
-      <polygon points="600,0 880,0 1250,900 750,900" fill="url(#sunbeamGrad)" opacity="0.4" />
-
-      {/* 3. FLUFFY DRIFTING SKY CLOUDS */}
-      <g fill="rgba(255, 255, 255, 0.75)" style={{ filter: 'drop-shadow(0 4px 12px rgba(255, 255, 255, 0.4))' }}>
-        <path d="M 150 140 Q 180 100 230 110 Q 280 90 330 120 Q 380 110 400 150 Q 420 180 370 190 L 140 190 Q 110 170 150 140 Z" opacity="0.8" />
-        <path d="M 850 90 Q 880 50 930 60 Q 980 40 1030 70 Q 1080 60 1100 100 Q 1120 130 1070 140 L 840 140 Q 810 120 850 90 Z" opacity="0.65" />
-        <path d="M 520 200 Q 550 170 590 180 Q 630 160 670 190 Q 700 180 720 210 Q 730 230 690 240 L 500 240 Q 480 220 520 200 Z" opacity="0.75" />
-      </g>
-
-      {/* 4. DISTANT MISTY MOUNTAIN & RIDGE SILHOUETTE */}
-      <path
-        d="M 0 520 Q 220 440 440 490 Q 660 430 880 470 Q 1100 410 1300 460 Q 1380 440 1440 470 L 1440 900 L 0 900 Z"
-        fill="url(#mistyForestGrad)"
-        opacity="0.45"
+    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+      <img
+        src="/UnderSea.svg"
+        alt="Under Sea"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          filter: 'brightness(0.62) contrast(1.12) saturate(1.05)',
+          pointerEvents: 'none',
+        }}
       />
-
-      {/* 5. DENSE MIDGROUND FOREST (PINES & DECIDUOUS CANOPY ACROSS ENTIRE HORIZON) */}
-      <g fill="url(#midFoliageGrad)" opacity="0.85">
-        <polygon points="10,580 90,380 170,580" />
-        <polygon points="50,600 140,360 230,600" />
-        <polygon points="180,620 260,390 340,620" />
-        <polygon points="320,600 400,370 480,600" />
-        <polygon points="450,620 530,400 610,620" />
-        <polygon points="580,590 660,380 740,590" />
-        <polygon points="710,610 790,390 870,610" />
-        <polygon points="840,580 920,360 1000,580" />
-        <polygon points="970,620 1050,400 1130,620" />
-        <polygon points="1100,590 1180,370 1260,590" />
-        <polygon points="1230,610 1310,380 1390,610" />
-        <polygon points="1350,580 1420,390 1490,580" />
-
-        <path d="M 140 480 C 100 430 120 360 180 350 C 240 340 280 400 260 460 C 310 480 300 550 240 580 Z" />
-        <path d="M 420 490 C 380 440 400 370 460 360 C 520 350 560 410 540 470 C 590 490 580 560 520 590 Z" />
-        <path d="M 720 480 C 680 430 700 360 760 350 C 820 340 860 400 840 460 C 890 480 880 550 820 580 Z" />
-        <path d="M 1020 490 C 980 440 1000 370 1060 360 C 1120 350 1160 410 1140 470 C 1190 490 1180 560 1120 590 Z" />
-      </g>
-
-      <g fill="url(#treeBarkGrad)" style={{ filter: 'drop-shadow(4px 0 8px rgba(0,0,0,0.4))' }}>
-        <polygon points="40,900 52,320 68,320 80,900" />
-        <polygon points="120,900 135,250 155,250 170,900" />
-        <path d="M 220 900 L 245 380 L 270 380 L 300 900 Z" />
-        <path d="M 250 490 Q 200 440 170 410 L 182 395 Q 215 425 254 468 Z" />
-
-        <polygon points="480,900 492,340 508,340 520,900" />
-        <polygon points="760,900 772,330 788,330 800,900" />
-        <polygon points="980,900 992,350 1008,350 1020,900" />
-
-        <path d="M 1160 900 L 1185 380 L 1210 380 L 1240 900 Z" />
-        <path d="M 1195 490 Q 1145 440 1115 410 L 1127 395 Q 1160 425 1199 468 Z" />
-        <polygon points="1290,900 1305,250 1325,250 1340,900" />
-        <polygon points="1380,900 1392,320 1408,320 1420,900" />
-      </g>
-
-      <g>
-        <path
-          d="M 180 390 C 140 340 150 260 220 240 C 260 220 320 250 330 300 C 380 290 410 350 390 410 C 370 470 300 490 250 470 C 200 490 160 440 180 390 Z"
-          fill="url(#deciduousLeafGrad)"
-          style={{ filter: 'drop-shadow(0 6px 14px rgba(0,0,0,0.4))' }}
-        />
-        <polygon points="-40,390 60,130 160,390" fill="url(#darkFoliageGrad)" />
-        <polygon points="20,350 145,100 270,350" fill="url(#deciduousLeafGrad)" />
-
-        <polygon points="420,410 500,160 580,410" fill="url(#darkFoliageGrad)" />
-        <path
-          d="M 440 400 C 400 350 410 270 480 250 C 520 230 580 260 590 310 C 640 300 670 360 650 420 C 630 480 560 500 510 480 C 460 500 420 450 440 400 Z"
-          fill="url(#deciduousLeafGrad)"
-          style={{ filter: 'drop-shadow(0 6px 14px rgba(0,0,0,0.35))' }}
-        />
-        <polygon points="700,410 780,150 860,410" fill="url(#darkFoliageGrad)" />
-        <path
-          d="M 920 410 C 880 360 890 280 960 260 C 1000 240 1060 270 1070 320 C 1120 310 1150 370 1130 430 C 1110 490 1040 510 990 490 C 940 510 900 460 920 410 Z"
-          fill="url(#deciduousLeafGrad)"
-          style={{ filter: 'drop-shadow(0 6px 14px rgba(0,0,0,0.35))' }}
-        />
-
-        <path
-          d="M 1100 390 C 1060 340 1070 260 1140 240 C 1180 220 1240 250 1250 300 C 1300 290 1330 350 1310 410 C 1290 470 1220 490 1170 470 C 1120 490 1080 440 1100 390 Z"
-          fill="url(#deciduousLeafGrad)"
-          style={{ filter: 'drop-shadow(0 6px 14px rgba(0,0,0,0.4))' }}
-        />
-        <polygon points="1230,410 1315,150 1400,410" fill="url(#darkFoliageGrad)" />
-        <polygon points="1310,390 1400,140 1490,390" fill="url(#deciduousLeafGrad)" />
-
-        <path d="M 0 710 Q 360 650 720 690 Q 1080 630 1440 670 L 1440 900 L 0 900 Z" fill="#022c22" />
-      </g>
-    </svg>
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'rgba(2, 18, 38, 0.25)',
+          pointerEvents: 'none',
+        }}
+      />
+    </div>
   );
 }
 
-function SharkSvg({ id = '0', type = 'great-white', swishSpeed = '1.2s', glow = true, isScared = false }) {
+function SharkSvg({ id = '0', type = 'great-white', swishSpeed = '1.2s', chompSpeed = '0.9s', glow = true, isScared = false }) {
   const bodyGradId = `sharkBodyGrad_${id}`;
   const finFarGradId = `sharkFinFarGrad_${id}`;
   const finNearGradId = `sharkFinNearGrad_${id}`;
@@ -224,13 +94,13 @@ function SharkSvg({ id = '0', type = 'great-white', swishSpeed = '1.2s', glow = 
       </g>
 
       <path
-        d="M 62 16 L 50 1 L 40 4 L 48 16 Z"
+        d="M 62 16 L 50.06 6.28 L 40 4 L 48 16 Z"
         fill={`url(#${bodyGradId})`}
       />
       <path d="M 48 16 L 40 4 L 44 14 Z" fill="#1e293b" opacity="0.4" />
 
       <path
-        d="M 24 21 C 32 14 52 14 78 17 C 92 19 100 21 100 22 C 100 23 90 27 75 29 C 52 32 32 30 24 21 Z"
+        d="M 24 21 C 32 14 51.13 12.12 78.37 14.06 C 92.52 16.01 100 20 100 21 C 98 22.5 90.93 27.33 78.02 27.69 C 45.82 27.33 32 25 24 21 Z"
         fill={`url(#${bodyGradId})`}
       />
 
@@ -245,7 +115,33 @@ function SharkSvg({ id = '0', type = 'great-white', swishSpeed = '1.2s', glow = 
       <circle cx={88} cy={20} r="1.4" fill={isScared ? '#ef4444' : '#020617'} />
       <circle cx={88.3} cy={19.6} r="0.4" fill="#ffffff" opacity="0.9" />
 
-      <path d="M 94 22 L 92 22.5" stroke="#1e293b" strokeWidth="0.5" />
+      <g fill="#ffffff">
+        <polygon points="98,21 95,23.5 93,21.5" />
+        <polygon points="93,21.5 91,24 89,22" />
+        <polygon points="89,22 87,24.5 85,22.5" />
+      </g>
+
+      <g
+        className="shark-lower-jaw"
+        style={{
+          transformOrigin: '80px 24px',
+          animation: isScared
+            ? 'none'
+            : `sharkJawChomp ${chompSpeed} ease-in-out infinite alternate`,
+          transform: isScared ? 'rotate(22deg)' : undefined,
+        }}
+      >
+        <path d="M 80 23.5 C 88 23.5 95 22.8 98 21.5 C 93 27.5 86 28 80 26 Z" fill="#450a0a" />
+        <path
+          d="M 80 24 C 88 24 95 23 99 22 C 92.17 26.8 88.28 27.69 82.62 26.62 Z"
+          fill={`url(#${bodyGradId})`}
+        />
+        <g fill="#ffffff">
+          <polygon points="97,22 95,19.5 93,22.2" />
+          <polygon points="93,22.2 91,20 89,22.5" />
+          <polygon points="89,22.5 87,20.5 85,22.8" />
+        </g>
+      </g>
 
       <g
         className="shark-near-fin"
@@ -255,7 +151,7 @@ function SharkSvg({ id = '0', type = 'great-white', swishSpeed = '1.2s', glow = 
         }}
       >
         <path
-          d="M 60 24 L 46 38 L 40 36 L 54 23 Z"
+          d="M 60 24 L 52.19 31.05 L 40 36 L 54 23 Z"
           fill={`url(#${finNearGradId})`}
         />
       </g>
@@ -265,69 +161,68 @@ function SharkSvg({ id = '0', type = 'great-white', swishSpeed = '1.2s', glow = 
 
 function FairyHeroSvg() {
   return (
-    <svg viewBox="0 0 160 160" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
+    <img
+      src="/Fairy.svg"
+      alt="Hero Fairy"
+      style={{
+        width: '100%',
+        height: '100%',
+        objectFit: 'contain',
+        filter: 'drop-shadow(0 0 16px rgba(244, 114, 182, 0.9)) drop-shadow(0 0 28px rgba(192, 132, 252, 0.7))',
+        pointerEvents: 'none',
+      }}
+    />
+  );
+}
+
+function SparkleSvg({ color = '#fef08a' }) {
+  return (
+    <svg viewBox="0 0 40 40" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
       <defs>
-        <radialGradient id="fairyAuraGrad" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="rgba(244, 114, 182, 0.75)" />
-          <stop offset="55%" stopColor="rgba(192, 132, 252, 0.35)" />
-          <stop offset="85%" stopColor="rgba(250, 204, 21, 0.15)" />
-          <stop offset="100%" stopColor="transparent" />
-        </radialGradient>
-
-        <linearGradient id="fairyWingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="rgba(255, 255, 255, 0.95)" />
-          <stop offset="35%" stopColor="rgba(244, 114, 182, 0.7)" />
-          <stop offset="75%" stopColor="rgba(192, 132, 252, 0.6)" />
-          <stop offset="100%" stopColor="rgba(250, 204, 21, 0.8)" />
-        </linearGradient>
-
-        <radialGradient id="wandStarGlow" cx="50%" cy="50%" r="50%">
+        <radialGradient id={`sparkleGlow_${color.replace('#', '')}`} cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="#ffffff" />
-          <stop offset="35%" stopColor="#fef08a" />
-          <stop offset="70%" stopColor="#f472b6" />
+          <stop offset="45%" stopColor={color} stopOpacity="0.8" />
           <stop offset="100%" stopColor="transparent" />
         </radialGradient>
       </defs>
+      <circle cx="20" cy="20" r="18" fill={`url(#sparkleGlow_${color.replace('#', '')})`} opacity="0.85" />
+      <polygon points="20,2 23,17 38,20 23,23 20,38 17,23 2,20 17,17" fill="#ffffff" />
+      <polygon points="20,8 22,18 32,20 22,22 20,32 18,22 8,20 18,18" fill={color} />
+    </svg>
+  );
+}
 
-      <circle cx="80" cy="80" r="72" fill="url(#fairyAuraGrad)" />
+function FairyFlashBurstSvg() {
+  return (
+    <svg viewBox="0 0 240 240" style={{ width: '100%', height: '100%', overflow: 'visible', filter: 'blur(10px) drop-shadow(0 0 25px rgba(254, 240, 138, 0.9))' }}>
+      <defs>
+        <radialGradient id="flashBurstGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
+          <stop offset="35%" stopColor="#fef08a" stopOpacity="0.85" />
+          <stop offset="70%" stopColor="#f472b6" stopOpacity="0.5" />
+          <stop offset="100%" stopColor="transparent" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <circle cx="120" cy="120" r="110" fill="url(#flashBurstGrad)" />
+      <polygon points="120,25 129,111 215,120 129,129 120,215 111,129 25,120 111,111" fill="#ffffff" opacity="0.8" />
+      <polygon points="120,55 125,115 175,120 125,125 120,185 115,125 65,120 115,115" fill="#fef08a" opacity="0.85" />
+    </svg>
+  );
+}
 
-      <g style={{ filter: 'drop-shadow(0 0 12px #f472b6) drop-shadow(0 0 22px #c084fc)' }}>
-        <path d="M 78 62 C 35 15 10 20 8 45 C 6 70 52 75 76 68 Z" fill="url(#fairyWingGrad)" stroke="#fbcfe8" strokeWidth="1.2" />
-        <path d="M 82 62 C 125 15 150 20 152 45 C 154 70 108 75 84 68 Z" fill="url(#fairyWingGrad)" stroke="#fbcfe8" strokeWidth="1.2" />
-        <path d="M 78 68 C 30 75 25 105 45 120 C 65 125 75 95 78 76 Z" fill="url(#fairyWingGrad)" stroke="#facc15" strokeWidth="1" opacity="0.85" />
-        <path d="M 82 68 C 130 75 135 105 115 120 C 95 125 85 95 82 76 Z" fill="url(#fairyWingGrad)" stroke="#facc15" strokeWidth="1" opacity="0.85" />
-      </g>
-
-      <g className="fairy-curly-hair" fill="none" strokeLinecap="round">
-        <path d="M 72 37 C 62 30 58 42 62 52 C 65 60 74 62 76 56" stroke="#fbbf24" strokeWidth="5" opacity="0.95" />
-        <path d="M 78 34 C 70 28 62 34 65 42 C 68 46 75 42 74 38" stroke="#fef08a" strokeWidth="3" />
-        <path d="M 72 40 C 60 38 56 48 60 55 C 64 60 72 58 70 52" stroke="#fbbf24" strokeWidth="3.5" />
-        <path d="M 68 50 C 58 52 56 62 64 66 C 70 65 72 58 68 54" stroke="#fef08a" strokeWidth="2.5" />
-        <path d="M 82 35 C 88 30 94 36 90 42 C 86 46 80 42 82 38" stroke="#fbbf24" strokeWidth="3" />
-        <path d="M 76 32 C 80 27 86 31 84 36" stroke="#fef08a" strokeWidth="2.5" />
-      </g>
-
-      <g>
-        <path d="M 76 90 Q 72 112 68 132 M 84 90 Q 86 112 90 130" stroke="#fed7aa" strokeWidth="3.5" strokeLinecap="round" fill="none" />
-        <path d="M 74 64 C 55 85 62 96 80 96 C 98 96 105 85 86 64 Z" fill="#ec4899" style={{ filter: 'drop-shadow(0 4px 10px rgba(236, 72, 153, 0.6))' }} />
-        <path d="M 76 64 C 62 80 68 90 80 92 C 92 90 98 80 84 64 Z" fill="#f472b6" opacity="0.8" />
-        <path d="M 75 50 Q 80 47 85 50 L 86 64 L 74 64 Z" fill="#f472b6" />
-        <ellipse cx="80" cy="42" rx="6" ry="7" fill="#fed7aa" />
-        <path d="M 74 52 Q 65 62 68 70" fill="none" stroke="#fed7aa" strokeWidth="2.5" strokeLinecap="round" />
-        <path d="M 86 52 Q 98 44 110 36" fill="none" stroke="#fed7aa" strokeWidth="2.5" strokeLinecap="round" />
-        <circle cx="110" cy="36" r="2" fill="#fed7aa" />
-      </g>
-
-      <g>
-        <line x1="102" y1="42" x2="124" y2="24" stroke="#facc15" strokeWidth="2" strokeLinecap="round" />
-        <circle cx="124" cy="24" r="18" fill="url(#wandStarGlow)" />
-        <polygon points="124,12 127,20 136,24 127,28 124,36 121,28 112,24 121,20" fill="#ffffff" style={{ filter: 'drop-shadow(0 0 12px #ffffff)' }} />
-      </g>
-
-      <circle cx="24" cy="35" r="2.5" fill="#fef08a" style={{ filter: 'drop-shadow(0 0 5px #fef08a)' }} />
-      <circle cx="140" cy="72" r="2.2" fill="#f472b6" style={{ filter: 'drop-shadow(0 0 4px #f472b6)' }} />
-      <circle cx="40" cy="115" r="2.5" fill="#ffffff" style={{ filter: 'drop-shadow(0 0 4px #ffffff)' }} />
-      <circle cx="120" cy="122" r="3" fill="#fef08a" style={{ filter: 'drop-shadow(0 0 6px #fef08a)' }} />
+function BubbleSvg() {
+  return (
+    <svg viewBox="0 0 40 40" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
+      <defs>
+        <radialGradient id="bubbleGrad" cx="35%" cy="35%" r="60%">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.9" />
+          <stop offset="40%" stopColor="#7dd3fc" stopOpacity="0.45" />
+          <stop offset="85%" stopColor="#0284c7" stopOpacity="0.15" />
+          <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.55" />
+        </radialGradient>
+      </defs>
+      <circle cx="20" cy="20" r="18" fill="url(#bubbleGrad)" stroke="rgba(255, 255, 255, 0.75)" strokeWidth="1.2" />
+      <ellipse cx="14" cy="13" rx="5" ry="3" fill="#ffffff" opacity="0.8" transform="rotate(-30 14 13)" />
     </svg>
   );
 }
@@ -341,6 +236,9 @@ function getUprightTransform(vx, vy, extraScaleY = 1) {
 }
 
 const PINKY_SHARK_MENTIONS = [22.0, 32.0, 48.0, 52.0, 63.0, 66.0, 104.0, 124.0, 128.0, 138.0, 142.0];
+const SPARKLE_COLORS = ['#ffffff', '#fef08a', '#f472b6', '#c084fc', '#38bdf8'];
+const SPARKLE_COUNT = 32;
+const BUBBLE_COUNT = 30;
 
 export default function ScriptedPinkySharkBackground({ currentTrack, currentTime = 0, isPlaying }) {
   const vinylCenterRef = useRef({ x: 50, y: 50, rx: 20, ry: 15 });
@@ -350,20 +248,23 @@ export default function ScriptedPinkySharkBackground({ currentTrack, currentTime
   const bgSharkRefs = useRef([]);
   const fgSharkRefs = useRef([]);
   const fairyRef = useRef(null);
+  const flashRef = useRef(null);
+  const sparkleRefs = useRef([]);
+  const bubbleRefs = useRef([]);
 
   const sharksConfig = useMemo(() => {
     const arr = [];
-    const count = 29;
+    const count = 28;
     let spawnTime = 0;
     for (let i = 0; i < count; i++) {
-      const mentionIdx = i % PINKY_SHARK_MENTIONS.length; // map to lyric mentions
+      const mentionIdx = i % PINKY_SHARK_MENTIONS.length;
       spawnTime = PINKY_SHARK_MENTIONS[mentionIdx];
-
 
       const radiusOffset = (i % 5) * 2.5;
       const speedMultiplier = 0.52 + (i % 7) * 0.05 + (i % 3) * 0.02;
-      const lineSpeed = 16 + (i % 7) * 4 + (i % 3) * 2;
+      const lineSpeed = 7 + (i % 5) * 2.2 + (i % 3) * 1.1;
       const swishSpeed = `${(0.8 + (i % 5) * 0.15).toFixed(2)}s`;
+      const chompSpeed = `${(0.75 + (i % 6) * 0.12).toFixed(2)}s`;
       const baseAngle = (i / count) * Math.PI * 2;
       const size = 85 + (i % 4) * 16;
       const isLeft = i % 2 === 0;
@@ -381,6 +282,7 @@ export default function ScriptedPinkySharkBackground({ currentTrack, currentTime
         baseAngle,
         size,
         swishSpeed,
+        chompSpeed,
         startX,
         startY,
         lineY,
@@ -399,9 +301,43 @@ export default function ScriptedPinkySharkBackground({ currentTrack, currentTime
       y: cfg.startY,
       vx: cfg.lineDir,
       vy: 0,
-      state: 'OFF_STAGE', // OFF_STAGE, ENTERING, CIRCLING, PATROLLING, FLEEING
+      state: 'OFF_STAGE',
     }));
   }
+
+  const sparklesStateRef = useRef([]);
+  if (sparklesStateRef.current.length === 0) {
+    for (let i = 0; i < SPARKLE_COUNT; i++) {
+      sparklesStateRef.current.push({
+        x: -200,
+        y: -200,
+        vx: 0,
+        vy: 0,
+        life: 0,
+        maxLife: 0.8,
+        size: 24,
+        color: SPARKLE_COLORS[i % SPARKLE_COLORS.length],
+      });
+    }
+  }
+
+  // Pre-allocated Kinematic Bubbles initialized across the scene at t=0
+  const bubblesStateRef = useRef([]);
+  if (bubblesStateRef.current.length === 0) {
+    for (let i = 0; i < BUBBLE_COUNT; i++) {
+      bubblesStateRef.current.push({
+        x: 5 + (i * 3.1 + Math.random() * 4) % 90,
+        y: (i * 3.5 + Math.random() * 10) % 105,
+        speed: 4.5 + (i % 5) * 1.5 + Math.random() * 1.2,
+        wobbleSpeed: 1.2 + (i % 3) * 0.6,
+        wobbleAmp: 1.2 + (i % 4) * 0.8,
+        size: 10 + (i % 5) * 4.5,
+        opacity: 0.35 + (i % 4) * 0.12,
+      });
+    }
+  }
+
+  const spawnTimerRef = useRef(0);
 
   useEffect(() => {
     const updateVinylPosition = () => {
@@ -439,7 +375,6 @@ export default function ScriptedPinkySharkBackground({ currentTrack, currentTime
     }
   }, [currentTime]);
 
-  // Behavior Engine & Kinematic Damped Steering (60fps rAF)
   useEffect(() => {
     let lastPerfTime = performance.now();
 
@@ -455,6 +390,26 @@ export default function ScriptedPinkySharkBackground({ currentTrack, currentTime
       const secTime = Math.floor(time);
       const { x: centerX, y: centerY, rx: baseRx, ry: baseRy } = vinylCenterRef.current;
 
+      // 1. Process Kinematic Underwater Bubbles (Active from t=0)
+      bubblesStateRef.current.forEach((b, i) => {
+        const el = bubbleRefs.current[i];
+        if (!el) return;
+
+        b.y -= b.speed * delta;
+        b.x += Math.sin(time * b.wobbleSpeed + i * 1.5) * b.wobbleAmp * delta;
+
+        if (b.y < -8) {
+          b.y = 105;
+          b.x = 5 + (i * 7 + Math.random() * 15) % 90;
+        }
+
+        el.style.display = 'block';
+        el.style.left = `${b.x}vw`;
+        el.style.top = `${b.y}vh`;
+        el.style.opacity = b.opacity;
+        el.style.transform = `translate3d(-50%, -50%, 0)`;
+      });
+
       let globalSignal = 'CIRCLING';
       if (secTime >= 183) globalSignal = 'FAIRY_HUNTING';
       else if (secTime >= 172) globalSignal = 'CIRCLING';
@@ -462,9 +417,10 @@ export default function ScriptedPinkySharkBackground({ currentTrack, currentTime
       else if (secTime >= 106) globalSignal = 'CIRCLING';
       else if (secTime >= 74) globalSignal = 'PATROLLING';
 
-      const huntStartTime = 180.0;
+      const huntStartTime = 183.0;
       const huntDurationPerShark = 1.9;
 
+      // 2. Process Sharks Kinematic Steering
       sharksConfig.forEach((cfg, i) => {
         const bgEl = bgSharkRefs.current[i];
         const fgEl = fgSharkRefs.current[i];
@@ -505,10 +461,11 @@ export default function ScriptedPinkySharkBackground({ currentTrack, currentTime
           ty = centerY + Math.sin(cfg.scatterAngle) * (baseRy + 15 + fleeDist);
           isInFront = true;
         } else if (sharkState.state === 'PATROLLING') {
-          const startTime = time >= 118.0 ? 118.0 : 77.0;
+          const startTime = time >= 149.0 ? 149.0 : 74.0;
           const lineTime = time - startTime;
-          const rawX = ((lineTime * cfg.lineSpeed + cfg.id * 35) % 160) - 30;
-          tx = cfg.lineDir === 1 ? rawX : 100 - rawX;
+          const phaseAngle = lineTime * cfg.lineSpeed * 0.08 + cfg.id * 0.45;
+          const pingPong = (Math.sin(phaseAngle) + 1) / 2;
+          tx = -15 + pingPong * 130;
           ty = cfg.lineY;
           isInFront = true;
         } else {
@@ -555,11 +512,13 @@ export default function ScriptedPinkySharkBackground({ currentTrack, currentTime
         }
       });
 
-      if (fairyRef.current) {
-        let fairyX = -200;
-        let fairyY = -200;
-        let fairyOpacity = 0;
+      // 3. Process Hero Fairy Motion & Entrance Flash Burst
+      let currentFairyX = -200;
+      let currentFairyY = -200;
+      let fairyOpacity = 0;
+      let fairyScale = 1.0;
 
+      if (fairyRef.current) {
         if (globalSignal === 'FAIRY_HUNTING') {
           fairyOpacity = 1.0;
           const huntElapsed = Math.max(0, time - huntStartTime);
@@ -568,19 +527,17 @@ export default function ScriptedPinkySharkBackground({ currentTrack, currentTime
           if (huntElapsed < totalHuntTime) {
             const huntIdx = Math.min(sharksConfig.length - 1, Math.floor(huntElapsed / huntDurationPerShark));
             const targetSharkState = sharksStateRef.current[huntIdx];
-            const targetSharkConfig = sharksConfig[huntIdx];
-
             const subProgress = (huntElapsed % huntDurationPerShark) / huntDurationPerShark;
 
-            let prevX = centerX - baseRx - 15;
-            let prevY = centerY - baseRy - 15;
+            let prevX = sharksStateRef.current[0].x;
+            let prevY = sharksStateRef.current[0].y;
             if (huntIdx > 0) {
               prevX = sharksStateRef.current[huntIdx - 1].x;
               prevY = sharksStateRef.current[huntIdx - 1].y;
             }
 
-            fairyX = prevX + (targetSharkState.x - prevX) * Math.min(1.0, subProgress * 1.2);
-            fairyY = prevY + (targetSharkState.y - prevY) * Math.min(1.0, subProgress * 1.2);
+            currentFairyX = prevX + (targetSharkState.x - prevX) * Math.min(1.0, subProgress * 1.2);
+            currentFairyY = prevY + (targetSharkState.y - prevY) * Math.min(1.0, subProgress * 1.2);
           } else {
             const hoverElapsed = huntElapsed - totalHuntTime;
             const targetHoverX = centerX - baseRx * 0.55;
@@ -591,17 +548,78 @@ export default function ScriptedPinkySharkBackground({ currentTrack, currentTime
             const startHoverY = lastSharkState.y;
 
             const glideProgress = Math.min(1.0, hoverElapsed / 2.5);
+            fairyScale = 1.0 + glideProgress * 0.5;
 
-            fairyX = startHoverX + (targetHoverX - startHoverX) * glideProgress + Math.sin(time * 1.2) * 1.5;
-            fairyY = startHoverY + (targetHoverY - startHoverY) * glideProgress + Math.cos(time * 1.2) * 1.5;
+            currentFairyX = startHoverX + (targetHoverX - startHoverX) * glideProgress + Math.sin(time * 1.2) * 1.5;
+            currentFairyY = startHoverY + (targetHoverY - startHoverY) * glideProgress + Math.cos(time * 1.2) * 1.5;
           }
+
+          if (flashRef.current) {
+            if (huntElapsed >= 0 && huntElapsed <= 0.75) {
+              const flashProgress = huntElapsed / 0.75;
+              const flashScale = 0.3 + flashProgress * 2.2;
+              const flashOpacity = Math.sin(flashProgress * Math.PI);
+
+              flashRef.current.style.display = 'block';
+              flashRef.current.style.left = `${currentFairyX}vw`;
+              flashRef.current.style.top = `${currentFairyY}vh`;
+              flashRef.current.style.opacity = flashOpacity;
+              flashRef.current.style.transform = `translate3d(-50%, -50%, 0) scale(${flashScale})`;
+            } else {
+              flashRef.current.style.display = 'none';
+            }
+          }
+        } else {
+          if (flashRef.current) flashRef.current.style.display = 'none';
         }
 
-        fairyRef.current.style.left = `${fairyX}vw`;
-        fairyRef.current.style.top = `${fairyY}vh`;
+        fairyRef.current.style.left = `${currentFairyX}vw`;
+        fairyRef.current.style.top = `${currentFairyY}vh`;
         fairyRef.current.style.opacity = fairyOpacity;
-        fairyRef.current.style.transform = `translate3d(-50%, -50%, 0)`;
+        fairyRef.current.style.transform = `translate3d(-50%, -50%, 0) scale(${fairyScale})`;
       }
+
+      // 4. Process Glowing Sparkle Trail Engine
+      if (globalSignal === 'FAIRY_HUNTING' && fairyOpacity > 0 && currentFairyX > -100) {
+        spawnTimerRef.current += delta;
+        if (spawnTimerRef.current >= 0.04) {
+          spawnTimerRef.current = 0;
+          const deadIdx = sparklesStateRef.current.findIndex((p) => p.life <= 0);
+          if (deadIdx !== -1) {
+            const p = sparklesStateRef.current[deadIdx];
+            p.x = currentFairyX + (Math.random() - 0.5) * 3.5;
+            p.y = currentFairyY + (Math.random() - 0.5) * 3.5;
+            p.vx = (Math.random() - 0.5) * 8.0;
+            p.vy = (Math.random() - 0.5) * 8.0 - 5.0;
+            p.life = 0.55 + Math.random() * 0.45;
+            p.maxLife = p.life;
+            p.size = 14 + Math.random() * 18;
+          }
+        }
+      }
+
+      sparklesStateRef.current.forEach((p, i) => {
+        const el = sparkleRefs.current[i];
+        if (!el) return;
+
+        if (p.life > 0) {
+          p.life -= delta;
+          p.x += p.vx * delta;
+          p.y += p.vy * delta;
+
+          const lifeRatio = Math.max(0, p.life / p.maxLife);
+          const opacity = Math.sin(lifeRatio * Math.PI) * 0.95;
+          const scale = 0.3 + lifeRatio * 0.85;
+
+          el.style.display = 'block';
+          el.style.left = `${p.x}vw`;
+          el.style.top = `${p.y}vh`;
+          el.style.opacity = opacity;
+          el.style.transform = `translate3d(-50%, -50%, 0) scale(${scale})`;
+        } else {
+          el.style.display = 'none';
+        }
+      });
 
       if (isPlaying) {
         animFrameRef.current = requestAnimationFrame(renderFrame);
@@ -623,6 +641,26 @@ export default function ScriptedPinkySharkBackground({ currentTrack, currentTime
       <div className="pinky-shark-canvas-bg" aria-hidden="true">
         <ForestBackgroundSvg />
 
+        {/* Kinematic Underwater Floating Bubbles (Active from t=0) */}
+        {bubblesStateRef.current.map((b, i) => (
+          <div
+            key={`bubble_${i}`}
+            ref={(el) => (bubbleRefs.current[i] = el)}
+            className="pinky-shark-item"
+            style={{
+              display: 'block',
+              width: `${b.size}px`,
+              height: `${b.size}px`,
+              left: `${b.x}vw`,
+              top: `${b.y}vh`,
+              opacity: b.opacity,
+              zIndex: 1,
+            }}
+          >
+            <BubbleSvg />
+          </div>
+        ))}
+
         {sharksConfig.map((shark, i) => (
           <div
             key={shark.id}
@@ -634,12 +672,41 @@ export default function ScriptedPinkySharkBackground({ currentTrack, currentTime
               height: `${shark.size * 0.42}px`,
             }}
           >
-            <SharkSvg id={`bg_${shark.id}`} type={shark.id % 2 === 0 ? 'great-white' : 'hammerhead'} swishSpeed={shark.swishSpeed} />
+            <SharkSvg id={`bg_${shark.id}`} type={shark.id % 2 === 0 ? 'great-white' : 'hammerhead'} swishSpeed={shark.swishSpeed} chompSpeed={shark.chompSpeed} />
           </div>
         ))}
       </div>
 
       <div className="pinky-shark-canvas-fg" aria-hidden="true">
+        {sparklesStateRef.current.map((p, i) => (
+          <div
+            key={`sparkle_${i}`}
+            ref={(el) => (sparkleRefs.current[i] = el)}
+            className="pinky-shark-item"
+            style={{
+              display: 'none',
+              width: `${p.size}px`,
+              height: `${p.size}px`,
+              zIndex: 998,
+            }}
+          >
+            <SparkleSvg color={p.color} />
+          </div>
+        ))}
+
+        <div
+          ref={flashRef}
+          className="pinky-shark-item"
+          style={{
+            display: 'none',
+            width: '260px',
+            height: '260px',
+            zIndex: 1000,
+          }}
+        >
+          <FairyFlashBurstSvg />
+        </div>
+
         {sharksConfig.map((shark, i) => (
           <div
             key={shark.id}
@@ -651,7 +718,7 @@ export default function ScriptedPinkySharkBackground({ currentTrack, currentTime
               height: `${shark.size * 0.42}px`,
             }}
           >
-            <SharkSvg id={`fg_${shark.id}`} type={shark.id % 2 === 0 ? 'great-white' : 'hammerhead'} swishSpeed={shark.swishSpeed} />
+            <SharkSvg id={`fg_${shark.id}`} type={shark.id % 2 === 0 ? 'great-white' : 'hammerhead'} swishSpeed={shark.swishSpeed} chompSpeed={shark.chompSpeed} />
           </div>
         ))}
 
@@ -662,6 +729,7 @@ export default function ScriptedPinkySharkBackground({ currentTrack, currentTime
             opacity: 0,
             width: '120px',
             height: '120px',
+            zIndex: 999,
           }}
         >
           <FairyHeroSvg />

@@ -17,8 +17,15 @@ export default {
     '--shadow-ruby': '0 0 30px rgba(56, 189, 248, 0.5)',
     '--bg-primary': '#0369a1',
     '--text-primary': '#f0f9ff',
+    '--live-lyrics-text': '#f472b6',
+    '--live-lyrics-active-glow': 'rgba(244, 114, 182, 0.85)',
   },
   css: `
+    body.theme-pinky-shark-bites .live-lyric-line.active {
+      color: #f472b6 !important;
+      text-shadow: none !important;
+    }
+
     .pinky-shark-canvas-bg {
       display: block;
       position: fixed;
@@ -68,6 +75,11 @@ export default {
     @keyframes sharkFinMoveFar {
       0% { transform: rotate(6deg); }
       100% { transform: rotate(-6deg); }
+    }
+    @keyframes sharkJawChomp {
+      0%, 25% { transform: rotate(0deg); }
+      50%, 75% { transform: rotate(18deg); }
+      100% { transform: rotate(0deg); }
     }
   `,
   Background: () => import('./Background.jsx'),
