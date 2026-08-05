@@ -92,6 +92,36 @@ function getSortedTracks(tracksList, mode, direction) {
   return indexed.map((item) => item.track);
 }
 
+function generateClientArtistPlaylists(tracksList) {
+  if (!Array.isArray(tracksList) || tracksList.length === 0) return [];
+
+  const artistMap = {};
+  for (const track of tracksList) {
+    if (!track) continue;
+    const artistName = (track.artist || track.albumArtist || 'Unknown Artist').trim();
+    if (!artistName) continue;
+    if (!artistMap[artistName]) {
+      artistMap[artistName] = [];
+    }
+    const trackIdentifier = track.relativePath || track.id;
+    if (trackIdentifier) {
+      artistMap[artistName].push(trackIdentifier);
+    }
+  }
+
+  const artistPlaylists = Object.keys(artistMap)
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
+    .map((artistName) => ({
+      id: `artist-${encodeURIComponent(artistName)}`,
+      name: artistName,
+      relativePath: `artist-${encodeURIComponent(artistName)}`,
+      tracks: artistMap[artistName],
+      isArtistPlaylist: true,
+    }));
+
+  return artistPlaylists;
+}
+
 export default function App() {
   const [config, setConfig] = useState({
     mediaFolder: '',
@@ -282,7 +312,16 @@ export default function App() {
 
       const scanData = await scanMediaFolder();
       const loadedTracks = scanData.files || [];
-      const loadedPlaylists = scanData.playlists || [];
+      const serverPlaylists = (scanData.playlists || []).filter((p) => !p.isArtistPlaylist);
+      const clientArtistPlaylists = generateClientArtistPlaylists(loadedTracks);
+      const loadedPlaylists = [...serverPlaylists, ...clientArtistPlaylists];
+
+      loadedPlaylists.sort((a, b) => {
+        if (Boolean(a.isArtistPlaylist) !== Boolean(b.isArtistPlaylist)) {
+          return a.isArtistPlaylist ? 1 : -1;
+        }
+        return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+      });
 
       setTracks(loadedTracks);
       setPlaylists(loadedPlaylists);

@@ -421,19 +421,15 @@ export async function scanAndParseServerFolder() {
     return { files: [], playlists: [] };
   }
 
-  generateAndSyncArtistPlaylists(targetFolder);
-
-  const { files: rawFiles, playlists } = scanDirectoryFiles(targetFolder, targetFolder);
+  const { files: rawFiles, playlists: rawPlaylists } = scanDirectoryFiles(targetFolder, targetFolder);
+  const playlists = rawPlaylists.filter((p) => !p.isArtistPlaylist);
 
   playlists.sort((a, b) => {
-    if (Boolean(a.isArtistPlaylist) !== Boolean(b.isArtistPlaylist)) {
-      return a.isArtistPlaylist ? 1 : -1;
-    }
     return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
   });
 
   scannedPlaylistsCache = playlists;
-  console.log(`[Server Scanner] Discovered ${rawFiles.length} audio file(s) and ${playlists.length} playlist(s) in "${targetFolder}".`);
+  console.log(`[Server Scanner] Discovered ${rawFiles.length} audio file(s) and ${playlists.length} user playlist(s) in "${targetFolder}".`);
 
   const parsedTracks = [];
   let cacheUpdated = false;
